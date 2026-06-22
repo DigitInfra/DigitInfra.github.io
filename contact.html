@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="fr" data-lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact — DigitInfra</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site">
+  <div class="container nav-row">
+    <a class="brand" href="index.html" aria-label="DigitInfra — accueil">
+      <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6 34L20 8" stroke="#0D2B5C" stroke-width="3" stroke-linecap="round"/>
+        <path d="M11 34L20 14" stroke="#0D2B5C" stroke-width="2" stroke-linecap="round"/>
+        <path d="M4 36C12 30 18 30 24 34" stroke="#0D2B5C" stroke-width="3" stroke-linecap="round" fill="none"/>
+        <rect x="25" y="12" width="5" height="24" fill="#00C2CB"/>
+        <rect x="33" y="27" width="5" height="5" fill="#00C2CB" opacity="0.9"/>
+        <rect x="40" y="29" width="4" height="4" fill="#00C2CB" opacity="0.6"/>
+        <rect x="46" y="31" width="3" height="3" fill="#00C2CB" opacity="0.35"/>
+      </svg>
+      <span class="brand-word"><span class="b1">Digit</span><span class="b2">Infra</span></span>
+    </a>
+    <nav class="links">
+      <a href="index.html"><span data-fr-only>Accueil</span><span data-en-only>Home</span></a>
+      <a href="about.html"><span data-fr-only>Vision &amp; Groupe</span><span data-en-only>Vision &amp; Group</span></a>
+      <a href="services.html">Services</a>
+      <a href="ginco.html">GIN²CO</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <div style="display:flex; align-items:center; gap:14px;">
+      <div class="lang-toggle">
+        <button data-lang-btn="fr" class="active">FR</button>
+        <button data-lang-btn="en">EN</button>
+      </div>
+      <button class="menu-btn" aria-label="Menu" aria-expanded="false"><span></span></button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero" style="padding-bottom:10px;">
+    <div class="container" style="max-width:700px;">
+      <p class="eyebrow">Contact</p>
+      <h1><span data-fr-only>Discutons de votre projet</span><span data-en-only>Let's talk about your project</span></h1>
+      <p class="lead">
+        <span data-fr-only>Mission BIM en France, partenariat institutionnel autour de GIN²CO, ou simple question — écrivez directement, réponse sous 48h ouvrées.</span>
+        <span data-en-only>A BIM mission in France, an institutional partnership around GIN²CO, or a simple question — write in directly, response within 48 business hours.</span>
+      </p>
+    </div>
+  </section>
+
+  <section class="tight">
+    <div class="container contact-grid">
+      <div>
+        <div class="contact-item">
+          <p class="label">EMAIL</p>
+          <a href="mailto:olanirainoloukou@gmail.com">olanirainoloukou@gmail.com</a>
+        </div>
+        <div class="contact-item">
+          <p class="label"><span data-fr-only>BASÉ À</span><span data-en-only>BASED IN</span></p>
+          <p style="font-weight:600; color:var(--navy); margin:0;">
+            <span data-fr-only>Paris, France &nbsp;·&nbsp; Cotonou, Bénin</span>
+            <span data-en-only>Paris, France &nbsp;·&nbsp; Cotonou, Benin</span>
+          </p>
+        </div>
+        <div class="contact-item">
+          <p class="label"><span data-fr-only>DISPONIBILITÉ</span><span data-en-only>AVAILABILITY</span></p>
+          <p style="font-weight:600; color:var(--navy); margin:0;">
+            <span data-fr-only>Missions BIM France — 2026</span>
+            <span data-en-only>BIM missions, France — 2026</span>
+          </p>
+        </div>
+        <hr class="divider" style="margin:28px 0;">
+        <p style="font-size:.88rem; color:var(--steel);">
+          <span data-fr-only>Pour une demande de partenariat institutionnel autour de GIN²CO, merci de préciser la structure que vous représentez et le territoire concerné.</span>
+          <span data-en-only>For an institutional partnership request around GIN²CO, please specify the organisation you represent and the relevant territory.</span>
+        </p>
+      </div>
+
+      <form class="contact-form" action="mailto:olanirainoloukou@gmail.com" method="GET" enctype="text/plain">
+        <div>
+          <label for="name"><span data-fr-only>Nom</span><span data-en-only>Name</span></label>
+          <input id="name" name="name" type="text" required>
+        </div>
+        <div>
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" required>
+        </div>
+        <div>
+          <label for="subject"><span data-fr-only>Sujet</span><span data-en-only>Subject</span></label>
+          <select id="subject" name="subject">
+            <option data-fr-text="Mission BIM (France)" data-en-text="BIM mission (France)">Mission BIM (France)</option>
+            <option data-fr-text="GIN²CO — partenariat institutionnel" data-en-text="GIN²CO — institutional partnership">GIN²CO — partenariat institutionnel</option>
+            <option data-fr-text="Autre" data-en-text="Other">Autre</option>
+          </select>
+        </div>
+        <div>
+          <label for="message"><span data-fr-only>Message</span><span data-en-only>Message</span></label>
+          <textarea id="message" name="body" required></textarea>
+        </div>
+        <button class="btn btn-primary btn-arrow" type="submit" style="align-self:flex-start;">
+          <span data-fr-only>Envoyer</span><span data-en-only>Send</span>
+        </button>
+        <p style="font-size:.78rem; color:var(--steel); margin-top:-6px;">
+          <span data-fr-only>Ouvre votre client mail habituel avec le message pré-rempli.</span>
+          <span data-en-only>Opens your default email client with the message pre-filled.</span>
+        </p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="container">
+    <div class="foot-grid">
+      <div>
+        <span class="brand-word"><span style="color:#fff;">Digit</span><span style="color:var(--teal);">Infra</span></span>
+        <p style="margin-top:14px; color:#9FB6D6; font-size:.92rem;">
+          <span data-fr-only>Conseil BIM &amp; jumeaux numériques d'infrastructure — France · Bénin.</span>
+          <span data-en-only>BIM consulting &amp; infrastructure digital twins — France · Benin.</span>
+        </p>
+      </div>
+      <div>
+        <p class="mono" style="font-size:.74rem; letter-spacing:.08em; color:#7E9AC4; margin-bottom:14px;">NAVIGATION</p>
+        <p style="margin-bottom:8px;"><a href="about.html"><span data-fr-only>Vision &amp; Groupe</span><span data-en-only>Vision &amp; Group</span></a></p>
+        <p style="margin-bottom:8px;"><a href="services.html">Services</a></p>
+        <p style="margin-bottom:8px;"><a href="ginco.html">GIN²CO</a></p>
+      </div>
+      <div>
+        <p class="mono" style="font-size:.74rem; letter-spacing:.08em; color:#7E9AC4; margin-bottom:14px;">CONTACT</p>
+        <p style="margin-bottom:8px;"><a href="mailto:olanirainoloukou@gmail.com">olanirainoloukou@gmail.com</a></p>
+        <p style="margin-bottom:8px;"><a href="contact.html"><span data-fr-only>Formulaire de contact</span><span data-en-only>Contact form</span></a></p>
+      </div>
+    </div>
+    <div class="foot-coords">
+      <span>© 2026 DigitInfra. <span data-fr-only>Tous droits réservés.</span><span data-en-only>All rights reserved.</span></span>
+      <span>48.9°N, 2.5°E — PARIS &nbsp;·&nbsp; 6.4°N, 2.4°E — COTONOU</span>
+    </div>
+  </div>
+</footer>
+
+<script src="main.js"></script>
+</body>
+</html>
