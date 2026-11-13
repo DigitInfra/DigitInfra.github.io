@@ -23,8 +23,10 @@
     document.querySelectorAll('a[href]').forEach(function(a){
       var href = a.getAttribute('href');
       if(!href || href.indexOf('http') === 0 || href.indexOf('mailto:') === 0 || href.indexOf('tel:') === 0 || href.indexOf('#') === 0) return;
-      var base = href.split('?')[0];
-      a.setAttribute('href', base + '?lang=' + lang);
+      var parts = href.split('#');
+      var base = parts[0].split('?')[0];
+      var hash = parts[1] ? '#' + parts[1] : '';
+      a.setAttribute('href', base + '?lang=' + lang + hash);
     });
   }
 
@@ -57,7 +59,7 @@
 
     var here = window.location.pathname.split('/').pop() || 'index.html';
     document.querySelectorAll('nav.links a').forEach(function(a){
-      var target = a.getAttribute('href').split('?')[0];
+      var target = a.getAttribute('href').split('?')[0].split('#')[0];
       if(target === here) a.classList.add('active');
     });
   });
