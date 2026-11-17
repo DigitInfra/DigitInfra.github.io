@@ -49,6 +49,7 @@
       <p class="lead">
         <span data-fr-only>GIN²CO documente par le BIM le patrimoine public des villes et des États d'Afrique de l'Ouest, pour fonder son entretien, sa planification et son financement sur des données fiables et partagées.</span><span data-en-only>GIN²CO uses BIM to document the public assets of West African cities and states, so that their maintenance, planning and financing rest on reliable, shared data.</span>
       </p>
+      <div class="hero-cta"><a class="btn btn-ghost btn-arrow" href="#demo"><span data-fr-only>Voir la démonstration 3D</span><span data-en-only>See the 3D demonstration</span></a></div>
     </div>
   </section>
 
@@ -108,6 +109,45 @@
       </p>
     </div>
   </section>
+
+  <section id="demo" class="tight" style="padding-top:0;">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow"><span data-fr-only>Démonstration</span><span data-en-only>Demonstration</span></p>
+        <h2><span data-fr-only>Le jumeau numérique d'un dalot</span><span data-en-only>The digital twin of a box culvert</span></h2>
+        <div class="status"><span class="dot"></span><span data-fr-only>OUVRAGE FICTIF — DONNÉES DE DÉMONSTRATION</span><span data-en-only>FICTITIOUS STRUCTURE — DEMONSTRATION DATA</span></div>
+        <p><span data-fr-only>Un dalot double cellule modélisé en IFC 4 openBIM, enrichi de données patrimoniales : état, désordres, priorité et coût d'entretien. Le fichier est lu directement dans votre navigateur, sans logiciel propriétaire. Cliquez sur un élément pour consulter sa fiche, colorez la maquette selon un paramètre, filtrez et triez les éléments.</span><span data-en-only>A double-cell box culvert modelled in openBIM IFC 4 and enriched with asset data: condition, defects, maintenance priority and cost. The file is read directly in your browser, with no proprietary software. Click an element to see its record, colour the model by any parameter, filter and sort the elements.</span></p>
+      </div>
+      <div class="bv-placeholder" id="bim-viewer">
+        <svg viewBox="0 0 220 90" width="220" height="90" aria-hidden="true" fill="none">
+          <rect x="20" y="40" width="180" height="8" fill="#0D2B5C"/>
+          <rect x="20" y="48" width="8" height="30" fill="#0D2B5C"/><rect x="106" y="48" width="8" height="30" fill="#0D2B5C"/><rect x="192" y="48" width="8" height="30" fill="#0D2B5C"/>
+          <rect x="20" y="78" width="180" height="6" fill="#0D2B5C"/>
+          <rect x="8" y="30" width="204" height="6" fill="#00C2CB"/>
+          <rect x="150" y="18" width="7" height="7" fill="#00C2CB" opacity=".7"/><rect x="164" y="12" width="5" height="5" fill="#00C2CB" opacity=".45"/><rect x="176" y="8" width="4" height="4" fill="#00C2CB" opacity=".25"/>
+        </svg>
+        <button type="button" class="btn btn-primary btn-arrow" id="bim-load"><span data-fr-only>Charger la démonstration 3D</span><span data-en-only>Load the 3D demonstration</span></button>
+        <p class="mono bv-note"><span data-fr-only>≈ 1,2 Mo · IFC 4 lu dans le navigateur · aucune installation</span><span data-en-only>≈ 1.2 MB · IFC 4 read in the browser · nothing to install</span></p>
+        <a class="bv-dl" href="viewer/dalot-demo.ifc" download><span data-fr-only>Télécharger le fichier IFC (32 Ko)</span><span data-en-only>Download the IFC file (32 KB)</span></a>
+      </div>
+    </div>
+  </section>
+  <script type="module">
+    const btn = document.getElementById('bim-load');
+    btn.addEventListener('click', async () => {
+      const root = document.getElementById('bim-viewer');
+      btn.disabled = true;
+      try {
+        const { mount } = await import('./viewer/gin2co-viewer.js');
+        await mount(root, { ifcUrl: 'viewer/dalot-demo.ifc', wasmPath: new URL('viewer/', location.href).href });
+      } catch (err) {
+        console.error(err);
+        root.innerHTML = document.documentElement.dataset.lang === 'en'
+          ? '<p class="bv-status">The 3D model could not be loaded in this browser.</p>'
+          : '<p class="bv-status">La maquette 3D n’a pas pu être chargée dans ce navigateur.</p>';
+      }
+    });
+  </script>
 
   <section class="dark">
     <div class="container">
