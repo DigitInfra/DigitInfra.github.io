@@ -9,7 +9,9 @@ const T = {
     funded: 'Ouvrages financés', committed: 'Montant engagé', avoided: 'Coût de l’inaction évité / an',
     legend: 'Légende', rank: 'Rang', code: 'Code', asset: 'Ouvrage', family: 'Famille', condition: 'État', score: 'Score',
     cost: 'Coût (FCFA)', cum: 'Cumul (FCFA)', fin: 'Financé', source: 'Financement envisagé',
-    open3d: 'Ouvrir la maquette 3D', loading: 'Chargement de la carte…',
+    open3d: 'Voir en 3D', loading: 'Chargement de la carte…', back: '← Retour à la carte', loading3d: 'Chargement de la maquette…',
+    popDens: 'Densité de population (maille)', noLayer: 'Aucune couche de contexte n’était active sur la carte.',
+    depth: 'Lame d’eau de référence', within: 'à moins de 500 m', none500: 'aucun à moins de 500 m', ctxNote: 'Couches reprises de la carte',
     disclaimer: 'Fond de carte réel utilisé à titre d’illustration. Ouvrages, états, couches et montants sont fictifs et ne décrivent pas le patrimoine de cette ville.',
     tmja: 'Trafic (TMJA, véh./j)', pop: 'Population desservie', flood: 'Aléa inondation', sol: 'Sol', equip: 'Équipements à moins de 500 m',
     inaction: 'Coût de l’inaction (FCFA/an)', year: 'Mise en service', insp: 'Dernière inspection', type: 'Type',
@@ -25,7 +27,9 @@ const T = {
     funded: 'Assets funded', committed: 'Amount committed', avoided: 'Avoided cost of inaction / yr',
     legend: 'Legend', rank: 'Rank', code: 'Code', asset: 'Asset', family: 'Family', condition: 'Condition', score: 'Score',
     cost: 'Cost (FCFA)', cum: 'Cumulative (FCFA)', fin: 'Funded', source: 'Intended funding',
-    open3d: 'Open the 3D model', loading: 'Loading the map…',
+    open3d: 'View in 3D', loading: 'Loading the map…', back: '← Back to the map', loading3d: 'Loading the model…',
+    popDens: 'Population density (grid cell)', noLayer: 'No context layer was active on the map.',
+    depth: 'Reference water depth', within: 'within 500 m', none500: 'none within 500 m', ctxNote: 'Layers carried over from the map',
     disclaimer: 'Real basemap used for illustration only. Assets, conditions, layers and amounts are fictitious and do not describe this city’s assets.',
     tmja: 'Traffic (AADT, veh./day)', pop: 'Population served', flood: 'Flood hazard', sol: 'Soil', equip: 'Facilities within 500 m',
     inaction: 'Cost of inaction (FCFA/yr)', year: 'In service since', insp: 'Last inspection', type: 'Type',
@@ -70,12 +74,13 @@ const lang = () => (document.documentElement.getAttribute('data-lang') === 'en' 
 const t = (k) => T[lang()][k];
 const tv = (v) => (v == null ? '—' : lang() === 'en' ? (EN[v] || v) : v);
 const fmt = (n) => (n == null ? '—' : new Intl.NumberFormat(lang() === 'en' ? 'en-GB' : 'fr-FR').format(n));
+const fmt2 = (n) => new Intl.NumberFormat(lang() === 'en' ? 'en-GB' : 'fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
 const fmtM = (n) => (lang() === 'en' ? `${(n / 1e6).toFixed(1)} M` : `${(n / 1e6).toFixed(1).replace('.', ',')} M`);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const brk = (v, b) => b.find(([x]) => v >= x)[1];
 const floodCls = (f) => t('floodCls')[f >= 0.75 ? 3 : f >= 0.5 ? 2 : f >= 0.25 ? 1 : 0];
 
-export async function mount(root, { dataUrl }) {
+export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) {
   root.innerHTML = `<p class="bv-status mono">${esc(t('loading'))}</p>`;
   const data = await (await fetch(dataUrl)).json();
   root.classList.add('bv-ready');
@@ -115,30 +120,33 @@ export async function mount(root, { dataUrl }) {
   const assetLayer = L.layerGroup().addTo(map);
   const markers = new Map();
 
-  function drawBase() {
-    baseLayer.clearLayers();
+  const cellColor = (c) => (state.base === 'pop' ? brk(c.pop, POP_BREAKS) : state.base === 'flood' ? brk(c.flood, FLOOD_BREAKS) : SOL_C[c.sol]);
+  function fillBase(group) {
     if (state.base === 'none') return;
     for (const c of data.cells) {
-      let col;
-      if (state.base === 'pop') col = brk(c.pop, POP_BREAKS);
-      else if (state.base === 'flood') col = brk(c.flood, FLOOD_BREAKS);
-      else col = SOL_C[c.sol];
+      const col = cellColor(c);
       const r = L.rectangle([[c.b[0], c.b[1]], [c.b[2], c.b[3]]], { stroke: false, fillColor: col, fillOpacity: 0.5, interactive: true });
-      const label = state.base === 'pop' ? `${fmt(c.pop)} ${t('perKm')}` : state.base === 'flood' ? `${floodCls(c.flood)} (${c.flood.toFixed(2)})` : tv(c.sol);
+      const label = state.base === 'pop' ? `${fmt(c.pop)} ${t('perKm')}` : state.base === 'flood' ? `${floodCls(c.flood)} (${fmt2(c.flood)})` : tv(c.sol);
       r.bindTooltip(label, { sticky: true, direction: 'top', className: 'sg-tip' });
-      baseLayer.addLayer(r);
+      group.addLayer(r);
+    }
+  }
+  function drawBase() { baseLayer.clearLayers(); fillBase(baseLayer); }
+  function fillTraffic(group) {
+    for (const p of data.traffic) {
+      L.circleMarker([p.lat, p.lon], { radius: 3 + Math.sqrt(p.tmja) / 26, color: '#234A7A', weight: 1, fillColor: '#5C83B5', fillOpacity: 0.45 })
+        .bindTooltip(`${esc(tv(p.cls))} — ${fmt(p.tmja)} ${t('vpj')}`, { className: 'sg-tip' }).addTo(group);
+    }
+  }
+  function fillFac(group) {
+    for (const f of data.facilities) {
+      L.circleMarker([f.lat, f.lon], { radius: 4.5, color: '#fff', weight: 1.5, fillColor: FAC_C[f.type], fillOpacity: 1 })
+        .bindTooltip(esc(t('fac')[f.type]), { className: 'sg-tip' }).addTo(group);
     }
   }
   function drawContext() {
     trafficLayer.clearLayers(); facLayer.clearLayers();
-    for (const p of data.traffic) {
-      L.circleMarker([p.lat, p.lon], { radius: 3 + Math.sqrt(p.tmja) / 26, color: '#234A7A', weight: 1, fillColor: '#5C83B5', fillOpacity: 0.45 })
-        .bindTooltip(`${esc(tv(p.cls))} — ${fmt(p.tmja)} ${t('vpj')}`, { className: 'sg-tip' }).addTo(trafficLayer);
-    }
-    for (const f of data.facilities) {
-      L.circleMarker([f.lat, f.lon], { radius: 4.5, color: '#fff', weight: 1.5, fillColor: FAC_C[f.type], fillOpacity: 1 })
-        .bindTooltip(esc(t('fac')[f.type]), { className: 'sg-tip' }).addTo(facLayer);
-    }
+    fillTraffic(trafficLayer); fillFac(facLayer);
     state.traffic ? trafficLayer.addTo(map) : trafficLayer.remove();
     state.facilities ? facLayer.addTo(map) : facLayer.remove();
   }
@@ -208,7 +216,7 @@ export async function mount(root, { dataUrl }) {
       </table>
       <p class="sg-pop-h">${esc(t('breakdown'))}</p>
       ${CRIT.map(([k, lab]) => bar(k, lab[lang() === 'en' ? 1 : 0])).join('')}
-      ${a.code === 'DLT01' ? `<p><button type="button" class="bv-btn sg-3d">${esc(t('open3d'))}</button></p>` : ''}
+      <p class="sg-pop-cta"><button type="button" class="btn btn-primary sg-3d" data-code="${esc(a.code)}">${esc(t('open3d'))} →</button></p>
     </div>`;
   }
 
@@ -227,13 +235,133 @@ export async function mount(root, { dataUrl }) {
   }
   map.on('popupopen', (e) => {
     const btn = e.popup.getElement().querySelector('.sg-3d');
-    if (btn) btn.addEventListener('click', () => {
-      const demo = document.getElementById('demo');
-      if (demo) demo.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      const load = document.getElementById('bim-load');
-      if (load && !load.disabled) load.click();
-    });
+    if (btn) btn.addEventListener('click', () => open3d(A.find((x) => x.code === btn.getAttribute('data-code'))));
   });
+
+  /* --- map → 3D overlay (carries the active layers) */
+  const R_EARTH = 6371000;
+  const geo = (a, b) => {
+    const p1 = (a.lat * Math.PI) / 180, p2 = (b.lat * Math.PI) / 180, dl = ((b.lon - a.lon) * Math.PI) / 180;
+    const d = 2 * R_EARTH * Math.asin(Math.sqrt(Math.sin((p2 - p1) / 2) ** 2 + Math.cos(p1) * Math.cos(p2) * Math.sin(dl / 2) ** 2));
+    const y = Math.sin(dl) * Math.cos(p2), x = Math.cos(p1) * Math.sin(p2) - Math.sin(p1) * Math.cos(p2) * Math.cos(dl);
+    return { d, bearing: ((Math.atan2(y, x) * 180) / Math.PI + 360) % 360 };
+  };
+  const cellAt = (a) => data.cells.find((c) => a.lat >= c.b[0] && a.lat <= c.b[2] && a.lon >= c.b[1] && a.lon <= c.b[3])
+    || data.cells.reduce((best, c) => {
+      const d = Math.hypot((c.b[0] + c.b[2]) / 2 - a.lat, (c.b[1] + c.b[3]) / 2 - a.lon);
+      return !best || d < best.d ? { c, d } : best;
+    }, null).c;
+
+  function contextFor(a, snap) {
+    return () => {
+      const items = [
+        { label: t('score'), value: `${a.score}/100 · #${a.rank}`, color: brk(a.score, SCORE_BREAKS) },
+        { label: t('condition'), value: tv(a.etat), color: ETAT_C[a.etat] },
+        { label: t('cost'), value: fmt(a.cout) },
+        { label: t('inaction'), value: fmt(a.inaction) },
+      ];
+      const sc = { facilities: [] };
+      const cell = cellAt(a);
+      if (snap.base === 'pop') {
+        items.push({ label: t('popDens'), value: `${fmt(cell.pop)} ${t('perKm')}`, color: brk(cell.pop, POP_BREAKS) });
+        sc.ground = { color: brk(cell.pop, POP_BREAKS), label: `${fmt(cell.pop)} ${t('perKm')}` };
+      }
+      if (snap.base === 'flood') {
+        const depth = Math.round((0.2 + a.flood * 1.2) * 10) / 10;
+        items.push({ label: t('flood'), value: `${floodCls(a.flood)} (${fmt2(a.flood)})`, color: brk(a.flood, FLOOD_BREAKS) });
+        items.push({ label: t('depth'), value: `≈ ${String(depth).replace('.', lang() === 'en' ? '.' : ',')} m` });
+        sc.ground = { color: brk(a.flood, FLOOD_BREAKS), label: `${t('flood')} : ${floodCls(a.flood)}` };
+        sc.flood = { depth, label: `${t('depth')} ≈ ${String(depth).replace('.', lang() === 'en' ? '.' : ',')} m` };
+      }
+      if (snap.base === 'sol') {
+        items.push({ label: t('sol'), value: tv(a.sol), color: SOL_C[a.sol] });
+        sc.soil = { color: SOL_C[a.sol], label: tv(a.sol) };
+        sc.ground = { color: SOL_C[a.sol], label: `${t('sol')} : ${tv(a.sol)}` };
+      }
+      if (snap.traffic) {
+        items.push({ label: t('tmja'), value: a.tmja == null ? t('noTraffic') : fmt(a.tmja) });
+        if (a.tmja != null) sc.traffic = { label: `TMJA ${fmt(a.tmja)} ${t('vpj')}` };
+      }
+      if (snap.facilities) {
+        const near = data.facilities.map((f) => ({ f, ...geo(a, f) })).filter((x) => x.d <= 500).sort((x, y) => x.d - y.d);
+        items.push({ label: t('facilities'), value: near.length ? near.map((x) => `${t('fac')[x.f.type]} ${Math.round(x.d)} m`).join(' · ') : t('none500') });
+        sc.facilities = near.map((x) => ({ label: `${t('fac')[x.f.type]} · ${Math.round(x.d)} m`, dist: x.d, bearing: x.bearing, color: FAC_C[x.f.type] }));
+      }
+      if (snap.base === 'none' && !snap.traffic && !snap.facilities) items.push({ label: t('ctxNote'), value: t('noLayer') });
+      return {
+        items, scene: sc,
+        mini: (el) => {
+          const mm = L.map(el, { zoomControl: false, attributionControl: false, scrollWheelZoom: false, minZoom: 13, maxZoom: 16 })
+            .setView([a.lat, a.lon], 15);
+          L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 16 }).addTo(mm);
+          const g = L.layerGroup().addTo(mm);
+          const saved = state.base; state.base = snap.base; fillBase(g); state.base = saved;
+          if (snap.traffic) fillTraffic(g);
+          if (snap.facilities) fillFac(g);
+          L.circle([a.lat, a.lon], { radius: 500, color: '#0D2B5C', weight: 1, dashArray: '4 4', fill: false, interactive: false }).addTo(mm);
+          L.circleMarker([a.lat, a.lon], { radius: 8, fillColor: colorOf(a), fillOpacity: 1, color: '#00C2CB', weight: 3 }).addTo(mm);
+          setTimeout(() => mm.invalidateSize(), 50);
+        },
+      };
+    };
+  }
+
+  let overlay = null;
+  async function open3d(a) {
+    if (overlay) return;
+    const snap = { base: state.base, traffic: state.traffic, facilities: state.facilities };
+    map.closePopup();
+    await new Promise((res) => { map.once('moveend', res); map.flyTo([a.lat, a.lon], 16, { duration: 0.9 }); });
+    const ov = document.createElement('div');
+    ov.className = 'sg-ov';
+    ov.setAttribute('role', 'dialog');
+    ov.setAttribute('aria-modal', 'true');
+    ov.innerHTML = `<div class="sg-ov-bar">
+        <button type="button" class="bv-btn sg-ov-back"></button>
+        <p class="sg-ov-title"><span class="mono">${esc(a.code)}</span> — <span data-o="type"></span></p>
+        <p class="sg-ov-badges"><span class="bv-badge" style="--c:${ETAT_C[a.etat]}" data-o="etat"></span>
+          <span class="bv-badge" style="--c:${brk(a.score, SCORE_BREAKS)}">${a.score}/100</span></p>
+      </div>
+      <div class="sg-ov-body"><div class="sg-ov-viewer"><p class="bv-status mono" data-o="load"></p></div></div>`;
+    document.body.append(ov);
+    document.documentElement.classList.add('sg-ov-open');
+    const labels = () => {
+      ov.querySelector('.sg-ov-back').textContent = t('back');
+      ov.querySelector('[data-o=type]').textContent = tv(a.type);
+      ov.querySelector('[data-o=etat]').textContent = tv(a.etat);
+      const l = ov.querySelector('[data-o=load]'); if (l) l.textContent = t('loading3d');
+    };
+    labels();
+    const lmo = new MutationObserver(labels);
+    lmo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-lang'] });
+    requestAnimationFrame(() => ov.classList.add('is-in'));
+    const back = ov.querySelector('.sg-ov-back');
+    back.focus();
+    let viewer = null;
+    const close = () => {
+      lmo.disconnect();
+      document.removeEventListener('keydown', onKey);
+      viewer?.destroy();
+      ov.remove();
+      document.documentElement.classList.remove('sg-ov-open');
+      overlay = null;
+      select(a.code, false);
+    };
+    const onKey = (e) => { if (e.key === 'Escape') close(); };
+    document.addEventListener('keydown', onKey);
+    back.addEventListener('click', close);
+    overlay = { close };
+    try {
+      const { mount: mountViewer } = await import(/* @vite-ignore */ viewerUrl);
+      viewer = await mountViewer(ov.querySelector('.sg-ov-viewer'), {
+        ifcUrl: `${modelsBase}${a.code}.ifc`, wasmPath, context: contextFor(a, snap),
+      });
+      overlay.viewer = viewer;
+    } catch (err) {
+      console.error(err);
+      ov.querySelector('.sg-ov-viewer').innerHTML = `<p class="bv-status">${lang() === 'en' ? 'The 3D model could not be loaded.' : 'La maquette 3D n’a pas pu être chargée.'}</p>`;
+    }
+  }
   map.on('popupclose', () => { state.selected = null; drawAssets(); renderTable(); });
 
   /* --- panels */
@@ -346,7 +474,7 @@ export async function mount(root, { dataUrl }) {
   drawBase();
   drawContext();
   update();
-  return { map, state, assets: A };
+  return { map, state, assets: A, open3d: (code) => open3d(A.find((x) => x.code === code)), get overlay() { return overlay; } };
 }
 
 function buildUI(root) {

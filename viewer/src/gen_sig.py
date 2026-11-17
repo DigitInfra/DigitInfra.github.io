@@ -146,7 +146,7 @@ COST = {  # FCFA, maintenance/rehabilitation base by type
     'Mairie d’arrondissement': 16e6, 'Marché couvert': 40e6, 'Collège': 30e6}
 ETAT = {1: 'Bon', 2: 'Moyen', 3: 'Dégradé', 4: 'Critique'}
 DAYS = {1: 1, 2: 6, 3: 20, 4: 45}
-notes = [3, 3, 2, 3, 1, 4, 2, 2, 3, 3, 1, 2, 4, 2, 3, 1, 2, 3, 2, 4, 1, 3, 2, 1, 3]
+notes = [4, 3, 2, 3, 1, 4, 2, 2, 3, 3, 1, 2, 4, 2, 3, 1, 2, 3, 2, 4, 1, 3, 2, 1, 3]
 
 def dist_m(a, b):
     return math.hypot(a[0] - b[0], a[1] - b[1]) * 9.5
@@ -197,6 +197,10 @@ for idx, (fam, typ, px, py) in enumerate(specs):
         'inspection': random.choice(['2026-03', '2026-05', '2026-06', '2026-09', '2026-10']),
     })
 
+for a in assets:
+    if a['code'] == 'DLT01':
+        a['cout'] = 15_250_000      # = sum of element costs in the DLT01 IFC model
+        a['inspection'] = '2026-09'
 for c in cells: c.pop('px')
 for t in traffic: t.pop('px')
 for f in fac: f.pop('px')

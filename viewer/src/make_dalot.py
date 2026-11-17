@@ -68,7 +68,7 @@ INSP = "2026-09-15"
 
 def base(fam, mat, year, etat, note, desordre, prio, cout, action):
     return {"Famille": fam, "Materiau": mat, "AnneeMiseEnService": year,
-            "DateDerniereInspection": INSP, "Etat": etat, "NoteEtat": note,
+            "DateDerniereInspection": INSP, "Etat": {1: "Bon", 2: "Moyen", 3: "Dégradé", 4: "Critique"}[note], "NoteEtat": note,
             "Desordre": desordre, "PrioriteEntretien": prio,
             "CoutEstimeFCFA": cout, "ActionRecommandee": action}
 

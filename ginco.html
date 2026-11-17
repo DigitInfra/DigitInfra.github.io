@@ -128,7 +128,7 @@
         </svg>
         <button type="button" class="btn btn-primary btn-arrow" id="bim-load"><span data-fr-only>Charger la démonstration 3D</span><span data-en-only>Load the 3D demonstration</span></button>
         <p class="mono bv-note"><span data-fr-only>≈ 1,2 Mo · IFC 4 lu dans le navigateur · aucune installation</span><span data-en-only>≈ 1.2 MB · IFC 4 read in the browser · nothing to install</span></p>
-        <a class="bv-dl" href="viewer/dalot-demo.ifc" download><span data-fr-only>Télécharger le fichier IFC (32 Ko)</span><span data-en-only>Download the IFC file (32 KB)</span></a>
+        <a class="bv-dl" href="viewer/models/DLT01.ifc" download="DLT01.ifc"><span data-fr-only>Télécharger le fichier IFC (32 Ko)</span><span data-en-only>Download the IFC file (32 KB)</span></a>
       </div>
     </div>
   </section>
@@ -139,7 +139,7 @@
       btn.disabled = true;
       try {
         const { mount } = await import('./viewer/gin2co-viewer.js');
-        await mount(root, { ifcUrl: 'viewer/dalot-demo.ifc', wasmPath: new URL('viewer/', location.href).href });
+        await mount(root, { ifcUrl: 'viewer/models/DLT01.ifc', wasmPath: new URL('viewer/', location.href).href });
       } catch (err) {
         console.error(err);
         root.innerHTML = document.documentElement.dataset.lang === 'en'
@@ -156,6 +156,7 @@
         <h2><span data-fr-only>Localiser, croiser, prioriser</span><span data-en-only>Locate, cross-reference, prioritise</span></h2>
         <div class="status"><span class="dot"></span><span data-fr-only>FOND DE CARTE RÉEL — OUVRAGES ET DONNÉES FICTIFS</span><span data-en-only>REAL BASEMAP — FICTITIOUS ASSETS AND DATA</span></div>
         <p><span data-fr-only>Vingt-cinq ouvrages publics répartis sur un territoire urbain sont croisés avec la population desservie, le trafic, l'aléa inondation, la nature des sols, les équipements sensibles et les données financières. Réglez le poids de chaque critère et l'enveloppe budgétaire : le classement, la carte et les ouvrages financés se recalculent immédiatement.</span><span data-en-only>Twenty-five public assets across an urban area are cross-referenced with population served, traffic, flood hazard, soil type, sensitive facilities and financial data. Adjust the weight of each criterion and the budget envelope: the ranking, the map and the funded assets update instantly.</span></p>
+        <p><span data-fr-only>Chaque ouvrage dispose de sa maquette IFC : depuis sa fiche, « Voir en 3D » ouvre la maquette avec les couches actives de la carte (sol, aléa inondation, trafic, équipements proches).</span><span data-en-only>Every asset has its own IFC model: from its record, “View in 3D” opens the model together with the layers active on the map (soil, flood hazard, traffic, nearby facilities).</span></p>
       </div>
       <div class="bv-placeholder" id="sig-map">
         <svg viewBox="0 0 220 90" width="220" height="90" aria-hidden="true" fill="none">
@@ -180,7 +181,8 @@
         css.rel = 'stylesheet'; css.href = 'viewer/leaflet.css';
         document.head.append(css);
         const { mount } = await import('./viewer/gin2co-sig.js');
-        window.__gin2coSig = await mount(root, { dataUrl: 'viewer/sig-data.json' });
+        const base = new URL('viewer/', location.href).href;
+        window.__gin2coSig = await mount(root, { dataUrl: base + 'sig-data.json', viewerUrl: base + 'gin2co-viewer.js', wasmPath: base, modelsBase: base + 'models/' });
       } catch (err) {
         console.error(err);
         root.innerHTML = document.documentElement.dataset.lang === 'en'

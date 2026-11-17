@@ -13,7 +13,7 @@ const T = {
     shown: (n, t) => `${n} élément${n > 1 ? 's' : ''} affiché${n > 1 ? 's' : ''} sur ${t}`,
     total: 'Coût estimé des éléments affichés', loading: 'Lecture du fichier IFC…', error: 'Impossible de charger la maquette.',
     original: 'Couleurs d’origine (IFC)', ifcClass: 'Classe IFC', code: 'Code', element: 'Élément',
-    quantities: 'Quantités', identity: 'Identification', none: '—', score: 'Note (1–4)', colon: ' : ',
+    quantities: 'Quantités', identity: 'Identification', none: '—', score: 'Note (1–4)', colon: ' : ', ctx: 'Contexte SIG — couches actives', north: 'N',
   },
   en: {
     colorBy: 'Colour by', filter: 'Filter', all: 'All', isolate: 'Isolate selection', showAll: 'Show all',
@@ -23,7 +23,7 @@ const T = {
     shown: (n, t) => `${n} of ${t} element${t > 1 ? 's' : ''} shown`,
     total: 'Estimated cost of displayed elements', loading: 'Reading the IFC file…', error: 'The model could not be loaded.',
     original: 'Original colours (IFC)', ifcClass: 'IFC class', code: 'Code', element: 'Element',
-    quantities: 'Quantities', identity: 'Identification', none: '—', score: 'Score (1–4)', colon: ': ',
+    quantities: 'Quantities', identity: 'Identification', none: '—', score: 'Score (1–4)', colon: ': ', ctx: 'GIS context — active layers', north: 'N',
   },
 };
 const PROP_LABEL = {
@@ -35,7 +35,9 @@ const PROP_LABEL = {
   Volume: ['Volume (m³)', 'Volume (m³)'], Longueur: ['Longueur (m)', 'Length (m)'],
 };
 const VALUE_EN = {
-  Bon: 'Good', Moyen: 'Fair', Critique: 'Critical', Structure: 'Structure', 'Protection hydraulique': 'Scour protection',
+  Bon: 'Good', Moyen: 'Fair', 'Dégradé': 'Poor', Critique: 'Critical', Hydraulique: 'Hydraulics', Enveloppe: 'Building envelope',
+  Couverture: 'Roofing', 'Équipement': 'Equipment', 'Maçonnerie de parpaings': 'Concrete block masonry', 'Tôle bac acier': 'Steel roofing sheet',
+  'Équipement électromécanique': 'Electromechanical equipment', Structure: 'Structure', 'Protection hydraulique': 'Scour protection',
   'Chaussée': 'Pavement', 'Équipement de sécurité': 'Safety equipment', 'Béton armé': 'Reinforced concrete',
   Enrochement: 'Riprap', 'Enrobé bitumineux': 'Asphalt', 'Acier galvanisé': 'Galvanised steel', 'Grave latéritique': 'Lateritic gravel',
   P1: 'P1 — urgent', P2: 'P2 — planned', P3: 'P3 — routine',
@@ -45,12 +47,12 @@ const VALUE_FR = { P1: 'P1 — urgent', P2: 'P2 — programmé', P3: 'P3 — cou
 /* ------------------------------------------------------------------ colour schemes */
 const PALETTE = ['#00C2CB', '#0D2B5C', '#E07A3F', '#7A5CC2', '#4CA64C', '#C24C7A', '#8A9BB0'];
 const FIXED = {
-  Etat: { Bon: '#2E9E6B', Moyen: '#E0A100', Critique: '#D64545' },
+  Etat: { Bon: '#2E9E6B', Moyen: '#E0A100', 'Dégradé': '#E07A3F', Critique: '#D64545' },
   PrioriteEntretien: { P1: '#D64545', P2: '#E0A100', P3: '#2E9E6B' },
-  NoteEtat: { 1: '#2E9E6B', 2: '#A6B83A', 3: '#E0A100', 4: '#D64545' },
+  NoteEtat: { 1: '#2E9E6B', 2: '#E0A100', 3: '#E07A3F', 4: '#D64545' },
 };
 const ORDER = {
-  Etat: ['Critique', 'Moyen', 'Bon'], PrioriteEntretien: ['P1', 'P2', 'P3'], NoteEtat: [4, 3, 2, 1],
+  Etat: ['Critique', 'Dégradé', 'Moyen', 'Bon'], PrioriteEntretien: ['P1', 'P2', 'P3'], NoteEtat: [4, 3, 2, 1],
 };
 const COLOR_PARAMS = ['Etat', 'PrioriteEntretien', 'NoteEtat', 'Famille', 'Materiau', 'AnneeMiseEnService', 'ifcClass', 'original'];
 const FILTER_PARAMS = ['Famille', 'Etat', 'PrioriteEntretien', 'Materiau', 'AnneeMiseEnService', 'ifcClass'];
@@ -78,16 +80,22 @@ const h = (tag, attrs = {}, html = '') => {
 };
 
 /* ------------------------------------------------------------------ mount */
-export async function mount(root, { ifcUrl, wasmPath }) {
+let apiPromise = null;
+function getApi(wasmPath) {
+  if (!apiPromise) {
+    apiPromise = (async () => { const a = new IfcAPI(); a.SetWasmPath(wasmPath, true); await a.Init(); return a; })();
+  }
+  return apiPromise;
+}
+
+export async function mount(root, { ifcUrl, wasmPath, context }) {
   root.innerHTML = '';
   root.classList.add('bv-ready');
   const status = h('p', { class: 'bv-status mono' }, esc(t('loading')));
   root.append(status);
 
   /* --- read IFC */
-  const api = new IfcAPI();
-  api.SetWasmPath(wasmPath, true);
-  await api.Init();
+  const api = await getApi(wasmPath);
   const data = new Uint8Array(await (await fetch(ifcUrl)).arrayBuffer());
   const modelID = api.OpenModel(data, { COORDINATE_TO_ORIGIN: false });
 
@@ -164,6 +172,103 @@ export async function mount(root, { ifcUrl, wasmPath }) {
   grid.position.set(center.x, box.min.y - 0.01, center.z);
   scene.add(grid);
 
+  /* --- GIS context in the 3D scene (layers that were active on the map) */
+  const ctxGroup = new THREE.Group();
+  scene.add(ctxGroup);
+  const R = Math.max(size.x, size.z) * 0.95;
+  function sprite(text, color = '#0D2B5C', scale = 1) {
+    const c = document.createElement('canvas');
+    const g = c.getContext('2d');
+    const fs = 44;
+    g.font = `600 ${fs}px Inter, system-ui, sans-serif`;
+    const w = Math.ceil(g.measureText(text).width) + 36;
+    c.width = w; c.height = fs + 30;
+    g.font = `600 ${fs}px Inter, system-ui, sans-serif`;
+    g.fillStyle = 'rgba(255,255,255,0.92)'; g.fillRect(0, 0, w, c.height);
+    g.fillStyle = color; g.fillRect(0, 0, 8, c.height);
+    g.fillStyle = '#1E2430'; g.textBaseline = 'middle'; g.fillText(text, 20, c.height / 2 + 2);
+    const tex = new THREE.CanvasTexture(c);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false, transparent: true, sizeAttenuation: false }));
+    const narrow = ui.canvasWrap.clientWidth < 600;
+    const k = 0.045 * scale * (narrow ? 0.85 : 1);
+    sp.scale.set(k * w / c.height, k, 1);
+    sp.renderOrder = 10;
+    return sp;
+  }
+  function buildContext() {
+    ctxGroup.children.slice().forEach((o) => { ctxGroup.remove(o); o.traverse?.((x) => { x.geometry?.dispose(); x.material?.map?.dispose(); x.material?.dispose(); }); });
+    const c = context && context();
+    if (!c) { grid.visible = true; return; }
+    const sc = c.scene || {};
+    grid.visible = !sc.ground;
+    const cx = center.x, cz = center.z;
+    if (sc.ground) {
+      const disc = new THREE.Mesh(new THREE.CircleGeometry(R, 64),
+        new THREE.MeshBasicMaterial({ color: sc.ground.color, transparent: true, opacity: sc.flood ? 0.25 : 0.45, depthWrite: false, side: THREE.DoubleSide }));
+      disc.rotation.x = -Math.PI / 2; disc.position.set(cx, -0.02, cz);
+      ctxGroup.add(disc);
+      const lab = sprite(sc.ground.label, sc.ground.color);
+      lab.position.set(cx + R * 0.25, 0.3, cz + R * 0.35);
+      ctxGroup.add(lab);
+    }
+    if (sc.soil) {
+      const block = new THREE.Mesh(new THREE.CylinderGeometry(R, R, 3, 64, 1, true),
+        new THREE.MeshBasicMaterial({ color: sc.soil.color, transparent: true, opacity: 0.35, side: THREE.DoubleSide, depthWrite: false }));
+      block.position.set(cx, -1.55, cz);
+      const bottom = new THREE.Mesh(new THREE.CircleGeometry(R, 64),
+        new THREE.MeshBasicMaterial({ color: sc.soil.color, transparent: true, opacity: 0.5, side: THREE.DoubleSide, depthWrite: false }));
+      bottom.rotation.x = -Math.PI / 2; bottom.position.set(cx, -3.05, cz);
+      ctxGroup.add(block, bottom);
+    }
+    if (sc.flood) {
+      const water = new THREE.Mesh(new THREE.CircleGeometry(R * 0.98, 64),
+        new THREE.MeshBasicMaterial({ color: 0x2f7fc1, transparent: true, opacity: 0.3, side: THREE.DoubleSide, depthWrite: false }));
+      water.rotation.x = -Math.PI / 2; water.position.set(cx, sc.flood.depth, cz);
+      water.renderOrder = 2;
+      ctxGroup.add(water);
+      const lab = sprite(sc.flood.label, '#2F7FC1');
+      lab.position.set(cx - R * 0.7, sc.flood.depth + 0.4, cz - R * 0.5);
+      ctxGroup.add(lab);
+    }
+    if (sc.traffic) {
+      const lab = sprite(sc.traffic.label, '#234A7A', 1.1);
+      lab.position.set(cx, box.max.y + R * 0.18, cz);
+      ctxGroup.add(lab);
+    }
+    for (const f of sc.facilities || []) {
+      const r = R * (0.55 + 0.4 * Math.min(f.dist, 500) / 500);
+      const th = (f.bearing * Math.PI) / 180;
+      const x = cx + r * Math.sin(th), z = cz - r * Math.cos(th);
+      const pin = new THREE.Mesh(new THREE.CylinderGeometry(R * 0.008, R * 0.008, R * 0.12, 8), new THREE.MeshBasicMaterial({ color: f.color }));
+      pin.position.set(x, R * 0.06, z);
+      const head = new THREE.Mesh(new THREE.SphereGeometry(R * 0.022, 16, 12), new THREE.MeshBasicMaterial({ color: f.color }));
+      head.position.set(x, R * 0.12, z);
+      const lab = sprite(f.label, f.color, 0.8);
+      lab.position.set(x, R * 0.19, z);
+      ctxGroup.add(pin, head, lab);
+    }
+    if (sc.ground || sc.soil || sc.flood || (sc.facilities && sc.facilities.length)) {
+      const n = sprite(t('north'), '#0D2B5C', 0.8);
+      n.position.set(cx, 0.2, cz - R * 1.05);
+      ctxGroup.add(n);
+    }
+  }
+  function renderCtxPanel(first) {
+    const c = context && context();
+    if (!c) return;
+    ui.ctx.hidden = false;
+    if (first) {
+      ui.ctx.innerHTML = `<h4 class="bv-h" data-c="h"></h4><div class="bv-mini" data-c="mini"></div><table class="bv-kv" data-c="kv"></table>`;
+      if (c.mini) c.mini(ui.ctx.querySelector('[data-c=mini]'));
+    }
+    ui.ctx.querySelector('[data-c=h]').textContent = t('ctx');
+    ui.ctx.querySelector('[data-c=kv]').innerHTML = c.items.map((it) =>
+      `<tr><th>${esc(it.label)}</th><td>${it.color ? `<span class="bv-badge" style="--c:${it.color}">${esc(it.value)}</span>` : esc(it.value)}</td></tr>`).join('');
+  }
+  buildContext();
+  renderCtxPanel(true);
+
   const renderer = new THREE.WebGLRenderer({ canvas: ui.canvas, antialias: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 1000);
@@ -175,7 +280,8 @@ export async function mount(root, { ifcUrl, wasmPath }) {
     const b = new THREE.Box3();
     (vis.length ? vis : meshesRoot.children).forEach((m) => b.expandByObject(m));
     const c = b.getCenter(new THREE.Vector3());
-    const r = Math.max(b.getSize(new THREE.Vector3()).length(), 4) * 0.68;
+    const hasCtx = ctxGroup.children.length > 0 && meshesRoot.children.every((m) => m.visible);
+    const r = Math.max(b.getSize(new THREE.Vector3()).length(), 4, hasCtx ? R * 1.9 : 0) * 0.68;
     const rr = r * (camera.aspect < 1.5 ? Math.min(1.8, 1.35 / camera.aspect) : 1);
     camera.position.set(c.x + rr * 0.9, c.y + rr * 0.5, c.z + rr * 1.1);
     controls.target.copy(c);
@@ -187,7 +293,8 @@ export async function mount(root, { ifcUrl, wasmPath }) {
     camera.aspect = w / hgt;
     camera.updateProjectionMatrix();
   };
-  new ResizeObserver(resize).observe(ui.canvasWrap);
+  const ro = new ResizeObserver(resize);
+  ro.observe(ui.canvasWrap);
   resize();
   fitView();
   renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
@@ -390,16 +497,30 @@ export async function mount(root, { ifcUrl, wasmPath }) {
     apply();
   });
 
-  new MutationObserver(() => { renderToolbar(); apply(); })
-    .observe(document.documentElement, { attributes: true, attributeFilter: ['data-lang'] });
+  const mo = new MutationObserver(() => { renderToolbar(); apply(); buildContext(); renderCtxPanel(false); });
+  mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-lang'] });
 
   renderToolbar();
   apply();
-  return { elements, state };
+  return {
+    elements, state,
+    destroy() {
+      mo.disconnect();
+      ro.disconnect();
+      renderer.setAnimationLoop(null);
+      controls.dispose();
+      scene.traverse((o) => { o.geometry?.dispose(); if (o.material) { o.material.map?.dispose(); o.material.dispose(); } });
+      renderer.dispose();
+      renderer.forceContextLoss();
+      root.innerHTML = '';
+    },
+  };
 }
 
 function prettyClass(name) {
-  const map = { IFCWALL: 'IfcWall', IFCSLAB: 'IfcSlab', IFCRAILING: 'IfcRailing', IFCBUILDINGELEMENTPROXY: 'IfcBuildingElementProxy' };
+  const map = { IFCWALL: 'IfcWall', IFCSLAB: 'IfcSlab', IFCRAILING: 'IfcRailing', IFCBUILDINGELEMENTPROXY: 'IfcBuildingElementProxy',
+    IFCCOLUMN: 'IfcColumn', IFCBEAM: 'IfcBeam', IFCFOOTING: 'IfcFooting', IFCPIPESEGMENT: 'IfcPipeSegment', IFCPUMP: 'IfcPump',
+    IFCDISTRIBUTIONCHAMBERELEMENT: 'IfcDistributionChamberElement' };
   return map[name] || name;
 }
 
@@ -417,7 +538,7 @@ function buildUI(root) {
     </div>
     <div class="bv-main">
       <div class="bv-canvas" data-r="canvasWrap"><canvas data-r="canvas"></canvas><p class="bv-hint mono" data-r="hint"></p></div>
-      <aside class="bv-side"><div data-r="legend" class="bv-legend"></div><div data-r="props" class="bv-props"></div></aside>
+      <aside class="bv-side"><div data-r="ctx" class="bv-ctx" hidden></div><div data-r="legend" class="bv-legend"></div><div data-r="props" class="bv-props"></div></aside>
     </div>
     <div class="bv-table-wrap"><table class="bv-table" data-r="table"></table></div>
     <p class="bv-total" data-r="total"></p>`;
