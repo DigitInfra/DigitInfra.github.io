@@ -49,7 +49,7 @@
       <p class="lead">
         <span data-fr-only>GIN²CO documente par le BIM le patrimoine public des villes et des États d'Afrique de l'Ouest, pour fonder son entretien, sa planification et son financement sur des données fiables et partagées.</span><span data-en-only>GIN²CO uses BIM to document the public assets of West African cities and states, so that their maintenance, planning and financing rest on reliable, shared data.</span>
       </p>
-      <div class="hero-cta"><a class="btn btn-ghost btn-arrow" href="#demo"><span data-fr-only>Voir la démonstration 3D</span><span data-en-only>See the 3D demonstration</span></a></div>
+      <div class="hero-cta"><a class="btn btn-ghost btn-arrow" href="#demo"><span data-fr-only>Voir la démonstration 3D</span><span data-en-only>See the 3D demonstration</span></a><a class="btn btn-ghost btn-arrow" href="#sig"><span data-fr-only>Voir la carte SIG</span><span data-en-only>See the GIS map</span></a></div>
     </div>
   </section>
 
@@ -145,6 +145,47 @@
         root.innerHTML = document.documentElement.dataset.lang === 'en'
           ? '<p class="bv-status">The 3D model could not be loaded in this browser.</p>'
           : '<p class="bv-status">La maquette 3D n’a pas pu être chargée dans ce navigateur.</p>';
+      }
+    });
+  </script>
+
+  <section id="sig" class="tight" style="padding-top:0;">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow"><span data-fr-only>Système d'information géographique</span><span data-en-only>Geographic information system</span></p>
+        <h2><span data-fr-only>Localiser, croiser, prioriser</span><span data-en-only>Locate, cross-reference, prioritise</span></h2>
+        <div class="status"><span class="dot"></span><span data-fr-only>FOND DE CARTE RÉEL — OUVRAGES ET DONNÉES FICTIFS</span><span data-en-only>REAL BASEMAP — FICTITIOUS ASSETS AND DATA</span></div>
+        <p><span data-fr-only>Vingt-cinq ouvrages publics répartis sur un territoire urbain sont croisés avec la population desservie, le trafic, l'aléa inondation, la nature des sols, les équipements sensibles et les données financières. Réglez le poids de chaque critère et l'enveloppe budgétaire : le classement, la carte et les ouvrages financés se recalculent immédiatement.</span><span data-en-only>Twenty-five public assets across an urban area are cross-referenced with population served, traffic, flood hazard, soil type, sensitive facilities and financial data. Adjust the weight of each criterion and the budget envelope: the ranking, the map and the funded assets update instantly.</span></p>
+      </div>
+      <div class="bv-placeholder" id="sig-map">
+        <svg viewBox="0 0 220 90" width="220" height="90" aria-hidden="true" fill="none">
+          <path d="M10 70 C60 40 90 75 140 45 S200 30 212 20" stroke="#C9D6E3" stroke-width="6"/>
+          <path d="M20 20 L90 35 L120 80" stroke="#C9D6E3" stroke-width="3"/>
+          <circle cx="60" cy="52" r="9" fill="#D64545"/><circle cx="118" cy="58" r="6" fill="#E0A100"/>
+          <circle cx="160" cy="36" r="11" fill="#E07A3F" stroke="#0D2B5C" stroke-width="3"/><circle cx="96" cy="30" r="5" fill="#2E9E6B"/>
+          <rect x="182" y="58" width="6" height="6" fill="#00C2CB"/><rect x="194" y="52" width="4" height="4" fill="#00C2CB" opacity=".5"/>
+        </svg>
+        <button type="button" class="btn btn-primary btn-arrow" id="sig-load"><span data-fr-only>Charger la carte d'aide à la décision</span><span data-en-only>Load the decision-support map</span></button>
+        <p class="mono bv-note"><span data-fr-only>≈ 0,3 Mo · fond © OpenStreetMap · aucune installation</span><span data-en-only>≈ 0.3 MB · basemap © OpenStreetMap · nothing to install</span></p>
+      </div>
+    </div>
+  </section>
+  <script type="module">
+    const sbtn = document.getElementById('sig-load');
+    sbtn.addEventListener('click', async () => {
+      const root = document.getElementById('sig-map');
+      sbtn.disabled = true;
+      try {
+        const css = document.createElement('link');
+        css.rel = 'stylesheet'; css.href = 'viewer/leaflet.css';
+        document.head.append(css);
+        const { mount } = await import('./viewer/gin2co-sig.js');
+        window.__gin2coSig = await mount(root, { dataUrl: 'viewer/sig-data.json' });
+      } catch (err) {
+        console.error(err);
+        root.innerHTML = document.documentElement.dataset.lang === 'en'
+          ? '<p class="bv-status">The map could not be loaded in this browser.</p>'
+          : '<p class="bv-status">La carte n’a pas pu être chargée dans ce navigateur.</p>';
       }
     });
   </script>

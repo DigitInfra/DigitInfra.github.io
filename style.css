@@ -364,8 +364,53 @@ html[data-lang="en"] [data-en-only]{display:revert;}
   .bv-actions{margin-left:0;}
 }
 @media (max-width: 600px){
-  .bv-table th:nth-child(1), .bv-table td:nth-child(1),
-  .bv-table th:nth-child(4), .bv-table td:nth-child(4){display:none;}
+  .bv-table:not(.sg-table) th:nth-child(1), .bv-table:not(.sg-table) td:nth-child(1),
+  .bv-table:not(.sg-table) th:nth-child(4), .bv-table:not(.sg-table) td:nth-child(4){display:none;}
   .bv-table th, .bv-table td{padding:8px;}
   .bv-hint{display:none;}
+}
+
+/* ---------- GIS map (GIN²CO demo) ---------- */
+.sg-map{height:620px; border-right:1px solid var(--line); background:#E8EEF4; z-index:0;}
+.sg .leaflet-tile-pane{filter:grayscale(.65) brightness(1.05) contrast(.92);}
+.sg .bv-side{max-height:620px;}
+.sg-disclaimer{margin:0; max-width:none; padding:8px 14px; font-size:.7rem; color:#8A5A00; background:#FFF6D6; border-bottom:1px solid var(--line);}
+.sg-cb{gap:6px; font-size:.86rem; cursor:pointer;}
+.sg-cb input{accent-color:var(--navy);}
+.sg-block{padding-bottom:14px; margin-bottom:14px; border-bottom:1px solid var(--line);}
+.sg-block:last-child{border-bottom:none; margin-bottom:0;}
+.sg-row{display:flex; justify-content:space-between; align-items:baseline;}
+.sg-link{all:unset; cursor:pointer; font-size:.76rem; color:var(--steel); text-decoration:underline;}
+.sg-w{display:grid; grid-template-columns:1fr 92px 14px; align-items:center; gap:8px; font-size:.8rem; padding:3px 0;}
+.sg-w input, .sg-range{accent-color:var(--navy); width:100%;}
+.sg-budget{margin:6px 0 10px; font-size:1.05rem; color:var(--navy); font-weight:500;}
+.sg-stats{display:grid; gap:4px;}
+.sg-stats div{display:flex; justify-content:space-between; gap:10px; font-size:.8rem; color:var(--steel);}
+.sg-stats b{color:var(--navy);}
+.sg-small{font-size:.74rem; margin:10px 0 0;}
+.sg-leg li{display:flex; align-items:center; gap:8px; padding:2px 0; font-size:.8rem;}
+.sg-leg + .sg-leg{margin-top:8px; padding-top:8px; border-top:1px dashed var(--line);}
+.sg-ring{width:14px; height:14px; border-radius:50%; background:#C9D6E3; border:1.5px solid #fff; box-shadow:0 0 0 1px #C9D6E3; flex:none;}
+.sg-ring-f{border:3px solid var(--navy); box-shadow:none;}
+.sg-table tbody tr.sg-out td{color:#8A9BB0;}
+.sg-table tbody tr.sg-out .bv-badge{opacity:.55;}
+.sg-tip{font-family:'Inter',sans-serif; font-size:.78rem;}
+.sg-pop{font-family:'Inter',sans-serif; min-width:250px;}
+.sg-pop p{margin:0 0 6px;}
+.sg-pop-t{font-weight:700; color:var(--navy); font-size:.92rem;}
+.sg-pop-s{font-size:.76rem; color:var(--steel);}
+.sg-pop .bv-badge{margin-right:4px;}
+.sg-pop-h{font-family:'IBM Plex Mono',monospace; font-size:.66rem; letter-spacing:.06em; text-transform:uppercase; color:var(--steel); margin-top:8px !important;}
+.sg-bar{display:grid; grid-template-columns:118px 1fr 34px; align-items:center; gap:6px; font-size:.7rem; color:var(--steel);}
+.sg-bar i{display:block; height:7px; background:var(--teal);}
+.sg-bar b{font-weight:500; text-align:right; color:var(--navy);}
+.leaflet-container a.bv-btn{color:var(--navy);}
+@media (max-width: 880px){
+  .sg-map{height:420px; border-right:none; border-bottom:1px solid var(--line);}
+  .sg .bv-side{max-height:none;}
+}
+@media (max-width: 600px){
+  .sg-table th:nth-child(2), .sg-table td:nth-child(2),
+  .sg-table th:nth-child(4), .sg-table td:nth-child(4),
+  .sg-table th:nth-child(8), .sg-table td:nth-child(8){display:none;}
 }
