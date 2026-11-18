@@ -40,3 +40,10 @@ Licences : Leaflet (BSD-2-Clause). Fond de carte © contributeurs OpenStreetMap 
 ## Liaison carte → 3D
 
 Depuis la fiche d'un ouvrage sur la carte, « Voir en 3D » zoome sur l'ouvrage puis ouvre un panneau plein écran avec sa maquette. Les couches actives au moment du clic sont reprises : dans la scène (sol teinté, bloc géotechnique, lame d'eau de référence, étiquette de trafic, repères des équipements à moins de 500 m) et dans le panneau latéral (mini-carte et valeurs).
+
+## Impact et assistant de requêtes
+
+| Fichier | Rôle |
+|---|---|
+| `impact.py` | Exécuté par `gen_sig.py` : calcule pour chaque ouvrage l'impact (aire de desserte, flux agricoles depuis des bassins fictifs, surface et ménages protégés), l'efficacité actuelle et après réhabilitation, le verdict (suffisant ≥ 85 %, à renforcer, à compléter) et le complément chiffré. |
+| `assistant.js` | Interpréteur de requêtes local (FR/EN, sans IA générative) : filtres sur les ouvrages, actions sur la carte (couches, couleurs, budget, poids), ouverture des maquettes et requêtes sur leurs éléments. |

@@ -232,8 +232,13 @@ export async function mount(root, { ifcUrl, wasmPath, context }) {
       ctxGroup.add(lab);
     }
     if (sc.traffic) {
-      const lab = sprite(sc.traffic.label, '#234A7A', 1.1);
-      lab.position.set(cx, box.max.y + R * 0.18, cz);
+      const lab = sprite(sc.traffic.label, '#234A7A', 1.0);
+      lab.position.set(cx, box.max.y + R * 0.16, cz);
+      ctxGroup.add(lab);
+    }
+    if (sc.impact) {
+      const lab = sprite(sc.impact.label, sc.impact.color, 1.1);
+      lab.position.set(cx, box.max.y + R * (sc.traffic ? 0.34 : 0.18), cz);
       ctxGroup.add(lab);
     }
     for (const f of sc.facilities || []) {
@@ -300,7 +305,7 @@ export async function mount(root, { ifcUrl, wasmPath, context }) {
   renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
 
   /* --- state */
-  const state = { color: 'Etat', fparam: '', fval: '', hiddenCats: new Set(), isolate: null, selected: null,
+  const state = { color: 'Etat', fparam: '', fval: '', hiddenCats: new Set(), isolate: null, selected: null, queryIds: null,
     sortKey: 'PrioriteEntretien', sortDir: 1 };
   const all = [...elements.values()];
   const valOf = (rec, k) => (k === 'name' ? rec.name : k === 'code' ? rec.code : rec.props[k]);
@@ -316,6 +321,7 @@ export async function mount(root, { ifcUrl, wasmPath, context }) {
   };
   const isVisible = (rec) => {
     if (state.isolate !== null) return rec.id === state.isolate;
+    if (state.queryIds && !state.queryIds.has(rec.id)) return false;
     if (state.fparam && state.fval !== '' && String(valOf(rec, state.fparam)) !== state.fval) return false;
     if (state.color !== 'original' && state.hiddenCats.has(String(valOf(rec, state.color)))) return false;
     return true;
@@ -458,7 +464,7 @@ export async function mount(root, { ifcUrl, wasmPath, context }) {
   });
   ui.isolateBtn.addEventListener('click', () => { if (state.selected !== null) { state.isolate = state.selected; apply(); fitView(); } });
   ui.showAllBtn.addEventListener('click', () => {
-    state.isolate = null; state.hiddenCats.clear(); state.fparam = ''; state.fval = '';
+    state.isolate = null; state.hiddenCats.clear(); state.fparam = ''; state.fval = ''; state.queryIds = null;
     renderToolbar(); apply(); fitView();
   });
   ui.fitBtn.addEventListener('click', fitView);
@@ -502,8 +508,35 @@ export async function mount(root, { ifcUrl, wasmPath, context }) {
 
   renderToolbar();
   apply();
+  const norm = (x) => String(x ?? '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   return {
     elements, state,
+    /** Programmatic query used by the request assistant. */
+    query(spec = {}) {
+      if (spec.reset) {
+        state.isolate = null; state.hiddenCats.clear(); state.fparam = ''; state.fval = ''; state.queryIds = null; state.selected = null;
+      }
+      let res = all.slice();
+      const filtering = spec.etats?.length || spec.prios?.length || spec.kws?.length || spec.familles?.length || spec.noteMin;
+      if (spec.etats?.length) res = res.filter((r) => spec.etats.includes(r.props.Etat));
+      if (spec.prios?.length) res = res.filter((r) => spec.prios.includes(r.props.PrioriteEntretien));
+      if (spec.noteMin) res = res.filter((r) => (r.props.NoteEtat || 0) >= spec.noteMin);
+      if (spec.familles?.length) res = res.filter((r) => spec.familles.includes(r.props.Famille));
+      const exact = spec.phrase ? all.filter((r) => norm(r.name).length > 4 && spec.phrase.includes(norm(r.name).replace(/^.* — /, ''))) : [];
+      if (exact.length && spec.kws?.length) res = res.filter((r) => exact.includes(r));
+      else if (spec.kws?.length) res = res.filter((r) => spec.kws.some((k) => norm(r.name).includes(k) || norm(r.props.Materiau).includes(k) || norm(r.props.Famille).includes(k)));
+      if (filtering) { state.queryIds = new Set(res.map((r) => r.id)); state.isolate = null; }
+      if (spec.color) { state.color = spec.color; state.hiddenCats.clear(); }
+      if (spec.sort) { state.sortKey = spec.sort.key; state.sortDir = spec.sort.dir; }
+      if (spec.isolate && res.length) { state.isolate = res[0].id; state.selected = res[0].id; }
+      else if (filtering && res.length === 1) state.selected = res[0].id;
+      renderToolbar(); apply(); fitView();
+      const shown = filtering ? res : all;
+      return {
+        count: shown.length, total: shown.reduce((x, r) => x + (r.props.CoutEstimeFCFA || 0), 0),
+        items: shown.map((r) => ({ name: r.name, code: r.code, etat: r.props.Etat, prio: r.props.PrioriteEntretien, cout: r.props.CoutEstimeFCFA || 0 })),
+      };
+    },
     destroy() {
       mo.disconnect();
       ro.disconnect();

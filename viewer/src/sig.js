@@ -1,5 +1,6 @@
 // GIN²CO — GIS decision-support demo (Leaflet + OpenStreetMap basemap, fictitious asset data)
 import L from 'leaflet';
+import { createAssistant } from './assistant.js';
 
 /* ------------------------------------------------------------------ i18n */
 const T = {
@@ -11,9 +12,13 @@ const T = {
     cost: 'Coût (FCFA)', cum: 'Cumul (FCFA)', fin: 'Financé', source: 'Financement envisagé',
     open3d: 'Voir en 3D', loading: 'Chargement de la carte…', back: '← Retour à la carte', loading3d: 'Chargement de la maquette…',
     popDens: 'Densité de population (maille)', noLayer: 'Aucune couche de contexte n’était active sur la carte.',
+    impact: 'Impact', eff: 'Efficacité', effNow: 'Efficacité actuelle', effRehab: 'Après réhabilitation', verdict: 'Verdict',
+    complement: 'Complément proposé', rule: 'Règle de calcul', basins: 'Bassins agricoles', zoneServed: 'Zone desservie ou protégée',
+    zoneResid: 'Zone inondable non protégée', flowsLeg: 'Flux de produits agricoles (t/an)', queryChip: 'Requête', clear: 'Effacer',
+    results: (n) => `${n} résultat${n > 1 ? 's' : ''}`, effLeg: ['≥ 85 %', '60 – 85 %', '< 60 %'], estCost: 'coût estimé',
     depth: 'Lame d’eau de référence', within: 'à moins de 500 m', none500: 'aucun à moins de 500 m', ctxNote: 'Couches reprises de la carte',
     disclaimer: 'Fond de carte réel utilisé à titre d’illustration. Ouvrages, états, couches et montants sont fictifs et ne décrivent pas le patrimoine de cette ville.',
-    tmja: 'Trafic (TMJA, véh./j)', pop: 'Population desservie', flood: 'Aléa inondation', sol: 'Sol', equip: 'Équipements à moins de 500 m',
+    tmja: 'Trafic (TMJA, véh./j)', pop: 'Population à proximité (600 m)', flood: 'Aléa inondation', sol: 'Sol', equip: 'Équipements à moins de 500 m',
     inaction: 'Coût de l’inaction (FCFA/an)', year: 'Mise en service', insp: 'Dernière inspection', type: 'Type',
     breakdown: 'Contribution au score', yes: 'Oui', no: 'Non', perKm: 'hab./km²',
     fundedLeg: 'Financé dans l’enveloppe', notFundedLeg: 'Hors enveloppe', sizeLeg: 'Taille du cercle : coût',
@@ -29,9 +34,13 @@ const T = {
     cost: 'Cost (FCFA)', cum: 'Cumulative (FCFA)', fin: 'Funded', source: 'Intended funding',
     open3d: 'View in 3D', loading: 'Loading the map…', back: '← Back to the map', loading3d: 'Loading the model…',
     popDens: 'Population density (grid cell)', noLayer: 'No context layer was active on the map.',
+    impact: 'Impact', eff: 'Efficiency', effNow: 'Current efficiency', effRehab: 'After rehabilitation', verdict: 'Verdict',
+    complement: 'Proposed complement', rule: 'Calculation rule', basins: 'Farm basins', zoneServed: 'Area served or protected',
+    zoneResid: 'Flood-prone area not protected', flowsLeg: 'Farm produce flows (t/yr)', queryChip: 'Query', clear: 'Clear',
+    results: (n) => `${n} result${n > 1 ? 's' : ''}`, effLeg: ['≥ 85%', '60 – 85%', '< 60%'], estCost: 'estimated cost',
     depth: 'Reference water depth', within: 'within 500 m', none500: 'none within 500 m', ctxNote: 'Layers carried over from the map',
     disclaimer: 'Real basemap used for illustration only. Assets, conditions, layers and amounts are fictitious and do not describe this city’s assets.',
-    tmja: 'Traffic (AADT, veh./day)', pop: 'Population served', flood: 'Flood hazard', sol: 'Soil', equip: 'Facilities within 500 m',
+    tmja: 'Traffic (AADT, veh./day)', pop: 'Population nearby (600 m)', flood: 'Flood hazard', sol: 'Soil', equip: 'Facilities within 500 m',
     inaction: 'Cost of inaction (FCFA/yr)', year: 'In service since', insp: 'Last inspection', type: 'Type',
     breakdown: 'Score contribution', yes: 'Yes', no: 'No', perKm: 'pop./km²',
     fundedLeg: 'Funded within envelope', notFundedLeg: 'Outside envelope', sizeLeg: 'Circle size: cost',
@@ -59,10 +68,13 @@ const EN = {
   'Bassin de rétention': 'Retention basin', 'Station de relevage': 'Pumping station', 'École primaire': 'Primary school', 'Centre de santé': 'Health centre',
   'Mairie d’arrondissement': 'District town hall', 'Marché couvert': 'Covered market', 'Collège': 'Secondary school',
   'Voie express': 'Expressway', 'Voie principale': 'Main road', 'Voie secondaire': 'Secondary road',
+  Suffisant: 'Sufficient', 'À renforcer': 'To be reinforced', 'À compléter': 'To be complemented',
 };
 const ETAT_C = { Bon: '#2E9E6B', Moyen: '#E0A100', 'Dégradé': '#E07A3F', Critique: '#D64545' };
 const FAM_C = { 'Voirie & ouvrages d’art': '#0D2B5C', 'Drainage & assainissement': '#00A3AD', 'Bâtiments publics': '#7A5CC2' };
 const FIN_C = { 'Fonds d’entretien routier': '#0D2B5C', 'Budget communal': '#4CA64C', 'Bailleur (programme)': '#E07A3F' };
+const VERDICT_C = { Suffisant: '#2E9E6B', 'À renforcer': '#E0A100', 'À compléter': '#D64545' };
+const EFF_BREAKS = [[0.85, '#2E9E6B'], [0.6, '#E0A100'], [0, '#D64545']];
 const SOL_C = { 'Sables littoraux': '#E9D38C', 'Argiles et vases compressibles': '#9C8AC9', 'Terre de barre (sols latéritiques)': '#C9784A' };
 const SOL_V = { 'Argiles et vases compressibles': 1, 'Sables littoraux': 0.6, 'Terre de barre (sols latéritiques)': 0.2 };
 const FAC_C = { 'École': '#00C2CB', 'Centre de santé': '#C24C7A', 'Marché': '#7A5CC2' };
@@ -75,6 +87,7 @@ const t = (k) => T[lang()][k];
 const tv = (v) => (v == null ? '—' : lang() === 'en' ? (EN[v] || v) : v);
 const fmt = (n) => (n == null ? '—' : new Intl.NumberFormat(lang() === 'en' ? 'en-GB' : 'fr-FR').format(n));
 const fmt2 = (n) => new Intl.NumberFormat(lang() === 'en' ? 'en-GB' : 'fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
+const pct = (x) => (lang() === 'en' ? `${Math.round(x * 100)}%` : `${Math.round(x * 100)} %`);
 const fmtM = (n) => (lang() === 'en' ? `${(n / 1e6).toFixed(1)} M` : `${(n / 1e6).toFixed(1).replace('.', ',')} M`);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const brk = (v, b) => b.find(([x]) => v >= x)[1];
@@ -101,7 +114,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
   const totalCost = A.reduce((s, a) => s + a.cout, 0);
   const state = {
     w: Object.fromEntries(CRIT.map(([k, , d]) => [k, d])), color: 'score', base: 'none',
-    traffic: false, facilities: false, budget: Math.round(totalCost * 0.3 / 1e6) * 1e6, selected: null,
+    traffic: false, facilities: false, basins: false, query: null, queryLabel: '', budget: Math.round(totalCost * 0.3 / 1e6) * 1e6, selected: null,
   };
 
   /* --- map */
@@ -117,6 +130,8 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
   const baseLayer = L.layerGroup().addTo(map);
   const trafficLayer = L.layerGroup();
   const facLayer = L.layerGroup();
+  const basinLayer = L.layerGroup();
+  const impactLayer = L.layerGroup().addTo(map);
   const assetLayer = L.layerGroup().addTo(map);
   const markers = new Map();
 
@@ -144,9 +159,18 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
         .bindTooltip(esc(t('fac')[f.type]), { className: 'sg-tip' }).addTo(group);
     }
   }
+  const basinName = (n) => (lang() === 'en' ? n.replace('Bassin maraîcher', 'Market-garden basin').replace('Arrière-pays nord-ouest', 'North-western hinterland').replace('Arrière-pays ouest', 'Western hinterland').replace('Zone portuaire', 'Port area').replace('Marché couvert', 'Covered market').replace('Marché (fictif)', 'Market (fictitious)') : n);
+  function fillBasins(group) {
+    for (const b of data.basins) {
+      L.circleMarker([b.lat, b.lon], { radius: 6 + Math.sqrt(b.t) / 14, color: '#2E7D32', weight: 1.5, fillColor: '#7BC47F', fillOpacity: 0.55 })
+        .bindTooltip(`${esc(basinName(b.name))} — ${fmt(b.t)} t/${lang() === 'en' ? 'yr' : 'an'}`, { className: 'sg-tip' })
+        .addTo(group);
+    }
+  }
   function drawContext() {
-    trafficLayer.clearLayers(); facLayer.clearLayers();
-    fillTraffic(trafficLayer); fillFac(facLayer);
+    trafficLayer.clearLayers(); facLayer.clearLayers(); basinLayer.clearLayers();
+    fillTraffic(trafficLayer); fillFac(facLayer); fillBasins(basinLayer);
+    state.basins ? basinLayer.addTo(map) : basinLayer.remove();
     state.traffic ? trafficLayer.addTo(map) : trafficLayer.remove();
     state.facilities ? facLayer.addTo(map) : facLayer.remove();
   }
@@ -175,14 +199,17 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
     if (state.color === 'score') return brk(a.score, SCORE_BREAKS);
     if (state.color === 'etat') return ETAT_C[a.etat];
     if (state.color === 'famille') return FAM_C[a.famille];
+    if (state.color === 'eff') return brk(a.impact.eff, EFF_BREAKS);
+    if (state.color === 'verdict') return VERDICT_C[a.impact.verdict];
     return FIN_C[a.financement];
   }
 
   function drawAssets() {
     for (const a of A) {
+      const dim = state.query && !state.query.has(a.code);
       const style = {
-        radius: 6 + Math.sqrt(a.cout / 1e6) * 1.3, fillColor: colorOf(a), fillOpacity: 0.92,
-        color: a.funded ? '#0D2B5C' : '#ffffff', weight: a.funded ? 3 : 1.5, dashArray: null,
+        radius: 6 + Math.sqrt(a.cout / 1e6) * 1.3, fillColor: colorOf(a), fillOpacity: dim ? 0.12 : 0.92,
+        color: a.funded ? '#0D2B5C' : '#ffffff', weight: a.funded ? 3 : 1.5, dashArray: null, opacity: dim ? 0.2 : 1,
       };
       let m = markers.get(a.code);
       if (!m) {
@@ -195,6 +222,24 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
     }
   }
 
+  const kv = (k) => {
+    const L_ = lang() === 'en';
+    if (k.txt) return `<tr><th>${esc(L_ ? k.en : k.fr)}</th><td>${esc(L_ ? k.txt_en : k.txt)}</td></tr>`;
+    const v = k.d ? new Intl.NumberFormat(L_ ? 'en-GB' : 'fr-FR', { minimumFractionDigits: k.d, maximumFractionDigits: k.d }).format(k.v) : fmt(k.v);
+    return `<tr><th>${esc(L_ ? k.en : k.fr)}</th><td class="mono">${v} ${esc(L_ ? k.uen : k.ufr)}</td></tr>`;
+  };
+  function impactHtml(a) {
+    const im = a.impact;
+    const bar = (lab, x) => `<div class="sg-eff"><span>${esc(lab)}</span><i><b style="width:${Math.round(x * 100)}%;background:${brk(x, EFF_BREAKS)}"></b><u></u></i><em class="mono">${pct(x)}</em></div>`;
+    return `<div class="sg-imp">
+      <p class="sg-pop-h">${esc(t('impact'))} — ${esc(lang() === 'en' ? im.label.en : im.label.fr)}</p>
+      <table class="bv-kv">${im.kpis.map(kv).join('')}</table>
+      ${bar(t('effNow'), im.eff)}${bar(t('effRehab'), im.eff_rehab)}
+      <p><span class="bv-badge" style="--c:${VERDICT_C[im.verdict]}">${esc(t('verdict'))} : ${esc(tv(im.verdict))}</span></p>
+      ${im.complement ? `<p class="sg-comp"><strong>${esc(t('complement'))} :</strong> ${esc(lang() === 'en' ? im.complement.en : im.complement.fr)} — ${esc(t('estCost'))} ${fmtM(im.complement.cost)} FCFA</p>` : ''}
+      <details class="sg-rule"><summary>${esc(t('rule'))}</summary><p>${esc(lang() === 'en' ? im.rule.en : im.rule.fr)}</p></details>
+    </div>`;
+  }
   function popupHtml(a) {
     const bar = (k, lab) => `<div class="sg-bar"><span>${esc(lab)}</span><i style="width:${Math.max(a.parts[k], 0.5) * 2.2}px"></i><b class="mono">${a.parts[k].toFixed(1)}</b></div>`;
     return `<div class="sg-pop">
@@ -214,10 +259,33 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
         <tr><th>${esc(t('equip'))}</th><td class="mono">${a.equip}</td></tr>
         <tr><th>${esc(t('year'))} · ${esc(t('insp'))}</th><td class="mono">${a.annee} · ${a.inspection}</td></tr>
       </table>
+      ${impactHtml(a)}
       <p class="sg-pop-h">${esc(t('breakdown'))}</p>
       ${CRIT.map(([k, lab]) => bar(k, lab[lang() === 'en' ? 1 : 0])).join('')}
       <p class="sg-pop-cta"><button type="button" class="btn btn-primary sg-3d" data-code="${esc(a.code)}">${esc(t('open3d'))} →</button></p>
     </div>`;
+  }
+
+  function drawImpact() {
+    impactLayer.clearLayers();
+    if (!state.selected) return;
+    const a = A.find((x) => x.code === state.selected);
+    const im = a.impact;
+    const rect = (i, col, dash) => {
+      const c = data.cells[i];
+      L.rectangle([[c.b[0], c.b[1]], [c.b[2], c.b[3]]], { color: col, weight: 1, dashArray: dash, fillColor: col, fillOpacity: 0.28, interactive: false }).addTo(impactLayer);
+    };
+    im.zone.forEach((i) => rect(i, '#00C2CB', null));
+    im.residual.forEach((i) => rect(i, '#D64545', '4 3'));
+    const tmax = Math.max(1, ...im.flows.map((f) => f.t));
+    for (const f of im.flows) {
+      const w = 2 + 8 * (f.t / tmax);
+      L.polyline([f.from, [a.lat, a.lon], f.to], { color: '#2E7D32', weight: w, opacity: 0.75, lineCap: 'round' })
+        .bindTooltip(`${esc(basinName(f.bname))} → ${esc(basinName(f.dname))} : ${fmt(f.t)} t/${lang() === 'en' ? 'yr' : 'an'}`, { className: 'sg-tip', sticky: true })
+        .addTo(impactLayer);
+      L.circleMarker(f.from, { radius: 6, color: '#2E7D32', weight: 2, fillColor: '#7BC47F', fillOpacity: 1 }).addTo(impactLayer);
+      L.circleMarker(f.to, { radius: 5, color: '#2E7D32', weight: 2, fillColor: '#fff', fillOpacity: 1 }).addTo(impactLayer);
+    }
   }
 
   function select(code, fly) {
@@ -231,6 +299,8 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
       map.flyTo([a.lat, a.lon], Math.max(map.getZoom(), 14), { duration: 0.6 });
     } else m.openPopup();
     drawAssets();
+    drawImpact();
+    renderLegend();
     renderTable();
   }
   map.on('popupopen', (e) => {
@@ -259,8 +329,13 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
         { label: t('condition'), value: tv(a.etat), color: ETAT_C[a.etat] },
         { label: t('cost'), value: fmt(a.cout) },
         { label: t('inaction'), value: fmt(a.inaction) },
+        { label: t('impact'), value: lang() === 'en' ? a.impact.label.en : a.impact.label.fr },
+        { label: t('effNow'), value: pct(a.impact.eff), color: brk(a.impact.eff, EFF_BREAKS) },
+        { label: t('effRehab'), value: pct(a.impact.eff_rehab), color: brk(a.impact.eff_rehab, EFF_BREAKS) },
+        { label: t('verdict'), value: tv(a.impact.verdict), color: VERDICT_C[a.impact.verdict] },
       ];
-      const sc = { facilities: [] };
+      if (a.impact.complement) items.push({ label: t('complement'), value: `${lang() === 'en' ? a.impact.complement.en : a.impact.complement.fr} (${fmtM(a.impact.complement.cost)} FCFA)` });
+      const sc = { facilities: [], impact: { label: `${lang() === 'en' ? a.impact.label.en : a.impact.label.fr} · ${t('eff')} ${pct(a.impact.eff)}`, color: VERDICT_C[a.impact.verdict] } };
       const cell = cellAt(a);
       if (snap.base === 'pop') {
         items.push({ label: t('popDens'), value: `${fmt(cell.pop)} ${t('perKm')}`, color: brk(cell.pop, POP_BREAKS) });
@@ -298,6 +373,9 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
           const saved = state.base; state.base = snap.base; fillBase(g); state.base = saved;
           if (snap.traffic) fillTraffic(g);
           if (snap.facilities) fillFac(g);
+          a.impact.zone.forEach((i) => { const c = data.cells[i]; L.rectangle([[c.b[0], c.b[1]], [c.b[2], c.b[3]]], { color: '#00C2CB', weight: 1, fillOpacity: 0.25, interactive: false }).addTo(g); });
+          a.impact.residual.forEach((i) => { const c = data.cells[i]; L.rectangle([[c.b[0], c.b[1]], [c.b[2], c.b[3]]], { color: '#D64545', weight: 1, dashArray: '4 3', fillOpacity: 0.25, interactive: false }).addTo(g); });
+          a.impact.flows.forEach((f) => L.polyline([f.from, [a.lat, a.lon], f.to], { color: '#2E7D32', weight: 3, opacity: 0.7 }).addTo(g));
           L.circle([a.lat, a.lon], { radius: 500, color: '#0D2B5C', weight: 1, dashArray: '4 4', fill: false, interactive: false }).addTo(mm);
           L.circleMarker([a.lat, a.lon], { radius: 8, fillColor: colorOf(a), fillOpacity: 1, color: '#00C2CB', weight: 3 }).addTo(mm);
           setTimeout(() => mm.invalidateSize(), 50);
@@ -346,6 +424,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
       document.documentElement.classList.remove('sg-ov-open');
       overlay = null;
       select(a.code, false);
+      assistant.refresh();
     };
     const onKey = (e) => { if (e.key === 'Escape') close(); };
     document.addEventListener('keydown', onKey);
@@ -356,13 +435,14 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
       viewer = await mountViewer(ov.querySelector('.sg-ov-viewer'), {
         ifcUrl: `${modelsBase}${a.code}.ifc`, wasmPath, context: contextFor(a, snap),
       });
-      overlay.viewer = viewer;
+      if (overlay) overlay.viewer = viewer;
+      assistant.refresh();
     } catch (err) {
       console.error(err);
       ov.querySelector('.sg-ov-viewer').innerHTML = `<p class="bv-status">${lang() === 'en' ? 'The 3D model could not be loaded.' : 'La maquette 3D n’a pas pu être chargée.'}</p>`;
     }
   }
-  map.on('popupclose', () => { state.selected = null; drawAssets(); renderTable(); });
+  map.on('popupclose', () => { if (overlay) return; state.selected = null; drawAssets(); drawImpact(); renderLegend(); renderTable(); });
 
   /* --- panels */
   function renderControls() {
@@ -371,11 +451,12 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
     ui.baseLabel.textContent = t('base');
     ui.trafficLabel.textContent = t('traffic');
     ui.facLabel.textContent = t('facilities');
-    const opts = [['score', t('score')], ['etat', t('condition')], ['famille', t('family')], ['fin', t('source')]];
+    const opts = [['score', t('score')], ['etat', t('condition')], ['eff', t('eff')], ['verdict', t('verdict')], ['famille', t('family')], ['fin', t('source')]];
     ui.color.innerHTML = opts.map(([v, l]) => `<option value="${v}"${v === state.color ? ' selected' : ''}>${esc(l)}</option>`).join('');
     const bopts = [['none', t('none')], ['pop', lang() === 'en' ? 'Population density' : 'Densité de population'], ['flood', t('flood')], ['sol', lang() === 'en' ? 'Geotechnics' : 'Géotechnique']];
     ui.base.innerHTML = bopts.map(([v, l]) => `<option value="${v}"${v === state.base ? ' selected' : ''}>${esc(l)}</option>`).join('');
-    ui.trafficCb.checked = state.traffic; ui.facCb.checked = state.facilities;
+    ui.trafficCb.checked = state.traffic; ui.facCb.checked = state.facilities; ui.basinCb.checked = state.basins;
+    ui.basinLabel.textContent = t('basins');
     ui.weightsH.textContent = t('weights');
     ui.resetBtn.textContent = t('reset');
     ui.weights.innerHTML = CRIT.map(([k, lab]) => `<label class="sg-w"><span>${esc(lab[L_])}</span>
@@ -404,6 +485,8 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
     if (state.color === 'etat') html += Object.entries(ETAT_C).map(([k, c]) => item(c, tv(k))).join('');
     if (state.color === 'famille') html += Object.entries(FAM_C).map(([k, c]) => item(c, tv(k))).join('');
     if (state.color === 'fin') html += Object.entries(FIN_C).map(([k, c]) => item(c, tv(k))).join('');
+    if (state.color === 'eff') html += EFF_BREAKS.map(([, c], i) => item(c, `${t('eff')} ${t('effLeg')[i]}`)).join('');
+    if (state.color === 'verdict') html += Object.entries(VERDICT_C).map(([k, c]) => item(c, tv(k))).join('');
     html += `<li><span class="sg-ring sg-ring-f"></span>${esc(t('fundedLeg'))}</li><li><span class="sg-ring"></span>${esc(t('notFundedLeg'))}</li>`;
     html += `<li class="bv-muted">${esc(t('sizeLeg'))}</li></ul>`;
     if (state.base !== 'none') {
@@ -413,6 +496,15 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
       if (state.base === 'sol') html += Object.entries(SOL_C).map(([k, c]) => item(c, tv(k))).join('');
       html += '</ul>';
     }
+    if (state.selected) {
+      const im = A.find((x) => x.code === state.selected).impact;
+      html += '<ul class="bv-legend-list sg-leg">';
+      if (im.zone.length) html += item('#00C2CB', t('zoneServed'));
+      if (im.residual.length) html += item('#D64545', t('zoneResid'));
+      if (im.flows.length) html += item('#2E7D32', t('flowsLeg'));
+      html += '</ul>';
+    }
+    if (state.basins) html += `<ul class="bv-legend-list sg-leg">${item('#7BC47F', t('basins'), ';border-radius:50%')}</ul>`;
     if (state.traffic || state.facilities) {
       html += '<ul class="bv-legend-list sg-leg">';
       if (state.traffic) html += item('#5C83B5', `${t('traffic')} (TMJA)`, ';border-radius:50%');
@@ -424,12 +516,17 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
 
   let ranked = [];
   function renderTable() {
-    const head = [t('rank'), t('code'), t('asset'), t('family'), t('condition'), t('score'), t('cost'), t('cum'), t('fin')];
-    ui.table.innerHTML = `<thead><tr>${head.map((h, i) => `<th${[0, 5, 6, 7].includes(i) ? ' class="num"' : ''}>${esc(h)}</th>`).join('')}</tr></thead><tbody>${
-      ranked.map((a) => `<tr data-code="${a.code}" tabindex="0" class="${a.code === state.selected ? 'is-sel' : ''}${a.funded ? '' : ' sg-out'}">
+    const head = [t('rank'), t('code'), t('asset'), t('family'), t('condition'), t('score'), t('eff'), t('verdict'), t('cost'), t('cum'), t('fin')];
+    const rows = state.query ? ranked.filter((a) => state.query.has(a.code)) : ranked;
+    ui.qchip.hidden = !state.query;
+    if (state.query) ui.qchip.innerHTML = `<span class="mono">${esc(t('queryChip'))}</span> « ${esc(state.queryLabel)} » — ${esc(t('results')(rows.length))} <button type="button" class="sg-link" data-act="clearq">${esc(t('clear'))}</button>`;
+    ui.table.innerHTML = `<thead><tr>${head.map((h, i) => `<th${[0, 5, 6, 8, 9].includes(i) ? ' class="num"' : ''}>${esc(h)}</th>`).join('')}</tr></thead><tbody>${
+      rows.map((a) => `<tr data-code="${a.code}" tabindex="0" class="${a.code === state.selected ? 'is-sel' : ''}${a.funded ? '' : ' sg-out'}">
         <td class="num mono">${a.rank}</td><td class="mono">${esc(a.code)}</td><td>${esc(tv(a.type))}</td><td>${esc(tv(a.famille))}</td>
         <td><span class="bv-badge" style="--c:${ETAT_C[a.etat]}">${esc(tv(a.etat))}</span></td>
         <td class="num"><span class="bv-badge" style="--c:${brk(a.score, SCORE_BREAKS)}">${a.score}</span></td>
+        <td class="num mono">${pct(a.impact.eff)}</td>
+        <td><span class="bv-badge" style="--c:${VERDICT_C[a.impact.verdict]}">${esc(tv(a.impact.verdict))}</span></td>
         <td class="num mono">${fmt(a.cout)}</td><td class="num mono">${a.cum == null ? '—' : fmt(a.cum)}</td>
         <td>${a.funded ? '✓' : '—'}</td></tr>`).join('')}</tbody>`;
   }
@@ -447,6 +544,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
   ui.base.addEventListener('change', () => { state.base = ui.base.value; drawBase(); renderLegend(); });
   ui.trafficCb.addEventListener('change', () => { state.traffic = ui.trafficCb.checked; drawContext(); renderLegend(); });
   ui.facCb.addEventListener('change', () => { state.facilities = ui.facCb.checked; drawContext(); renderLegend(); });
+  ui.basinCb.addEventListener('change', () => { state.basins = ui.basinCb.checked; drawContext(); renderLegend(); });
   ui.weights.addEventListener('input', (e) => {
     const k = e.target.getAttribute('data-w');
     if (!k) return;
@@ -459,6 +557,13 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
     renderControls(); update();
   });
   ui.budget.addEventListener('input', () => { state.budget = Number(ui.budget.value); update(); });
+  ui.qchip.addEventListener('click', (e) => { if (e.target.closest('[data-act=clearq]')) setQuery(null); });
+  function setQuery(codes, label = '') {
+    state.query = codes ? new Set(codes) : null;
+    state.queryLabel = label;
+    drawAssets(); renderTable();
+    if (codes && codes.length) map.flyToBounds(L.latLngBounds(A.filter((a) => state.query.has(a.code)).map((a) => [a.lat, a.lon])).pad(0.3), { maxZoom: 15, duration: 0.6 });
+  }
   ui.table.addEventListener('click', (e) => { const tr = e.target.closest('tr[data-code]'); if (tr) select(tr.getAttribute('data-code'), true); });
   ui.table.addEventListener('keydown', (e) => {
     const tr = e.target.closest('tr[data-code]');
@@ -470,11 +575,56 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
   }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-lang'] });
   new ResizeObserver(() => map.invalidateSize()).observe(ui.map);
 
+  /* --- request assistant */
+  const nearCache = new Map();
+  const nearest = (a, ftype) => {
+    const key = `${a.code}|${ftype}`;
+    if (!nearCache.has(key)) nearCache.set(key, Math.min(Infinity, ...data.facilities.filter((f) => f.type === ftype).map((f) => geo(a, f).d)));
+    return nearCache.get(key);
+  };
+  const budgetSummary = () => {
+    const f = ranked.filter((a) => a.funded);
+    return lang() === 'en'
+      ? `${f.length} assets funded, ${fmtM(f.reduce((s_, a) => s_ + a.cout, 0))} FCFA committed, ${fmtM(f.reduce((s_, a) => s_ + a.inaction, 0))} FCFA/yr of inaction avoided.`
+      : `${f.length} ouvrages financés, ${fmtM(f.reduce((s_, a) => s_ + a.cout, 0))} FCFA engagés, ${fmtM(f.reduce((s_, a) => s_ + a.inaction, 0))} FCFA/an d’inaction évités.`;
+  };
+  const assistant = createAssistant({
+    lang, tv,
+    assets: () => ranked,
+    viewer: () => (overlay && overlay.viewer) || null,
+    close3d: () => overlay && overlay.close(),
+    open3d: async (code) => {
+      if (overlay) overlay.close();
+      await open3d(A.find((x) => x.code === code));
+      return (overlay && overlay.viewer) || null;
+    },
+    focus: (code) => { if (overlay) overlay.close(); select(code, true); },
+    setQuery: (codes, label) => setQuery(codes, label),
+    setBudget: (v) => {
+      state.budget = Math.max(0, Math.min(Math.ceil(totalCost / 1e6) * 1e6, Math.round(v / 1e6) * 1e6));
+      ui.budget.value = String(state.budget); update(); return state.budget;
+    },
+    budgetSummary,
+    setWeight: (k, v) => { state.w[k] = Math.max(0, Math.min(5, v)); renderControls(); update(); },
+    resetWeights: () => { state.w = Object.fromEntries(CRIT.map(([k, , d]) => [k, d])); renderControls(); update(); },
+    topSummary: (n) => `${lang() === 'en' ? 'New top' : 'Nouveau top'} ${n} : ${ranked.slice(0, n).map((a) => a.code).join(', ')}`,
+    setColor: (c) => { state.color = c; renderControls(); update(); },
+    setLayer: (key, val) => {
+      if (key === 'base') { state.base = val; drawBase(); } else { state[key] = val; drawContext(); }
+      renderControls(); renderLegend();
+    },
+    nearest,
+  });
+  new IntersectionObserver((entries) => {
+    const vis = entries.some((e) => e.isIntersecting);
+    assistant.show(vis || !!overlay);
+  }, { threshold: 0.05 }).observe(root);
+
   renderControls();
   drawBase();
   drawContext();
   update();
-  return { map, state, assets: A, open3d: (code) => open3d(A.find((x) => x.code === code)), get overlay() { return overlay; } };
+  return { map, state, assets: A, assistant, open3d: (code) => open3d(A.find((x) => x.code === code)), get overlay() { return overlay; } };
 }
 
 function buildUI(root) {
@@ -486,6 +636,7 @@ function buildUI(root) {
       <label class="bv-field"><span class="bv-l" data-r="baseLabel"></span><select data-r="base"></select></label>
       <label class="bv-field sg-cb"><input type="checkbox" data-r="trafficCb"><span data-r="trafficLabel"></span></label>
       <label class="bv-field sg-cb"><input type="checkbox" data-r="facCb"><span data-r="facLabel"></span></label>
+      <label class="bv-field sg-cb"><input type="checkbox" data-r="basinCb"><span data-r="basinLabel"></span></label>
     </div>
     <p class="sg-disclaimer mono" data-r="disclaimer"></p>
     <div class="bv-main">
@@ -505,6 +656,7 @@ function buildUI(root) {
         </div>
       </aside>
     </div>
+    <p class="sg-qchip" data-r="qchip" hidden></p>
     <div class="bv-table-wrap"><table class="bv-table sg-table" data-r="table"></table></div>`;
   root.append(wrap);
   const ui = {};

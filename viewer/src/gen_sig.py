@@ -195,17 +195,20 @@ for idx, (fam, typ, px, py) in enumerate(specs):
         'cout': cost, 'inaction': inaction, 'financement': fin, 'tmja': tmja, 'pop': pop_served,
         'flood': c['flood'], 'sol': c['sol'], 'equip': eq,
         'inspection': random.choice(['2026-03', '2026-05', '2026-06', '2026-09', '2026-10']),
+        '_px': (px, py),
     })
 
 for a in assets:
     if a['code'] == 'DLT01':
         a['cout'] = 15_250_000      # = sum of element costs in the DLT01 IFC model
         a['inspection'] = '2026-09'
+exec(open('impact.py', encoding='utf-8').read())
 for c in cells: c.pop('px')
 for t in traffic: t.pop('px')
 for f in fac: f.pop('px')
+for a in assets: a.pop('_px')
 out = {'meta': {'cell_m': 380, 'note': 'Données entièrement fictives — démonstration GIN²CO'},
-       'assets': assets, 'cells': cells, 'traffic': traffic, 'facilities': fac,
+       'assets': assets, 'cells': cells, 'traffic': traffic, 'facilities': fac, 'basins': basins_out,
        'bounds': [px2ll(0, H), px2ll(W, 0)]}
 json.dump(out, open(sys.argv[1], 'w'), ensure_ascii=False, separators=(',', ':'))
 print(len(assets), 'assets', len(cells), 'cells', len(traffic), 'traffic', len(fac), 'facilities')
