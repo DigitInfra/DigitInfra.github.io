@@ -47,3 +47,18 @@ Depuis la fiche d'un ouvrage sur la carte, « Voir en 3D » zoome sur l'ouvrage 
 |---|---|
 | `impact.py` | Exécuté par `gen_sig.py` : calcule pour chaque ouvrage l'impact (aire de desserte, flux agricoles depuis des bassins fictifs, surface et ménages protégés), l'efficacité actuelle et après réhabilitation, le verdict (suffisant ≥ 85 %, à renforcer, à compléter) et le complément chiffré. |
 | `assistant.js` | Interpréteur de requêtes local (FR/EN, sans IA générative) : filtres sur les ouvrages, actions sur la carte (couches, couleurs, budget, poids), ouverture des maquettes et requêtes sur leurs éléments. |
+
+## Démonstrateurs par zone
+
+Chaque zone a sa page : `ginco-benin.html` (patrimoine urbain, FCFA) et `ginco-guinee.html` (routes et flux agricoles, GNF). La page `ginco.html` sert d'accueil et redirige les anciennes ancres `#demo` et `#sig` vers le Bénin. Les mêmes modules (`sig.js`, `viewer.js`, `assistant.js`) lisent le profil de zone dans `meta.zone` du fichier de données : devise, familles, sols, équipements, sources de financement et vocabulaire de l'assistant.
+
+| Fichier | Rôle |
+|---|---|
+| `gen_sig_gn.py` | Génère `../gn/sig-data.json` : 25 ouvrages routiers fictifs, maille de 600 m, trafic, équipements, axes d'arrière-pays, bassins de production et marchés fictifs. Les flux agricoles suivent le réseau routier (plus court chemin pondéré sur un rendu OpenStreetMap z13). |
+| `impact_gn.py` | Exécuté par `gen_sig_gn.py` : flux traversant chaque ouvrage, restrictions liées à l'état, jours de coupure (submersion, bourbiers), pertes après récolte, ménages agricoles reliés, efficacité, verdict et complément chiffré. |
+| `gen_models_gn.py` | Génère `../gn/models/<code>.ifc` (pont à poutres, dalots, buse métallique, radier submersible, sections de route, pistes en latérite et en terre). Coûts en GNF, cohérents avec la carte. |
+
+```bash
+python3 gen_sig_gn.py ../gn/sig-data.json        # à lancer à côté de mosaic.png (tuiles z13)
+python3 gen_models_gn.py ../gn/sig-data.json ../gn/models
+```

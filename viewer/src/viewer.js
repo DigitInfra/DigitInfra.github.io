@@ -31,7 +31,7 @@ const PROP_LABEL = {
   AnneeMiseEnService: ['Mise en service', 'In service since'], DateDerniereInspection: ['Dernière inspection', 'Last inspection'],
   Etat: ['État', 'Condition'], NoteEtat: ['Note d’état (1 bon → 4 critique)', 'Condition score (1 good → 4 critical)'],
   Desordre: ['Désordre constaté', 'Observed defect'], PrioriteEntretien: ['Priorité d’entretien', 'Maintenance priority'],
-  CoutEstimeFCFA: ['Coût estimé (FCFA)', 'Estimated cost (FCFA)'], ActionRecommandee: ['Action recommandée', 'Recommended action'],
+  CoutEstime: ['Coût estimé', 'Estimated cost'], ActionRecommandee: ['Action recommandée', 'Recommended action'],
   Volume: ['Volume (m³)', 'Volume (m³)'], Longueur: ['Longueur (m)', 'Length (m)'],
 };
 const VALUE_EN = {
@@ -41,6 +41,8 @@ const VALUE_EN = {
   'Chaussée': 'Pavement', 'Équipement de sécurité': 'Safety equipment', 'Béton armé': 'Reinforced concrete',
   Enrochement: 'Riprap', 'Enrobé bitumineux': 'Asphalt', 'Acier galvanisé': 'Galvanised steel', 'Grave latéritique': 'Lateritic gravel',
   P1: 'P1 — urgent', P2: 'P2 — planned', P3: 'P3 — routine',
+  'Assainissement routier': 'Road drainage', 'Terre naturelle compactée': 'Compacted natural earth', 'Terre et maçonnerie': 'Earth and masonry',
+  'Acier ondulé galvanisé': 'Galvanised corrugated steel', 'Élastomère fretté': 'Laminated elastomer',
 };
 const VALUE_FR = { P1: 'P1 — urgent', P2: 'P2 — programmé', P3: 'P3 — courant' };
 
@@ -58,13 +60,14 @@ const COLOR_PARAMS = ['Etat', 'PrioriteEntretien', 'NoteEtat', 'Famille', 'Mater
 const FILTER_PARAMS = ['Famille', 'Etat', 'PrioriteEntretien', 'Materiau', 'AnneeMiseEnService', 'ifcClass'];
 const TABLE_COLS = [
   ['code', 'Code'], ['name', 'element'], ['Etat', 'Etat'], ['NoteEtat', 'NoteEtat'],
-  ['PrioriteEntretien', 'PrioriteEntretien'], ['CoutEstimeFCFA', 'CoutEstimeFCFA'],
+  ['PrioriteEntretien', 'PrioriteEntretien'], ['CoutEstime', 'CoutEstime'],
 ];
 
 /* ------------------------------------------------------------------ helpers */
 const lang = () => (document.documentElement.getAttribute('data-lang') === 'en' ? 'en' : 'fr');
 const t = (k) => T[lang()][k];
-const pl = (k) => (PROP_LABEL[k] ? PROP_LABEL[k][lang() === 'en' ? 1 : 0] : k === 'ifcClass' ? t('ifcClass') : k === 'original' ? t('original') : k);
+let CUR = 'FCFA';
+const pl = (k) => (k === 'CoutEstime' ? `${PROP_LABEL[k][lang() === 'en' ? 1 : 0]} (${CUR})` : PROP_LABEL[k] ? PROP_LABEL[k][lang() === 'en' ? 1 : 0] : k === 'ifcClass' ? t('ifcClass') : k === 'original' ? t('original') : k);
 const tv = (v) => {
   if (v === undefined || v === null || v === '') return T[lang()].none;
   const s = String(v);
@@ -150,6 +153,9 @@ export async function mount(root, { ifcUrl, wasmPath, context }) {
         const val = q.VolumeValue ?? q.LengthValue ?? q.AreaValue ?? q.CountValue;
         rec.props[q.Name.value] = val?.value ?? val;
       }
+    }
+    for (const cur of ['FCFA', 'GNF', 'EUR']) {
+      if (rec.props[`CoutEstime${cur}`] != null) { rec.props.CoutEstime = rec.props[`CoutEstime${cur}`]; delete rec.props[`CoutEstime${cur}`]; CUR = cur; }
     }
     rec.props.ifcClass = prettyClass(api.GetNameFromTypeCode(api.GetLineType(modelID, rec.id)));
   }
@@ -412,7 +418,7 @@ export async function mount(root, { ifcUrl, wasmPath, context }) {
         ${row(pl('Desordre'), esc(tv(p.Desordre)))}
         ${row(pl('PrioriteEntretien'), badge('PrioriteEntretien', p.PrioriteEntretien))}
         ${row(pl('ActionRecommandee'), esc(tv(p.ActionRecommandee)))}
-        ${row(pl('CoutEstimeFCFA'), p.CoutEstimeFCFA ? fmt(p.CoutEstimeFCFA) : esc(T[lang()].none))}
+        ${row(pl('CoutEstime'), p.CoutEstime ? fmt(p.CoutEstime) : esc(T[lang()].none))}
         ${row(pl('Volume'), esc(tv(p.Volume)))}
         ${row(pl('Longueur'), esc(tv(p.Longueur)))}
       </table>
@@ -430,12 +436,12 @@ export async function mount(root, { ifcUrl, wasmPath, context }) {
     vis.sort((a, b) => {
       const x = rank(a), y = rank(b);
       const c = typeof x === 'number' && typeof y === 'number' ? x - y : String(x).localeCompare(String(y), 'fr', { numeric: true });
-      return (c || (b.props.CoutEstimeFCFA || 0) - (a.props.CoutEstimeFCFA || 0)) * state.sortDir;
+      return (c || (b.props.CoutEstime || 0) - (a.props.CoutEstime || 0)) * state.sortDir;
     });
     const head = TABLE_COLS.map(([k, lab]) => {
       const label = lab === 'Code' ? t('code') : lab === 'element' ? t('element') : lab === 'NoteEtat' ? t('score') : pl(lab);
       const arrow = state.sortKey === k ? (state.sortDir === 1 ? ' ▲' : ' ▼') : '';
-      return `<th${k === 'CoutEstimeFCFA' || k === 'NoteEtat' ? ' class="num"' : ''}><button type="button" data-sort="${k}">${esc(label)}${arrow}</button></th>`;
+      return `<th${k === 'CoutEstime' || k === 'NoteEtat' ? ' class="num"' : ''}><button type="button" data-sort="${k}">${esc(label)}${arrow}</button></th>`;
     }).join('');
     const body = vis.map((r) => {
       const p = r.props;
@@ -444,12 +450,12 @@ export async function mount(root, { ifcUrl, wasmPath, context }) {
         <td><span class="bv-badge" style="--c:${colorFor('Etat', p.Etat)}">${esc(tv(p.Etat))}</span></td>
         <td class="num">${esc(tv(p.NoteEtat))}</td>
         <td><span class="bv-badge" style="--c:${colorFor('PrioriteEntretien', p.PrioriteEntretien)}">${esc(p.PrioriteEntretien)}</span></td>
-        <td class="num">${p.CoutEstimeFCFA ? fmt(p.CoutEstimeFCFA) : '—'}</td></tr>`;
+        <td class="num">${p.CoutEstime ? fmt(p.CoutEstime) : '—'}</td></tr>`;
     }).join('');
-    const total = vis.reduce((s, r) => s + (r.props.CoutEstimeFCFA || 0), 0);
+    const total = vis.reduce((s, r) => s + (r.props.CoutEstime || 0), 0);
     ui.table.innerHTML = `<thead><tr>${head}</tr></thead><tbody>${body}</tbody>`;
     ui.total.innerHTML = `<span>${esc(t('shown')(vis.length, all.length))}</span>` +
-      `<span>${esc(t('total'))}${t('colon')}<strong class="mono">${fmt(total)} FCFA</strong></span>`;
+      `<span>${esc(t('total'))}${t('colon')}<strong class="mono">${fmt(total)} ${CUR}</strong></span>`;
   }
 
   /* --- events */
@@ -472,7 +478,7 @@ export async function mount(root, { ifcUrl, wasmPath, context }) {
     const s = e.target.closest('[data-sort]');
     if (s) {
       const k = s.getAttribute('data-sort');
-      state.sortDir = state.sortKey === k ? -state.sortDir : (k === 'CoutEstimeFCFA' || k === 'NoteEtat' ? -1 : 1);
+      state.sortDir = state.sortKey === k ? -state.sortDir : (k === 'CoutEstime' || k === 'NoteEtat' ? -1 : 1);
       state.sortKey = k;
       renderTable();
       return;
@@ -533,8 +539,8 @@ export async function mount(root, { ifcUrl, wasmPath, context }) {
       renderToolbar(); apply(); fitView();
       const shown = filtering ? res : all;
       return {
-        count: shown.length, total: shown.reduce((x, r) => x + (r.props.CoutEstimeFCFA || 0), 0),
-        items: shown.map((r) => ({ name: r.name, code: r.code, etat: r.props.Etat, prio: r.props.PrioriteEntretien, cout: r.props.CoutEstimeFCFA || 0 })),
+        currency: CUR, count: shown.length, total: shown.reduce((x, r) => x + (r.props.CoutEstime || 0), 0),
+        items: shown.map((r) => ({ name: r.name, code: r.code, etat: r.props.Etat, prio: r.props.PrioriteEntretien, cout: r.props.CoutEstime || 0 })),
       };
     },
     destroy() {

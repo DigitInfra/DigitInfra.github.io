@@ -9,7 +9,7 @@ const T = {
     weights: 'Pondération des critères', reset: 'Réinitialiser', budget: 'Enveloppe budgétaire',
     funded: 'Ouvrages financés', committed: 'Montant engagé', avoided: 'Coût de l’inaction évité / an',
     legend: 'Légende', rank: 'Rang', code: 'Code', asset: 'Ouvrage', family: 'Famille', condition: 'État', score: 'Score',
-    cost: 'Coût (FCFA)', cum: 'Cumul (FCFA)', fin: 'Financé', source: 'Financement envisagé',
+    cost: 'Coût ({CUR})', cum: 'Cumul ({CUR})', fin: 'Financé', source: 'Financement envisagé',
     open3d: 'Voir en 3D', loading: 'Chargement de la carte…', back: '← Retour à la carte', loading3d: 'Chargement de la maquette…',
     popDens: 'Densité de population (maille)', noLayer: 'Aucune couche de contexte n’était active sur la carte.',
     impact: 'Impact', eff: 'Efficacité', effNow: 'Efficacité actuelle', effRehab: 'Après réhabilitation', verdict: 'Verdict',
@@ -19,7 +19,7 @@ const T = {
     depth: 'Lame d’eau de référence', within: 'à moins de 500 m', none500: 'aucun à moins de 500 m', ctxNote: 'Couches reprises de la carte',
     disclaimer: 'Fond de carte réel utilisé à titre d’illustration. Ouvrages, états, couches et montants sont fictifs et ne décrivent pas le patrimoine de cette ville.',
     tmja: 'Trafic (TMJA, véh./j)', pop: 'Population à proximité (600 m)', flood: 'Aléa inondation', sol: 'Sol', equip: 'Équipements à moins de 500 m',
-    inaction: 'Coût de l’inaction (FCFA/an)', year: 'Mise en service', insp: 'Dernière inspection', type: 'Type',
+    inaction: 'Coût de l’inaction ({CUR}/an)', year: 'Mise en service', insp: 'Dernière inspection', type: 'Type',
     breakdown: 'Contribution au score', yes: 'Oui', no: 'Non', perKm: 'hab./km²',
     fundedLeg: 'Financé dans l’enveloppe', notFundedLeg: 'Hors enveloppe', sizeLeg: 'Taille du cercle : coût',
     floodCls: ['Faible', 'Modéré', 'Élevé', 'Très élevé'], fac: { 'École': 'École', 'Centre de santé': 'Centre de santé', 'Marché': 'Marché' },
@@ -31,7 +31,7 @@ const T = {
     weights: 'Criteria weights', reset: 'Reset', budget: 'Budget envelope',
     funded: 'Assets funded', committed: 'Amount committed', avoided: 'Avoided cost of inaction / yr',
     legend: 'Legend', rank: 'Rank', code: 'Code', asset: 'Asset', family: 'Family', condition: 'Condition', score: 'Score',
-    cost: 'Cost (FCFA)', cum: 'Cumulative (FCFA)', fin: 'Funded', source: 'Intended funding',
+    cost: 'Cost ({CUR})', cum: 'Cumulative ({CUR})', fin: 'Funded', source: 'Intended funding',
     open3d: 'View in 3D', loading: 'Loading the map…', back: '← Back to the map', loading3d: 'Loading the model…',
     popDens: 'Population density (grid cell)', noLayer: 'No context layer was active on the map.',
     impact: 'Impact', eff: 'Efficiency', effNow: 'Current efficiency', effRehab: 'After rehabilitation', verdict: 'Verdict',
@@ -41,7 +41,7 @@ const T = {
     depth: 'Reference water depth', within: 'within 500 m', none500: 'none within 500 m', ctxNote: 'Layers carried over from the map',
     disclaimer: 'Real basemap used for illustration only. Assets, conditions, layers and amounts are fictitious and do not describe this city’s assets.',
     tmja: 'Traffic (AADT, veh./day)', pop: 'Population nearby (600 m)', flood: 'Flood hazard', sol: 'Soil', equip: 'Facilities within 500 m',
-    inaction: 'Cost of inaction (FCFA/yr)', year: 'In service since', insp: 'Last inspection', type: 'Type',
+    inaction: 'Cost of inaction ({CUR}/yr)', year: 'In service since', insp: 'Last inspection', type: 'Type',
     breakdown: 'Score contribution', yes: 'Yes', no: 'No', perKm: 'pop./km²',
     fundedLeg: 'Funded within envelope', notFundedLeg: 'Outside envelope', sizeLeg: 'Circle size: cost',
     floodCls: ['Low', 'Moderate', 'High', 'Very high'], fac: { 'École': 'School', 'Centre de santé': 'Health centre', 'Marché': 'Market' },
@@ -69,26 +69,54 @@ const EN = {
   'Mairie d’arrondissement': 'District town hall', 'Marché couvert': 'Covered market', 'Collège': 'Secondary school',
   'Voie express': 'Expressway', 'Voie principale': 'Main road', 'Voie secondaire': 'Secondary road',
   Suffisant: 'Sufficient', 'À renforcer': 'To be reinforced', 'À compléter': 'To be complemented',
+  'Ouvrages d’art': 'Bridges & culverts', 'Routes revêtues': 'Paved roads', 'Pistes rurales': 'Rural tracks',
+  'Pont à poutres en béton armé': 'Reinforced concrete girder bridge', 'Buse métallique': 'Corrugated steel culvert', 'Radier submersible': 'Submersible drift',
+  'Section de route bitumée': 'Paved road section', 'Section en remblai sur zone basse': 'Embankment section over low ground',
+  'Piste en latérite': 'Laterite track', 'Piste en terre': 'Earth track', 'Vases de mangrove': 'Mangrove muds',
+  'Alluvions argilo-sableuses': 'Clay-sand alluvium', 'Sols ferrallitiques (latérite)': 'Ferralitic soils (laterite)',
+  'Budget national d’investissement': 'National investment budget', 'Collectivité locale': 'Local authority',
+  'Route nationale': 'National road', 'Route secondaire': 'Secondary road', 'Piste rurale': 'Rural track',
 };
 const ETAT_C = { Bon: '#2E9E6B', Moyen: '#E0A100', 'Dégradé': '#E07A3F', Critique: '#D64545' };
-const FAM_C = { 'Voirie & ouvrages d’art': '#0D2B5C', 'Drainage & assainissement': '#00A3AD', 'Bâtiments publics': '#7A5CC2' };
-const FIN_C = { 'Fonds d’entretien routier': '#0D2B5C', 'Budget communal': '#4CA64C', 'Bailleur (programme)': '#E07A3F' };
+/* zone profiles: what differs between demonstrators (currency, families, soils, facilities, funding sources) */
+const ZONES = {
+  bj: {
+    cur: 'FCFA', div: 1e6, sfx: ['M', 'M'], step: 1e6, minZoom: 12,
+    fam: { 'Voirie & ouvrages d’art': '#0D2B5C', 'Drainage & assainissement': '#00A3AD', 'Bâtiments publics': '#7A5CC2' },
+    fin: { 'Fonds d’entretien routier': '#0D2B5C', 'Budget communal': '#4CA64C', 'Bailleur (programme)': '#E07A3F' },
+    sol: { 'Sables littoraux': '#E9D38C', 'Argiles et vases compressibles': '#9C8AC9', 'Terre de barre (sols latéritiques)': '#C9784A' },
+    solv: { 'Argiles et vases compressibles': 1, 'Sables littoraux': 0.6, 'Terre de barre (sols latéritiques)': 0.2 },
+    fac: { 'École': ['#00C2CB', 'École', 'School'], 'Centre de santé': ['#C24C7A', 'Centre de santé', 'Health centre'], 'Marché': ['#7A5CC2', 'Marché', 'Market'] },
+    basins: ['Bassins agricoles', 'Farm basins'],
+  },
+  gn: {
+    cur: 'GNF', div: 1e9, sfx: ['Md', 'bn'], step: 1e8, minZoom: 11,
+    fam: { 'Ouvrages d’art': '#0D2B5C', 'Routes revêtues': '#00A3AD', 'Pistes rurales': '#C9784A' },
+    fin: { 'Fonds d’entretien routier': '#0D2B5C', 'Budget national d’investissement': '#7A5CC2', 'Collectivité locale': '#4CA64C', 'Bailleur (programme)': '#E07A3F' },
+    sol: { 'Vases de mangrove': '#9C8AC9', 'Alluvions argilo-sableuses': '#E9D38C', 'Sols ferrallitiques (latérite)': '#C9784A' },
+    solv: { 'Vases de mangrove': 1, 'Alluvions argilo-sableuses': 0.6, 'Sols ferrallitiques (latérite)': 0.2 },
+    fac: { 'Marché': ['#7A5CC2', 'Marché', 'Market'], 'Point de collecte': ['#2E7D32', 'Point de collecte', 'Collection point'], 'Centre de santé': ['#C24C7A', 'Centre de santé', 'Health centre'] },
+    basins: ['Bassins de production et flux', 'Production basins and flows'],
+  },
+};
+let Z = ZONES.bj;
+let FAM_C = Z.fam, FIN_C = Z.fin, SOL_C = Z.sol, SOL_V = Z.solv, FAC_C = {};
 const VERDICT_C = { Suffisant: '#2E9E6B', 'À renforcer': '#E0A100', 'À compléter': '#D64545' };
 const EFF_BREAKS = [[0.85, '#2E9E6B'], [0.6, '#E0A100'], [0, '#D64545']];
-const SOL_C = { 'Sables littoraux': '#E9D38C', 'Argiles et vases compressibles': '#9C8AC9', 'Terre de barre (sols latéritiques)': '#C9784A' };
-const SOL_V = { 'Argiles et vases compressibles': 1, 'Sables littoraux': 0.6, 'Terre de barre (sols latéritiques)': 0.2 };
-const FAC_C = { 'École': '#00C2CB', 'Centre de santé': '#C24C7A', 'Marché': '#7A5CC2' };
+
 const SCORE_BREAKS = [[70, '#D64545'], [55, '#E07A3F'], [40, '#E0A100'], [25, '#A6B83A'], [0, '#2E9E6B']];
 const POP_BREAKS = [[22000, '#0D2B5C'], [16000, '#234A7A'], [10000, '#5C83B5'], [5000, '#A9C3E0'], [0, '#E3ECF6']];
 const FLOOD_BREAKS = [[0.75, '#08519C'], [0.5, '#3182BD'], [0.25, '#9ECAE1'], [0, '#E6F2F8']];
 
 const lang = () => (document.documentElement.getAttribute('data-lang') === 'en' ? 'en' : 'fr');
-const t = (k) => T[lang()][k];
+const t = (k) => { const v = T[lang()][k]; return typeof v === 'string' ? v.replace('{CUR}', Z.cur) : v; };
+const facName = (k) => (Z.fac[k] ? Z.fac[k][lang() === 'en' ? 2 : 1] : k);
 const tv = (v) => (v == null ? '—' : lang() === 'en' ? (EN[v] || v) : v);
 const fmt = (n) => (n == null ? '—' : new Intl.NumberFormat(lang() === 'en' ? 'en-GB' : 'fr-FR').format(n));
 const fmt2 = (n) => new Intl.NumberFormat(lang() === 'en' ? 'en-GB' : 'fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
 const pct = (x) => (lang() === 'en' ? `${Math.round(x * 100)}%` : `${Math.round(x * 100)} %`);
-const fmtM = (n) => (lang() === 'en' ? `${(n / 1e6).toFixed(1)} M` : `${(n / 1e6).toFixed(1).replace('.', ',')} M`);
+const fmtM = (n) => (lang() === 'en' ? `${(n / Z.div).toFixed(1)} ${Z.sfx[1]}` : `${(n / Z.div).toFixed(1).replace('.', ',')} ${Z.sfx[0]}`);
+const money = (n) => `${fmtM(n)} ${Z.cur}`;
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const brk = (v, b) => b.find(([x]) => v >= x)[1];
 const floodCls = (f) => t('floodCls')[f >= 0.75 ? 3 : f >= 0.5 ? 2 : f >= 0.25 ? 1 : 0];
@@ -96,6 +124,11 @@ const floodCls = (f) => t('floodCls')[f >= 0.75 ? 3 : f >= 0.5 ? 2 : f >= 0.25 ?
 export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) {
   root.innerHTML = `<p class="bv-status mono">${esc(t('loading'))}</p>`;
   const data = await (await fetch(dataUrl)).json();
+  Z = ZONES[data.meta?.zone] || ZONES.bj;
+  FAM_C = Z.fam; FIN_C = Z.fin; SOL_C = Z.sol; SOL_V = Z.solv;
+  FAC_C = Object.fromEntries(Object.entries(Z.fac).map(([k, v]) => [k, v[0]]));
+  const FP = Object.fromEntries((data.flowpaths || []).map((f) => [f.id, f]));
+  const flowGeom = (f, a) => (f.id != null && FP[f.id] ? FP[f.id] : { ...f, path: [f.from, [a.lat, a.lon], f.to] });
   root.classList.add('bv-ready');
   root.innerHTML = '';
   const ui = buildUI(root);
@@ -112,15 +145,16 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
     };
   }
   const totalCost = A.reduce((s, a) => s + a.cout, 0);
+  const maxCost = Math.max(...A.map((a) => a.cout));
   const state = {
     w: Object.fromEntries(CRIT.map(([k, , d]) => [k, d])), color: 'score', base: 'none',
-    traffic: false, facilities: false, basins: false, query: null, queryLabel: '', budget: Math.round(totalCost * 0.3 / 1e6) * 1e6, selected: null,
+    traffic: false, facilities: false, basins: false, query: null, queryLabel: '', budget: Math.round(totalCost * 0.3 / Z.step) * Z.step, selected: null,
   };
 
   /* --- map */
   const [[s, w], [n, e]] = data.bounds;
   const bounds = L.latLngBounds([s, w], [n, e]);
-  const map = L.map(ui.map, { minZoom: 12, maxZoom: 16, maxBounds: bounds.pad(0.25), zoomSnap: 0.5, attributionControl: true });
+  const map = L.map(ui.map, { minZoom: Z.minZoom || 12, maxZoom: 16, maxBounds: bounds.pad(0.25), zoomSnap: 0.5, attributionControl: true });
   map.attributionControl.setPrefix(false);
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 16, attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> · GIN²CO (données fictives)',
@@ -156,12 +190,25 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
   function fillFac(group) {
     for (const f of data.facilities) {
       L.circleMarker([f.lat, f.lon], { radius: 4.5, color: '#fff', weight: 1.5, fillColor: FAC_C[f.type], fillOpacity: 1 })
-        .bindTooltip(esc(t('fac')[f.type]), { className: 'sg-tip' }).addTo(group);
+        .bindTooltip(esc(facName(f.type)), { className: 'sg-tip' }).addTo(group);
     }
   }
-  const basinName = (n) => (lang() === 'en' ? n.replace('Bassin maraîcher', 'Market-garden basin').replace('Arrière-pays nord-ouest', 'North-western hinterland').replace('Arrière-pays ouest', 'Western hinterland').replace('Zone portuaire', 'Port area').replace('Marché couvert', 'Covered market').replace('Marché (fictif)', 'Market (fictitious)') : n);
+  const EN_NAMES = Object.fromEntries([...(data.basins || []), ...(data.flowpaths || []).flatMap((f) => [{ name: f.bname, name_en: f.bname_en }, { name: f.dname, name_en: f.dname_en }])]
+    .filter((b) => b.name_en).map((b) => [b.name, b.name_en]));
+  const basinName = (n) => (lang() === 'en' ? EN_NAMES[n] || n.replace('Bassin maraîcher', 'Market-garden basin').replace('Arrière-pays nord-ouest', 'North-western hinterland').replace('Arrière-pays ouest', 'Western hinterland').replace('Zone portuaire', 'Port area').replace('Marché couvert', 'Covered market').replace('Marché (fictif)', 'Market (fictitious)') : n);
   function fillBasins(group) {
+    const fmax = Math.max(1, ...(data.flowpaths || []).map((f) => f.t));
+    for (const f of data.flowpaths || []) {
+      L.polyline(f.path, { color: '#2E7D32', weight: 1.5 + 5 * Math.sqrt(f.t / fmax), opacity: 0.45, lineCap: 'round' })
+        .bindTooltip(`${esc(basinName(f.bname))} → ${esc(basinName(f.dname))} : ${fmt(f.t)} t/${lang() === 'en' ? 'yr' : 'an'}`, { className: 'sg-tip', sticky: true })
+        .addTo(group);
+    }
     for (const b of data.basins) {
+      if (b.kind === 'marche') {
+        L.circleMarker([b.lat, b.lon], { radius: 7, color: '#fff', weight: 2, fillColor: '#7A5CC2', fillOpacity: 1 })
+          .bindTooltip(esc(basinName(b.name)), { className: 'sg-tip' }).addTo(group);
+        continue;
+      }
       L.circleMarker([b.lat, b.lon], { radius: 6 + Math.sqrt(b.t) / 14, color: '#2E7D32', weight: 1.5, fillColor: '#7BC47F', fillOpacity: 0.55 })
         .bindTooltip(`${esc(basinName(b.name))} — ${fmt(b.t)} t/${lang() === 'en' ? 'yr' : 'an'}`, { className: 'sg-tip' })
         .addTo(group);
@@ -208,7 +255,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
     for (const a of A) {
       const dim = state.query && !state.query.has(a.code);
       const style = {
-        radius: 6 + Math.sqrt(a.cout / 1e6) * 1.3, fillColor: colorOf(a), fillOpacity: dim ? 0.12 : 0.92,
+        radius: 6 + 10 * Math.sqrt(a.cout / maxCost), fillColor: colorOf(a), fillOpacity: dim ? 0.12 : 0.92,
         color: a.funded ? '#0D2B5C' : '#ffffff', weight: a.funded ? 3 : 1.5, dashArray: null, opacity: dim ? 0.2 : 1,
       };
       let m = markers.get(a.code);
@@ -236,7 +283,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
       <table class="bv-kv">${im.kpis.map(kv).join('')}</table>
       ${bar(t('effNow'), im.eff)}${bar(t('effRehab'), im.eff_rehab)}
       <p><span class="bv-badge" style="--c:${VERDICT_C[im.verdict]}">${esc(t('verdict'))} : ${esc(tv(im.verdict))}</span></p>
-      ${im.complement ? `<p class="sg-comp"><strong>${esc(t('complement'))} :</strong> ${esc(lang() === 'en' ? im.complement.en : im.complement.fr)} — ${esc(t('estCost'))} ${fmtM(im.complement.cost)} FCFA</p>` : ''}
+      ${im.complement ? `<p class="sg-comp"><strong>${esc(t('complement'))} :</strong> ${esc(lang() === 'en' ? im.complement.en : im.complement.fr)} — ${esc(t('estCost'))} ${money(im.complement.cost)}</p>` : ''}
       <details class="sg-rule"><summary>${esc(t('rule'))}</summary><p>${esc(lang() === 'en' ? im.rule.en : im.rule.fr)}</p></details>
     </div>`;
   }
@@ -278,13 +325,14 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
     im.zone.forEach((i) => rect(i, '#00C2CB', null));
     im.residual.forEach((i) => rect(i, '#D64545', '4 3'));
     const tmax = Math.max(1, ...im.flows.map((f) => f.t));
-    for (const f of im.flows) {
+    for (const f0 of im.flows) {
+      const f = { ...flowGeom(f0, a), t: f0.t };
       const w = 2 + 8 * (f.t / tmax);
-      L.polyline([f.from, [a.lat, a.lon], f.to], { color: '#2E7D32', weight: w, opacity: 0.75, lineCap: 'round' })
+      L.polyline(f.path, { color: '#2E7D32', weight: w, opacity: 0.75, lineCap: 'round' })
         .bindTooltip(`${esc(basinName(f.bname))} → ${esc(basinName(f.dname))} : ${fmt(f.t)} t/${lang() === 'en' ? 'yr' : 'an'}`, { className: 'sg-tip', sticky: true })
         .addTo(impactLayer);
-      L.circleMarker(f.from, { radius: 6, color: '#2E7D32', weight: 2, fillColor: '#7BC47F', fillOpacity: 1 }).addTo(impactLayer);
-      L.circleMarker(f.to, { radius: 5, color: '#2E7D32', weight: 2, fillColor: '#fff', fillOpacity: 1 }).addTo(impactLayer);
+      L.circleMarker(f.path[0], { radius: 6, color: '#2E7D32', weight: 2, fillColor: '#7BC47F', fillOpacity: 1 }).addTo(impactLayer);
+      L.circleMarker(f.path[f.path.length - 1], { radius: 5, color: '#2E7D32', weight: 2, fillColor: '#fff', fillOpacity: 1 }).addTo(impactLayer);
     }
   }
 
@@ -334,7 +382,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
         { label: t('effRehab'), value: pct(a.impact.eff_rehab), color: brk(a.impact.eff_rehab, EFF_BREAKS) },
         { label: t('verdict'), value: tv(a.impact.verdict), color: VERDICT_C[a.impact.verdict] },
       ];
-      if (a.impact.complement) items.push({ label: t('complement'), value: `${lang() === 'en' ? a.impact.complement.en : a.impact.complement.fr} (${fmtM(a.impact.complement.cost)} FCFA)` });
+      if (a.impact.complement) items.push({ label: t('complement'), value: `${lang() === 'en' ? a.impact.complement.en : a.impact.complement.fr} (${money(a.impact.complement.cost)})` });
       const sc = { facilities: [], impact: { label: `${lang() === 'en' ? a.impact.label.en : a.impact.label.fr} · ${t('eff')} ${pct(a.impact.eff)}`, color: VERDICT_C[a.impact.verdict] } };
       const cell = cellAt(a);
       if (snap.base === 'pop') {
@@ -359,8 +407,8 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
       }
       if (snap.facilities) {
         const near = data.facilities.map((f) => ({ f, ...geo(a, f) })).filter((x) => x.d <= 500).sort((x, y) => x.d - y.d);
-        items.push({ label: t('facilities'), value: near.length ? near.map((x) => `${t('fac')[x.f.type]} ${Math.round(x.d)} m`).join(' · ') : t('none500') });
-        sc.facilities = near.map((x) => ({ label: `${t('fac')[x.f.type]} · ${Math.round(x.d)} m`, dist: x.d, bearing: x.bearing, color: FAC_C[x.f.type] }));
+        items.push({ label: t('facilities'), value: near.length ? near.map((x) => `${facName(x.f.type)} ${Math.round(x.d)} m`).join(' · ') : t('none500') });
+        sc.facilities = near.map((x) => ({ label: `${facName(x.f.type)} · ${Math.round(x.d)} m`, dist: x.d, bearing: x.bearing, color: FAC_C[x.f.type] }));
       }
       if (snap.base === 'none' && !snap.traffic && !snap.facilities) items.push({ label: t('ctxNote'), value: t('noLayer') });
       return {
@@ -375,7 +423,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
           if (snap.facilities) fillFac(g);
           a.impact.zone.forEach((i) => { const c = data.cells[i]; L.rectangle([[c.b[0], c.b[1]], [c.b[2], c.b[3]]], { color: '#00C2CB', weight: 1, fillOpacity: 0.25, interactive: false }).addTo(g); });
           a.impact.residual.forEach((i) => { const c = data.cells[i]; L.rectangle([[c.b[0], c.b[1]], [c.b[2], c.b[3]]], { color: '#D64545', weight: 1, dashArray: '4 3', fillOpacity: 0.25, interactive: false }).addTo(g); });
-          a.impact.flows.forEach((f) => L.polyline([f.from, [a.lat, a.lon], f.to], { color: '#2E7D32', weight: 3, opacity: 0.7 }).addTo(g));
+          a.impact.flows.forEach((f) => L.polyline(flowGeom(f, a).path, { color: '#2E7D32', weight: 3, opacity: 0.7 }).addTo(g));
           L.circle([a.lat, a.lon], { radius: 500, color: '#0D2B5C', weight: 1, dashArray: '4 4', fill: false, interactive: false }).addTo(mm);
           L.circleMarker([a.lat, a.lon], { radius: 8, fillColor: colorOf(a), fillOpacity: 1, color: '#00C2CB', weight: 3 }).addTo(mm);
           setTimeout(() => mm.invalidateSize(), 50);
@@ -456,14 +504,14 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
     const bopts = [['none', t('none')], ['pop', lang() === 'en' ? 'Population density' : 'Densité de population'], ['flood', t('flood')], ['sol', lang() === 'en' ? 'Geotechnics' : 'Géotechnique']];
     ui.base.innerHTML = bopts.map(([v, l]) => `<option value="${v}"${v === state.base ? ' selected' : ''}>${esc(l)}</option>`).join('');
     ui.trafficCb.checked = state.traffic; ui.facCb.checked = state.facilities; ui.basinCb.checked = state.basins;
-    ui.basinLabel.textContent = t('basins');
+    ui.basinLabel.textContent = Z.basins[lang() === 'en' ? 1 : 0];
     ui.weightsH.textContent = t('weights');
     ui.resetBtn.textContent = t('reset');
     ui.weights.innerHTML = CRIT.map(([k, lab]) => `<label class="sg-w"><span>${esc(lab[L_])}</span>
       <input type="range" min="0" max="5" step="1" value="${state.w[k]}" data-w="${k}" aria-label="${esc(lab[L_])}"><b class="mono">${state.w[k]}</b></label>`).join('');
     ui.budgetH.textContent = t('budget');
-    ui.budget.max = String(Math.ceil(totalCost / 1e6) * 1e6);
-    ui.budget.step = '1000000';
+    ui.budget.max = String(Math.ceil(totalCost / Z.step) * Z.step);
+    ui.budget.step = String(Z.step);
     ui.budget.value = String(state.budget);
     ui.budgetNote.textContent = t('budgetNote');
     ui.disclaimer.textContent = t('disclaimer');
@@ -471,11 +519,11 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
 
   function renderStats(ranked) {
     const f = ranked.filter((a) => a.funded);
-    ui.budgetVal.textContent = `${fmt(state.budget)} FCFA`;
+    ui.budgetVal.textContent = `${fmt(state.budget)} ${Z.cur}`;
     ui.stats.innerHTML = `
       <div><span>${esc(t('funded'))}</span><b class="mono">${f.length} / ${A.length}</b></div>
-      <div><span>${esc(t('committed'))}</span><b class="mono">${fmtM(f.reduce((s, a) => s + a.cout, 0))} FCFA</b></div>
-      <div><span>${esc(t('avoided'))}</span><b class="mono">${fmtM(f.reduce((s, a) => s + a.inaction, 0))} FCFA</b></div>`;
+      <div><span>${esc(t('committed'))}</span><b class="mono">${money(f.reduce((s, a) => s + a.cout, 0))}</b></div>
+      <div><span>${esc(t('avoided'))}</span><b class="mono">${money(f.reduce((s, a) => s + a.inaction, 0))}</b></div>`;
   }
 
   function renderLegend() {
@@ -504,11 +552,11 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
       if (im.flows.length) html += item('#2E7D32', t('flowsLeg'));
       html += '</ul>';
     }
-    if (state.basins) html += `<ul class="bv-legend-list sg-leg">${item('#7BC47F', t('basins'), ';border-radius:50%')}</ul>`;
+    if (state.basins) html += `<ul class="bv-legend-list sg-leg">${item('#7BC47F', Z.basins[lang() === 'en' ? 1 : 0], ';border-radius:50%')}${data.flowpaths ? item('#2E7D32', t('flowsLeg')) + item('#7A5CC2', lang() === 'en' ? 'Markets and exits' : 'Marchés et sorties', ';border-radius:50%') : ''}</ul>`;
     if (state.traffic || state.facilities) {
       html += '<ul class="bv-legend-list sg-leg">';
       if (state.traffic) html += item('#5C83B5', `${t('traffic')} (TMJA)`, ';border-radius:50%');
-      if (state.facilities) html += Object.entries(FAC_C).map(([k, c]) => item(c, t('fac')[k], ';border-radius:50%')).join('');
+      if (state.facilities) html += Object.entries(FAC_C).map(([k, c]) => item(c, facName(k), ';border-radius:50%')).join('');
       html += '</ul>';
     }
     ui.legend.innerHTML = html;
@@ -585,11 +633,11 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
   const budgetSummary = () => {
     const f = ranked.filter((a) => a.funded);
     return lang() === 'en'
-      ? `${f.length} assets funded, ${fmtM(f.reduce((s_, a) => s_ + a.cout, 0))} FCFA committed, ${fmtM(f.reduce((s_, a) => s_ + a.inaction, 0))} FCFA/yr of inaction avoided.`
-      : `${f.length} ouvrages financés, ${fmtM(f.reduce((s_, a) => s_ + a.cout, 0))} FCFA engagés, ${fmtM(f.reduce((s_, a) => s_ + a.inaction, 0))} FCFA/an d’inaction évités.`;
+      ? `${f.length} assets funded, ${money(f.reduce((s_, a) => s_ + a.cout, 0))} committed, ${money(f.reduce((s_, a) => s_ + a.inaction, 0))}/yr of inaction avoided.`
+      : `${f.length} ouvrages financés, ${money(f.reduce((s_, a) => s_ + a.cout, 0))} engagés, ${money(f.reduce((s_, a) => s_ + a.inaction, 0))}/an d’inaction évités.`;
   };
   const assistant = createAssistant({
-    lang, tv,
+    lang, tv, zone: data.meta?.zone || 'bj', cur: Z.cur, fmtM, money, unit: Z.div, basinsLabel: Z.basins,
     assets: () => ranked,
     viewer: () => (overlay && overlay.viewer) || null,
     close3d: () => overlay && overlay.close(),
@@ -601,7 +649,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
     focus: (code) => { if (overlay) overlay.close(); select(code, true); },
     setQuery: (codes, label) => setQuery(codes, label),
     setBudget: (v) => {
-      state.budget = Math.max(0, Math.min(Math.ceil(totalCost / 1e6) * 1e6, Math.round(v / 1e6) * 1e6));
+      state.budget = Math.max(0, Math.min(Math.ceil(totalCost / Z.step) * Z.step, Math.round(v / Z.step) * Z.step));
       ui.budget.value = String(state.budget); update(); return state.budget;
     },
     budgetSummary,

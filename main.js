@@ -58,6 +58,7 @@
     }
 
     var here = window.location.pathname.split('/').pop() || 'index.html';
+    if(/^ginco-.+\.html$/.test(here)) here = 'ginco.html';
     document.querySelectorAll('nav.links a').forEach(function(a){
       var target = a.getAttribute('href').split('?')[0].split('#')[0];
       if(target === here) a.classList.add('active');

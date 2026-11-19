@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="fr" data-lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GIN²CO Guinée — démonstrateur — DigitInfra</title>
+<meta name="description" content="Démonstrateur GIN²CO Guinée : routes, pistes rurales et flux agricoles (données fictives).">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site">
+  <div class="container nav-row">
+    <a class="brand" href="index.html" aria-label="DigitInfra — accueil">
+      <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6 34L20 8" stroke="#0D2B5C" stroke-width="3" stroke-linecap="round"/>
+        <path d="M11 34L20 14" stroke="#0D2B5C" stroke-width="2" stroke-linecap="round"/>
+        <path d="M4 36C12 30 18 30 24 34" stroke="#0D2B5C" stroke-width="3" stroke-linecap="round" fill="none"/>
+        <rect x="25" y="12" width="5" height="24" fill="#00C2CB"/>
+        <rect x="33" y="27" width="5" height="5" fill="#00C2CB" opacity="0.9"/>
+        <rect x="40" y="29" width="4" height="4" fill="#00C2CB" opacity="0.6"/>
+        <rect x="46" y="31" width="3" height="3" fill="#00C2CB" opacity="0.35"/>
+      </svg>
+      <span class="brand-word"><span class="b1">Digit</span><span class="b2">Infra</span></span>
+    </a>
+    <nav class="links">
+      <a href="index.html"><span data-fr-only>Accueil</span><span data-en-only>Home</span></a>
+      <a href="about.html"><span data-fr-only>À propos</span><span data-en-only>About</span></a>
+      <a href="services.html">Services</a>
+      <a href="ginco.html">GIN²CO</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <div style="display:flex; align-items:center; gap:14px;">
+      <div class="lang-toggle">
+        <button data-lang-btn="fr" class="active">FR</button>
+        <button data-lang-btn="en">EN</button>
+      </div>
+      <button class="menu-btn" aria-label="Menu" aria-expanded="false"><span></span></button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero" style="padding-bottom:48px;">
+    <div class="container">
+      <p class="eyebrow"><span data-fr-only>GIN²CO — Démonstrateur</span><span data-en-only>GIN²CO — Demonstrator</span></p>
+      <nav class="zone-tabs" aria-label="Zones"><a href="ginco.html#zones" class="zone-back"><span data-fr-only>← Tous les démonstrateurs</span><span data-en-only>← All demonstrators</span></a><a href="ginco-benin.html" class="zone-tab"><b><span data-fr-only>Bénin</span><span data-en-only>Benin</span></b><span><span data-fr-only>patrimoine urbain</span><span data-en-only>urban assets</span></span></a><a href="ginco-guinee.html" class="zone-tab is-current" aria-current="page"><b><span data-fr-only>Guinée</span><span data-en-only>Guinea</span></b><span><span data-fr-only>routes et flux agricoles</span><span data-en-only>roads and farm flows</span></span></a></nav>
+      <h1 style="max-width:860px;"><span data-fr-only>Guinée — routes et flux agricoles</span><span data-en-only>Guinea — roads and farm produce flows</span></h1>
+      <p class="lead" style="max-width:760px;"><span data-fr-only>Ponts, dalots, buses, radiers, routes revêtues et pistes rurales entre les bassins de production et les marchés : vingt-cinq ouvrages fictifs, leurs maquettes IFC et leur rôle dans l'acheminement des produits agricoles.</span><span data-en-only>Bridges, culverts, drifts, paved roads and rural tracks between production basins and markets: twenty-five fictitious assets, their IFC models and their role in carrying farm produce.</span></p>
+      <div class="hero-cta"><a class="btn btn-ghost btn-arrow" href="#demo"><span data-fr-only>Voir la maquette 3D</span><span data-en-only>See the 3D model</span></a><a class="btn btn-ghost btn-arrow" href="#sig"><span data-fr-only>Voir la carte SIG</span><span data-en-only>See the GIS map</span></a></div>
+    </div>
+  </section>
+
+  <section id="demo" class="tight" style="padding-top:0;">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow"><span data-fr-only>Démonstration</span><span data-en-only>Demonstration</span></p>
+        <h2><span data-fr-only>Le jumeau numérique d'un pont</span><span data-en-only>The digital twin of a bridge</span></h2>
+        <div class="status"><span class="dot"></span><span data-fr-only>OUVRAGE FICTIF — DONNÉES DE DÉMONSTRATION</span><span data-en-only>FICTITIOUS STRUCTURE — DEMONSTRATION DATA</span></div>
+        <p><span data-fr-only>Un pont à poutres en béton armé à deux travées, modélisé en IFC 4 openBIM : culées, pile, poutres, hourdis, appareils d'appui, joints, garde-corps et enrochements. Chaque élément porte son état, ses désordres, sa priorité et son coût d'entretien en francs guinéens. Le fichier est lu directement dans votre navigateur.</span><span data-en-only>A two-span reinforced concrete girder bridge modelled in openBIM IFC 4: abutments, pier, girders, deck slab, bearings, joints, railings and riprap. Each element carries its condition, defects, priority and maintenance cost in Guinean francs. The file is read directly in your browser.</span></p>
+      </div>
+      <div class="bv-placeholder" id="bim-viewer">
+        <svg viewBox="0 0 220 90" width="220" height="90" aria-hidden="true" fill="none">
+          <rect x="20" y="40" width="180" height="8" fill="#0D2B5C"/>
+          <rect x="20" y="48" width="8" height="30" fill="#0D2B5C"/><rect x="106" y="48" width="8" height="30" fill="#0D2B5C"/><rect x="192" y="48" width="8" height="30" fill="#0D2B5C"/>
+          <rect x="20" y="78" width="180" height="6" fill="#0D2B5C"/>
+          <rect x="8" y="30" width="204" height="6" fill="#00C2CB"/>
+          <rect x="150" y="18" width="7" height="7" fill="#00C2CB" opacity=".7"/><rect x="164" y="12" width="5" height="5" fill="#00C2CB" opacity=".45"/><rect x="176" y="8" width="4" height="4" fill="#00C2CB" opacity=".25"/>
+        </svg>
+        <button type="button" class="btn btn-primary btn-arrow" id="bim-load"><span data-fr-only>Charger la démonstration 3D</span><span data-en-only>Load the 3D demonstration</span></button>
+        <p class="mono bv-note"><span data-fr-only>≈ 1,2 Mo · IFC 4 lu dans le navigateur · aucune installation</span><span data-en-only>≈ 1.2 MB · IFC 4 read in the browser · nothing to install</span></p>
+        <a class="bv-dl" href="viewer/gn/models/OA-01.ifc" download="OA-01.ifc"><span data-fr-only>Télécharger le fichier IFC ({KB} Ko)</span><span data-en-only>Download the IFC file ({KB} KB)</span></a>
+      </div>
+    </div>
+  </section>
+  <script type="module">
+    const btn = document.getElementById('bim-load');
+    btn.addEventListener('click', async () => {
+      const root = document.getElementById('bim-viewer');
+      btn.disabled = true;
+      try {
+        const { mount } = await import('./viewer/gin2co-viewer.js');
+        await mount(root, { ifcUrl: 'viewer/gn/models/OA-01.ifc', wasmPath: new URL('viewer/', location.href).href });
+      } catch (err) {
+        console.error(err);
+        root.innerHTML = document.documentElement.dataset.lang === 'en'
+          ? '<p class="bv-status">The 3D model could not be loaded in this browser.</p>'
+          : '<p class="bv-status">La maquette 3D n’a pas pu être chargée dans ce navigateur.</p>';
+      }
+    });
+  </script>
+
+  <section id="sig" class="tight" style="padding-top:0;">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow"><span data-fr-only>Système d'information géographique</span><span data-en-only>Geographic information system</span></p>
+        <h2><span data-fr-only>Des bassins de production aux marchés</span><span data-en-only>From production basins to markets</span></h2>
+        <div class="status"><span class="dot"></span><span data-fr-only>FOND DE CARTE RÉEL — OUVRAGES ET DONNÉES FICTIFS</span><span data-en-only>REAL BASEMAP — FICTITIOUS ASSETS AND DATA</span></div>
+        <p><span data-fr-only>Vingt-cinq ouvrages routiers — ponts, dalots, buses, radiers, sections de route revêtue et pistes rurales — sont reliés aux bassins de production agricole, aux axes de l'arrière-pays et aux marchés. Les flux de produits suivent le réseau routier : chaque ouvrage sait quels flux le traversent.</span><span data-en-only>Twenty-five road assets — bridges, culverts, drifts, paved road sections and rural tracks — are linked to farm production basins, hinterland corridors and markets. Produce flows follow the road network: each asset knows which flows cross it.</span></p>
+        <p><span data-fr-only>Pour chaque ouvrage, l'impact est mesuré : tonnage agricole acheminé, ménages agricoles reliés aux marchés, jours de coupure par an et pertes après récolte. L'efficacité compare le flux réel au flux possible si l'ouvrage était en bon état et praticable toute l'année ; le verdict indique s'il suffit de le remettre en état ou s'il faut le compléter. Montants en francs guinéens (GNF).</span><span data-en-only>For each asset, impact is measured: farm produce carried, farm households linked to markets, closure days per year and post-harvest losses. Efficiency compares the actual flow with the flow possible if the asset were in good condition and passable all year; the verdict shows whether rehabilitation is enough or a complement is needed. Amounts in Guinean francs (GNF).</span></p>
+        <p><span data-fr-only>« Voir en 3D » ouvre la maquette IFC de l'ouvrage avec les couches actives de la carte. L'assistant de requêtes interroge la carte et les maquettes en langage courant.</span><span data-en-only>“View in 3D” opens the asset's IFC model with the layers active on the map. The request assistant queries the map and the models in plain language.</span></p>
+      </div>
+      <div class="bv-placeholder" id="sig-map">
+        <svg viewBox="0 0 220 90" width="220" height="90" aria-hidden="true" fill="none">
+          <path d="M10 70 C60 40 90 75 140 45 S200 30 212 20" stroke="#C9D6E3" stroke-width="6"/>
+          <path d="M20 20 L90 35 L120 80" stroke="#C9D6E3" stroke-width="3"/>
+          <circle cx="60" cy="52" r="9" fill="#D64545"/><circle cx="118" cy="58" r="6" fill="#E0A100"/>
+          <circle cx="160" cy="36" r="11" fill="#E07A3F" stroke="#0D2B5C" stroke-width="3"/><circle cx="96" cy="30" r="5" fill="#2E9E6B"/>
+          <rect x="182" y="58" width="6" height="6" fill="#00C2CB"/><rect x="194" y="52" width="4" height="4" fill="#00C2CB" opacity=".5"/>
+        </svg>
+        <button type="button" class="btn btn-primary btn-arrow" id="sig-load"><span data-fr-only>Charger la carte d'aide à la décision</span><span data-en-only>Load the decision-support map</span></button>
+        <p class="mono bv-note"><span data-fr-only>≈ {MB_FR} Mo · fond © OpenStreetMap · aucune installation</span><span data-en-only>≈ {MB_EN} MB · basemap © OpenStreetMap · nothing to install</span></p>
+      </div>
+    </div>
+  </section>
+  <script type="module">
+    const sbtn = document.getElementById('sig-load');
+    sbtn.addEventListener('click', async () => {
+      const root = document.getElementById('sig-map');
+      sbtn.disabled = true;
+      try {
+        const css = document.createElement('link');
+        css.rel = 'stylesheet'; css.href = 'viewer/leaflet.css';
+        document.head.append(css);
+        const { mount } = await import('./viewer/gin2co-sig.js');
+        const base = new URL('viewer/', location.href).href;
+        window.__gin2coSig = await mount(root, { dataUrl: base + 'gn/sig-data.json', viewerUrl: base + 'gin2co-viewer.js', wasmPath: base, modelsBase: base + 'gn/models/' });
+      } catch (err) {
+        console.error(err);
+        root.innerHTML = document.documentElement.dataset.lang === 'en'
+          ? '<p class="bv-status">The map could not be loaded in this browser.</p>'
+          : '<p class="bv-status">La carte n’a pas pu être chargée dans ce navigateur.</p>';
+      }
+    });
+  </script>
+
+
+  <section class="tight">
+    <div class="container" style="text-align:center;">
+      <h2><span data-fr-only>Vous gérez un patrimoine public mal documenté ?</span><span data-en-only>Do you manage poorly documented public assets?</span></h2>
+      <a class="btn btn-primary btn-arrow" href="contact.html"><span data-fr-only>Parlons-en</span><span data-en-only>Let's talk</span></a>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="container">
+    <div class="foot-grid">
+      <div>
+        <span class="brand-word"><span style="color:#fff;">Digit</span><span style="color:var(--teal);">Infra</span></span>
+        <p style="margin-top:14px; color:#9FB6D6; font-size:.92rem;">
+          <span data-fr-only>Conseil BIM &amp; jumeaux numériques d'infrastructure — France · Afrique de l'Ouest.</span><span data-en-only>BIM consulting &amp; infrastructure digital twins — France · West Africa.</span>
+        </p>
+        <p style="color:#7E9AC4; font-size:.82rem;">
+          <span data-fr-only>SASU de droit français en cours d'immatriculation.</span><span data-en-only>French SASU, registration in progress.</span>
+        </p>
+      </div>
+      <div>
+        <p class="mono" style="font-size:.74rem; letter-spacing:.08em; color:#7E9AC4; margin-bottom:14px;">NAVIGATION</p>
+        <p style="margin-bottom:8px;"><a href="about.html"><span data-fr-only>À propos</span><span data-en-only>About</span></a></p>
+        <p style="margin-bottom:8px;"><a href="services.html">Services</a></p>
+        <p style="margin-bottom:8px;"><a href="ginco.html">GIN²CO</a></p>
+        <p style="margin-bottom:8px;"><a href="about.html#rd"><span data-fr-only>Recherche &amp; développement</span><span data-en-only>Research &amp; development</span></a></p>
+      </div>
+      <div>
+        <p class="mono" style="font-size:.74rem; letter-spacing:.08em; color:#7E9AC4; margin-bottom:14px;">CONTACT</p>
+        <p style="margin-bottom:8px;"><a href="mailto:olanirainoloukou@gmail.com">olanirainoloukou@gmail.com</a></p>
+        <p style="margin-bottom:8px;"><a href="contact.html"><span data-fr-only>Formulaire de contact</span><span data-en-only>Contact form</span></a></p>
+        <p style="margin-bottom:8px;"><a href="mentions-legales.html"><span data-fr-only>Mentions légales</span><span data-en-only>Legal notice</span></a></p>
+      </div>
+    </div>
+    <div class="foot-coords">
+      <span>© 2026 DigitInfra. <span data-fr-only>Tous droits réservés.</span><span data-en-only>All rights reserved.</span></span>
+      <span>48.9°N, 2.5°E — PARIS &nbsp;·&nbsp; 6.4°N, 2.4°E — COTONOU</span>
+    </div>
+  </div>
+</footer>
+
+<script src="main.js"></script>
+</body>
+</html>

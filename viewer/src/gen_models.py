@@ -6,8 +6,6 @@ Element conditions and costs are derived from the asset record in sig-data.json:
 import json, math, os, random, sys
 from ifc_lib import Model, ETAT, PRIO
 
-DATA, OUT = sys.argv[1], sys.argv[2]
-os.makedirs(OUT, exist_ok=True)
 
 DES = {
     "beton": (["Fissures fines inférieures à 0,3 mm", "Épaufrures localisées, armatures non apparentes"],
@@ -278,7 +276,7 @@ MAT = {"beton": "Béton armé", "hydro": "Enrochement", "chaussee": "Enrobé bit
        "regard": "Béton armé", "conduite": "Béton armé", "remblai": "Grave latéritique"}
 
 
-def assign(asset, elements):
+def assign(asset, elements, cost_key="CoutEstimeFCFA", step=50000):
     rng = random.Random(asset["code"])
     N = asset["note"]
     n = len(elements)
@@ -300,7 +298,7 @@ def assign(asset, elements):
     if preventive:
         w = [UNIT[k] * (1 + math.log1p(v)) if k != "remblai" else 0 for (_, v, _, k) in elements]
     raw = [total * x / sum(w) for x in w]
-    costs = [int(round(c / 50000.0)) * 50000 for c in raw]
+    costs = [int(round(c / float(step))) * step for c in raw]
     i_max = max(range(n), key=lambda i: costs[i])
     costs[i_max] += total - sum(costs)
     vals = []
@@ -312,19 +310,23 @@ def assign(asset, elements):
             des = rng.choice(d[nt - 2]); act = d[3][nt - 2]
         vals.append({"Famille": FAM[k], "Materiau": MAT[k], "AnneeMiseEnService": asset["annee"],
                      "DateDerniereInspection": asset["inspection"] + "-15", "Etat": ETAT[nt], "NoteEtat": nt,
-                     "Desordre": des, "PrioriteEntretien": PRIO[nt], "CoutEstimeFCFA": int(c), "ActionRecommandee": act})
+                     "Desordre": des, "PrioriteEntretien": PRIO[nt], cost_key: int(c), "ActionRecommandee": act})
     return vals
 
 
-data = json.load(open(DATA))
-for a in data["assets"]:
-    if a["code"] == "DLT01":
-        continue
-    M = Model(f"GIN²CO — {a['type']} {a['code']} (ouvrage fictif)", "Site fictif — démonstration")
-    TYPES[a["type"]](M)
-    for el, _, _, _ in M.elements:
-        el.Tag = f"{a['code']}-{el.Tag}"
-    vals = assign(a, M.elements)
-    M.finish(os.path.join(OUT, f"{a['code']}.ifc"), vals)
-    s = sum(v["CoutEstimeFCFA"] for v in vals)
-    print(f"{a['code']:6s} {a['type']:26s} n={len(vals):2d} worst={max(v['NoteEtat'] for v in vals)} note={a['note']} cost_ok={s == a['cout']}")
+
+if __name__ == "__main__":
+    DATA, OUT = sys.argv[1], sys.argv[2]
+    os.makedirs(OUT, exist_ok=True)
+    data = json.load(open(DATA))
+    for a in data["assets"]:
+        if a["code"] == "DLT01":
+            continue
+        M = Model(f"GIN²CO — {a['type']} {a['code']} (ouvrage fictif)", "Site fictif — démonstration")
+        TYPES[a["type"]](M)
+        for el, _, _, _ in M.elements:
+            el.Tag = f"{a['code']}-{el.Tag}"
+        vals = assign(a, M.elements)
+        M.finish(os.path.join(OUT, f"{a['code']}.ifc"), vals)
+        s = sum(v["CoutEstimeFCFA"] for v in vals)
+        print(f"{a['code']:6s} {a['type']:26s} n={len(vals):2d} worst={max(v['NoteEtat'] for v in vals)} note={a['note']} cost_ok={s == a['cout']}")

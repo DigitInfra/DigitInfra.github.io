@@ -49,7 +49,7 @@
       <p class="lead">
         <span data-fr-only>GIN²CO documente par le BIM le patrimoine public des villes et des États d'Afrique de l'Ouest, pour fonder son entretien, sa planification et son financement sur des données fiables et partagées.</span><span data-en-only>GIN²CO uses BIM to document the public assets of West African cities and states, so that their maintenance, planning and financing rest on reliable, shared data.</span>
       </p>
-      <div class="hero-cta"><a class="btn btn-ghost btn-arrow" href="#demo"><span data-fr-only>Voir la démonstration 3D</span><span data-en-only>See the 3D demonstration</span></a><a class="btn btn-ghost btn-arrow" href="#sig"><span data-fr-only>Voir la carte SIG</span><span data-en-only>See the GIS map</span></a></div>
+      <div class="hero-cta"><a class="btn btn-ghost btn-arrow" href="ginco-benin.html"><span data-fr-only>Démonstrateur Bénin</span><span data-en-only>Benin demonstrator</span></a><a class="btn btn-ghost btn-arrow" href="ginco-guinee.html"><span data-fr-only>Démonstrateur Guinée</span><span data-en-only>Guinea demonstrator</span></a></div>
     </div>
   </section>
 
@@ -110,87 +110,36 @@
     </div>
   </section>
 
-  <section id="demo" class="tight" style="padding-top:0;">
+  <section id="zones" class="tight" style="padding-top:0;">
     <div class="container">
       <div class="section-head">
-        <p class="eyebrow"><span data-fr-only>Démonstration</span><span data-en-only>Demonstration</span></p>
-        <h2><span data-fr-only>Le jumeau numérique d'un dalot</span><span data-en-only>The digital twin of a box culvert</span></h2>
-        <div class="status"><span class="dot"></span><span data-fr-only>OUVRAGE FICTIF — DONNÉES DE DÉMONSTRATION</span><span data-en-only>FICTITIOUS STRUCTURE — DEMONSTRATION DATA</span></div>
-        <p><span data-fr-only>Un dalot double cellule modélisé en IFC 4 openBIM, enrichi de données patrimoniales : état, désordres, priorité et coût d'entretien. Le fichier est lu directement dans votre navigateur, sans logiciel propriétaire. Cliquez sur un élément pour consulter sa fiche, colorez la maquette selon un paramètre, filtrez et triez les éléments.</span><span data-en-only>A double-cell box culvert modelled in openBIM IFC 4 and enriched with asset data: condition, defects, maintenance priority and cost. The file is read directly in your browser, with no proprietary software. Click an element to see its record, colour the model by any parameter, filter and sort the elements.</span></p>
+        <p class="eyebrow"><span data-fr-only>Démonstrateurs</span><span data-en-only>Demonstrators</span></p>
+        <h2><span data-fr-only>Un démonstrateur par zone géographique</span><span data-en-only>One demonstrator per geographic area</span></h2>
+        <div class="status"><span class="dot"></span><span data-fr-only>FONDS DE CARTE RÉELS — OUVRAGES ET DONNÉES FICTIFS</span><span data-en-only>REAL BASEMAPS — FICTITIOUS ASSETS AND DATA</span></div>
+        <p><span data-fr-only>Le même moteur — maquettes IFC openBIM, carte d'aide à la décision, mesure d'impact et assistant de requêtes — est appliqué à deux contextes. Chaque démonstrateur a sa propre page et sa propre adresse.</span><span data-en-only>The same engine — openBIM IFC models, decision-support map, impact measurement and request assistant — is applied to two contexts. Each demonstrator has its own page and its own address.</span></p>
       </div>
-      <div class="bv-placeholder" id="bim-viewer">
-        <svg viewBox="0 0 220 90" width="220" height="90" aria-hidden="true" fill="none">
-          <rect x="20" y="40" width="180" height="8" fill="#0D2B5C"/>
-          <rect x="20" y="48" width="8" height="30" fill="#0D2B5C"/><rect x="106" y="48" width="8" height="30" fill="#0D2B5C"/><rect x="192" y="48" width="8" height="30" fill="#0D2B5C"/>
-          <rect x="20" y="78" width="180" height="6" fill="#0D2B5C"/>
-          <rect x="8" y="30" width="204" height="6" fill="#00C2CB"/>
-          <rect x="150" y="18" width="7" height="7" fill="#00C2CB" opacity=".7"/><rect x="164" y="12" width="5" height="5" fill="#00C2CB" opacity=".45"/><rect x="176" y="8" width="4" height="4" fill="#00C2CB" opacity=".25"/>
-        </svg>
-        <button type="button" class="btn btn-primary btn-arrow" id="bim-load"><span data-fr-only>Charger la démonstration 3D</span><span data-en-only>Load the 3D demonstration</span></button>
-        <p class="mono bv-note"><span data-fr-only>≈ 1,2 Mo · IFC 4 lu dans le navigateur · aucune installation</span><span data-en-only>≈ 1.2 MB · IFC 4 read in the browser · nothing to install</span></p>
-        <a class="bv-dl" href="viewer/models/DLT01.ifc" download="DLT01.ifc"><span data-fr-only>Télécharger le fichier IFC (32 Ko)</span><span data-en-only>Download the IFC file (32 KB)</span></a>
+      <div class="grid-2 zone-cards">
+        <article class="card zone-card">
+          <p class="tag"><span data-fr-only>ZONE 1</span><span data-en-only>AREA 1</span></p>
+          <h3><span data-fr-only>Bénin — patrimoine urbain</span><span data-en-only>Benin — urban assets</span></h3>
+          <p><span data-fr-only>Voirie, drainage et bâtiments publics d'un territoire urbain. Impact mesuré : population desservie par les écoles et centres de santé, ménages protégés des inondations, produits agricoles évacués.</span><span data-en-only>Roads, drainage and public buildings of an urban area. Impact measured: population served by schools and health centres, households protected from flooding, farm produce carried.</span></p>
+          <p class="mono zone-meta"><span data-fr-only>25 ouvrages · 3 familles · montants en FCFA</span><span data-en-only>25 assets · 3 families · amounts in FCFA</span></p>
+          <div class="zone-links"><a class="btn btn-primary btn-arrow" href="ginco-benin.html"><span data-fr-only>Ouvrir le démonstrateur</span><span data-en-only>Open the demonstrator</span></a>
+            <a class="btn-arrow" style="font-weight:600; text-decoration:none; color:var(--navy); font-size:.92rem;" href="ginco-benin.html#demo"><span data-fr-only>Maquette 3D</span><span data-en-only>3D model</span></a><a class="btn-arrow" style="font-weight:600; text-decoration:none; color:var(--navy); font-size:.92rem;" href="ginco-benin.html#sig"><span data-fr-only>Carte SIG</span><span data-en-only>GIS map</span></a></div>
+        </article>
+        <article class="card zone-card">
+          <p class="tag"><span data-fr-only>ZONE 2</span><span data-en-only>AREA 2</span></p>
+          <h3><span data-fr-only>Guinée — routes et flux agricoles</span><span data-en-only>Guinea — roads and farm produce flows</span></h3>
+          <p><span data-fr-only>Ponts, dalots, buses, radiers, routes revêtues et pistes rurales entre les bassins de production et les marchés. Impact mesuré : produits agricoles acheminés, ménages agricoles reliés aux marchés, jours de coupure et pertes après récolte.</span><span data-en-only>Bridges, culverts, drifts, paved roads and rural tracks between production basins and markets. Impact measured: farm produce carried, farm households linked to markets, closure days and post-harvest losses.</span></p>
+          <p class="mono zone-meta"><span data-fr-only>25 ouvrages · 3 familles · montants en GNF</span><span data-en-only>25 assets · 3 families · amounts in GNF</span></p>
+          <div class="zone-links"><a class="btn btn-primary btn-arrow" href="ginco-guinee.html"><span data-fr-only>Ouvrir le démonstrateur</span><span data-en-only>Open the demonstrator</span></a>
+            <a class="btn-arrow" style="font-weight:600; text-decoration:none; color:var(--navy); font-size:.92rem;" href="ginco-guinee.html#demo"><span data-fr-only>Maquette 3D</span><span data-en-only>3D model</span></a><a class="btn-arrow" style="font-weight:600; text-decoration:none; color:var(--navy); font-size:.92rem;" href="ginco-guinee.html#sig"><span data-fr-only>Carte SIG</span><span data-en-only>GIS map</span></a></div>
+        </article>
       </div>
     </div>
   </section>
-  <script type="module">
-    const btn = document.getElementById('bim-load');
-    btn.addEventListener('click', async () => {
-      const root = document.getElementById('bim-viewer');
-      btn.disabled = true;
-      try {
-        const { mount } = await import('./viewer/gin2co-viewer.js');
-        await mount(root, { ifcUrl: 'viewer/models/DLT01.ifc', wasmPath: new URL('viewer/', location.href).href });
-      } catch (err) {
-        console.error(err);
-        root.innerHTML = document.documentElement.dataset.lang === 'en'
-          ? '<p class="bv-status">The 3D model could not be loaded in this browser.</p>'
-          : '<p class="bv-status">La maquette 3D n’a pas pu être chargée dans ce navigateur.</p>';
-      }
-    });
-  </script>
-
-  <section id="sig" class="tight" style="padding-top:0;">
-    <div class="container">
-      <div class="section-head">
-        <p class="eyebrow"><span data-fr-only>Système d'information géographique</span><span data-en-only>Geographic information system</span></p>
-        <h2><span data-fr-only>Localiser, croiser, prioriser</span><span data-en-only>Locate, cross-reference, prioritise</span></h2>
-        <div class="status"><span class="dot"></span><span data-fr-only>FOND DE CARTE RÉEL — OUVRAGES ET DONNÉES FICTIFS</span><span data-en-only>REAL BASEMAP — FICTITIOUS ASSETS AND DATA</span></div>
-        <p><span data-fr-only>Vingt-cinq ouvrages publics répartis sur un territoire urbain sont croisés avec la population desservie, le trafic, l'aléa inondation, la nature des sols, les équipements sensibles et les données financières. Réglez le poids de chaque critère et l'enveloppe budgétaire : le classement, la carte et les ouvrages financés se recalculent immédiatement.</span><span data-en-only>Twenty-five public assets across an urban area are cross-referenced with population served, traffic, flood hazard, soil type, sensitive facilities and financial data. Adjust the weight of each criterion and the budget envelope: the ranking, the map and the funded assets update instantly.</span></p>
-        <p><span data-fr-only>Chaque ouvrage dispose de sa maquette IFC : depuis sa fiche, « Voir en 3D » ouvre la maquette avec les couches actives de la carte (sol, aléa inondation, trafic, équipements proches).</span><span data-en-only>Every asset has its own IFC model: from its record, “View in 3D” opens the model together with the layers active on the map (soil, flood hazard, traffic, nearby facilities).</span></p>
-        <p><span data-fr-only>Pour chaque ouvrage, l'impact réel est mesuré : population desservie par un centre de santé ou une école, tonnage agricole évacué par une route, ménages protégés des inondations. L'efficacité compare le service rendu au besoin de la zone et conduit à un verdict : suffisant, à renforcer ou à compléter. Un assistant de requêtes permet d'interroger la carte et les maquettes en langage courant.</span><span data-en-only>For each asset, real impact is measured: population served by a health centre or a school, farm produce carried by a road, households protected from flooding. Efficiency compares the service delivered with the need of the area and leads to a verdict: sufficient, to be reinforced or to be complemented. A request assistant lets you query the map and the models in plain language.</span></p>
-      </div>
-      <div class="bv-placeholder" id="sig-map">
-        <svg viewBox="0 0 220 90" width="220" height="90" aria-hidden="true" fill="none">
-          <path d="M10 70 C60 40 90 75 140 45 S200 30 212 20" stroke="#C9D6E3" stroke-width="6"/>
-          <path d="M20 20 L90 35 L120 80" stroke="#C9D6E3" stroke-width="3"/>
-          <circle cx="60" cy="52" r="9" fill="#D64545"/><circle cx="118" cy="58" r="6" fill="#E0A100"/>
-          <circle cx="160" cy="36" r="11" fill="#E07A3F" stroke="#0D2B5C" stroke-width="3"/><circle cx="96" cy="30" r="5" fill="#2E9E6B"/>
-          <rect x="182" y="58" width="6" height="6" fill="#00C2CB"/><rect x="194" y="52" width="4" height="4" fill="#00C2CB" opacity=".5"/>
-        </svg>
-        <button type="button" class="btn btn-primary btn-arrow" id="sig-load"><span data-fr-only>Charger la carte d'aide à la décision</span><span data-en-only>Load the decision-support map</span></button>
-        <p class="mono bv-note"><span data-fr-only>≈ 0,3 Mo · fond © OpenStreetMap · aucune installation</span><span data-en-only>≈ 0.3 MB · basemap © OpenStreetMap · nothing to install</span></p>
-      </div>
-    </div>
-  </section>
-  <script type="module">
-    const sbtn = document.getElementById('sig-load');
-    sbtn.addEventListener('click', async () => {
-      const root = document.getElementById('sig-map');
-      sbtn.disabled = true;
-      try {
-        const css = document.createElement('link');
-        css.rel = 'stylesheet'; css.href = 'viewer/leaflet.css';
-        document.head.append(css);
-        const { mount } = await import('./viewer/gin2co-sig.js');
-        const base = new URL('viewer/', location.href).href;
-        window.__gin2coSig = await mount(root, { dataUrl: base + 'sig-data.json', viewerUrl: base + 'gin2co-viewer.js', wasmPath: base, modelsBase: base + 'models/' });
-      } catch (err) {
-        console.error(err);
-        root.innerHTML = document.documentElement.dataset.lang === 'en'
-          ? '<p class="bv-status">The map could not be loaded in this browser.</p>'
-          : '<p class="bv-status">La carte n’a pas pu être chargée dans ce navigateur.</p>';
-      }
-    });
+  <script>
+    if (location.hash === '#demo' || location.hash === '#sig') location.replace('ginco-benin.html' + location.search + location.hash);
   </script>
 
   <section class="dark">
