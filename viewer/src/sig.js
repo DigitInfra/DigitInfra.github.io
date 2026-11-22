@@ -1,6 +1,7 @@
 // GIN²CO — GIS decision-support demo (Leaflet + OpenStreetMap basemap, fictitious asset data)
 import L from 'leaflet';
 import { createAssistant } from './assistant.js';
+import { createScenarioBoard } from './scenarios.js';
 
 /* ------------------------------------------------------------------ i18n */
 const T = {
@@ -25,6 +26,7 @@ const T = {
     floodCls: ['Faible', 'Modéré', 'Élevé', 'Très élevé'], fac: { 'École': 'École', 'Centre de santé': 'Centre de santé', 'Marché': 'Marché' },
     vpj: 'véh./j', hint: 'Cliquez sur un ouvrage ou sur une ligne du tableau.', noTraffic: 'non applicable',
     budgetNote: 'Les ouvrages sont retenus par ordre de score ; un ouvrage qui dépasse le reliquat est sauté au profit des suivants.',
+    tabMap: 'Carte et classement', tabDash: 'Tableau de bord des scénarios',
   },
   en: {
     colorBy: 'Colour assets by', base: 'Base layer', none: 'None', traffic: 'Traffic', facilities: 'Facilities',
@@ -47,6 +49,7 @@ const T = {
     floodCls: ['Low', 'Moderate', 'High', 'Very high'], fac: { 'École': 'School', 'Centre de santé': 'Health centre', 'Marché': 'Market' },
     vpj: 'veh./day', hint: 'Click an asset or a table row.', noTraffic: 'not applicable',
     budgetNote: 'Assets are selected by score; an asset exceeding the remaining amount is skipped in favour of the next ones.',
+    tabMap: 'Map and ranking', tabDash: 'Scenario dashboard',
   },
 };
 const CRIT = [
@@ -515,6 +518,9 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
     ui.budget.value = String(state.budget);
     ui.budgetNote.textContent = t('budgetNote');
     ui.disclaimer.textContent = t('disclaimer');
+    ui.disclaimer2.textContent = t('disclaimer');
+    ui.tabMap.textContent = t('tabMap');
+    ui.tabDash.textContent = t('tabDash');
   }
 
   function renderStats(ranked) {
@@ -617,8 +623,32 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
     const tr = e.target.closest('tr[data-code]');
     if (tr && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); select(tr.getAttribute('data-code'), true); }
   });
+  /* --- scenario dashboard */
+  const board = createScenarioBoard(ui.dash, {
+    A, CRIT, Z, lang, tv, money, fmt, pct, esc, FAM_C, ETAT_C, totalCost, defaultBudget: state.budget,
+    getMap: () => ({ w: { ...state.w }, budget: state.budget }),
+    apply: (w, budget) => { state.w = w; state.budget = budget; renderControls(); update(); showTab('map'); },
+  });
+  let tab = 'map';
+  function showTab(k) {
+    tab = k;
+    ui.paneMap.hidden = k !== 'map'; ui.paneDash.hidden = k !== 'dash';
+    for (const b of [ui.tabMap, ui.tabDash]) {
+      const on = b.dataset.tab === k;
+      b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1;
+    }
+    if (k === 'dash') board.render(); else setTimeout(() => map.invalidateSize(), 30);
+  }
+  for (const b of [ui.tabMap, ui.tabDash]) {
+    b.addEventListener('click', () => showTab(b.dataset.tab));
+    b.addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      const o = b === ui.tabMap ? ui.tabDash : ui.tabMap; o.focus(); showTab(o.dataset.tab);
+    });
+  }
   new MutationObserver(() => {
     renderControls(); drawBase(); drawContext(); update();
+    if (tab === 'dash') board.render();
     map.closePopup();
   }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-lang'] });
   new ResizeObserver(() => map.invalidateSize()).observe(ui.map);
@@ -672,13 +702,18 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
   drawBase();
   drawContext();
   update();
-  return { map, state, assets: A, assistant, open3d: (code) => open3d(A.find((x) => x.code === code)), get overlay() { return overlay; } };
+  return { map, state, assets: A, assistant, showTab, open3d: (code) => open3d(A.find((x) => x.code === code)), get overlay() { return overlay; } };
 }
 
 function buildUI(root) {
   const wrap = document.createElement('div');
   wrap.className = 'bv sg';
   wrap.innerHTML = `
+    <div class="sg-tabs" role="tablist">
+      <button type="button" role="tab" id="sg-tab-map" aria-controls="sg-pane-map" aria-selected="true" data-r="tabMap" data-tab="map"></button>
+      <button type="button" role="tab" id="sg-tab-dash" aria-controls="sg-pane-dash" aria-selected="false" tabindex="-1" data-r="tabDash" data-tab="dash"></button>
+    </div>
+    <div role="tabpanel" id="sg-pane-map" aria-labelledby="sg-tab-map" data-r="paneMap">
     <div class="bv-toolbar">
       <label class="bv-field"><span class="bv-l" data-r="colorLabel"></span><select data-r="color"></select></label>
       <label class="bv-field"><span class="bv-l" data-r="baseLabel"></span><select data-r="base"></select></label>
@@ -705,7 +740,12 @@ function buildUI(root) {
       </aside>
     </div>
     <p class="sg-qchip" data-r="qchip" hidden></p>
-    <div class="bv-table-wrap"><table class="bv-table sg-table" data-r="table"></table></div>`;
+    <div class="bv-table-wrap"><table class="bv-table sg-table" data-r="table"></table></div>
+    </div>
+    <div role="tabpanel" id="sg-pane-dash" aria-labelledby="sg-tab-dash" class="sd" data-r="paneDash" hidden>
+      <p class="sg-disclaimer mono" data-r="disclaimer2"></p>
+      <div class="sd-body" data-r="dash"></div>
+    </div>`;
   root.append(wrap);
   const ui = {};
   wrap.querySelectorAll('[data-r]').forEach((el) => { ui[el.getAttribute('data-r')] = el; });
