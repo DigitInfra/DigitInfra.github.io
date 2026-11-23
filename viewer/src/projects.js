@@ -263,6 +263,6 @@ export function createProjectBoard(el, ctx) {
     }
   });
   el.addEventListener('input', (e) => { if (e.target.hasAttribute('data-pct')) e.target.nextElementSibling.textContent = `${e.target.value} %`; });
-  return { render, open(id) { sel = id; viewStep = null; render(); } };
+  return { render, ensure: projects, open(id) { sel = id; viewStep = null; render(); } };
 }
 

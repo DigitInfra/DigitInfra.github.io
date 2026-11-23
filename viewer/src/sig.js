@@ -5,6 +5,7 @@ import { createScenarioBoard } from './scenarios.js';
 import { createProfileBoard } from './profiles.js';
 import { createAssetBoard } from './assets.js';
 import { createProjectBoard } from './projects.js';
+import { createCollabBoard } from './collab.js';
 import { createStore, MEMBERS } from './store.js';
 import { impactGN, throughFrom } from './impact_gn.js';
 
@@ -31,7 +32,7 @@ const T = {
     floodCls: ['Faible', 'Modéré', 'Élevé', 'Très élevé'], fac: { 'École': 'École', 'Centre de santé': 'Centre de santé', 'Marché': 'Marché' },
     vpj: 'véh./j', hint: 'Cliquez sur un ouvrage ou sur une ligne du tableau.', noTraffic: 'non applicable',
     budgetNote: 'Les ouvrages sont retenus par ordre de score ; un ouvrage qui dépasse le reliquat est sauté au profit des suivants.',
-    tabMap: 'Carte et classement', tabDash: 'Tableau de bord des scénarios', tabProf: 'Vues par profil', tabAssets: 'Patrimoine et mises à jour', tabProj: 'Projets et qualité', pickMsg: 'Cliquez sur la carte pour placer le nouvel ouvrage (Échap pour annuler).', modNote: 'Données mises à jour après la production de la maquette : les coûts des éléments peuvent différer.', addNote: 'Ouvrage ajouté : sa maquette IFC reste à produire.',
+    tabMap: 'Carte et classement', tabDash: 'Tableau de bord des scénarios', tabProf: 'Vues par profil', tabAssets: 'Patrimoine et mises à jour', tabProj: 'Projets et qualité', tabCollab: 'Espace collaboratif', talk: 'Échanges', pickMsg: 'Cliquez sur la carte pour placer le nouvel ouvrage (Échap pour annuler).', modNote: 'Données mises à jour après la production de la maquette : les coûts des éléments peuvent différer.', addNote: 'Ouvrage ajouté : sa maquette IFC reste à produire.',
   },
   en: {
     colorBy: 'Colour assets by', base: 'Base layer', none: 'None', traffic: 'Traffic', facilities: 'Facilities',
@@ -54,7 +55,7 @@ const T = {
     floodCls: ['Low', 'Moderate', 'High', 'Very high'], fac: { 'École': 'School', 'Centre de santé': 'Health centre', 'Marché': 'Market' },
     vpj: 'veh./day', hint: 'Click an asset or a table row.', noTraffic: 'not applicable',
     budgetNote: 'Assets are selected by score; an asset exceeding the remaining amount is skipped in favour of the next ones.',
-    tabMap: 'Map and ranking', tabDash: 'Scenario dashboard', tabProf: 'Profile views', tabAssets: 'Assets and updates', tabProj: 'Projects and quality', pickMsg: 'Click on the map to place the new asset (Esc to cancel).', modNote: 'Data updated after the model was produced: element costs may differ.', addNote: 'Added asset: its IFC model is still to be produced.',
+    tabMap: 'Map and ranking', tabDash: 'Scenario dashboard', tabProf: 'Profile views', tabAssets: 'Assets and updates', tabProj: 'Projects and quality', tabCollab: 'Collaborative space', talk: 'Discussions', pickMsg: 'Click on the map to place the new asset (Esc to cancel).', modNote: 'Data updated after the model was produced: element costs may differ.', addNote: 'Added asset: its IFC model is still to be produced.',
   },
 };
 const CRIT = [
@@ -98,7 +99,7 @@ const ZONES = {
     basins: ['Bassins agricoles', 'Farm basins'],
   },
   gn: {
-    cur: 'GNF', div: 1e9, sfx: ['Md', 'bn'], step: 1e8, minZoom: 11, platform: ['prof', 'assets', 'proj'],
+    cur: 'GNF', div: 1e9, sfx: ['Md', 'bn'], step: 1e8, minZoom: 11, platform: ['prof', 'assets', 'proj', 'collab'],
     fam: { 'Ouvrages d’art': '#3B5FC0', 'Routes revêtues': '#0E9AA5', 'Pistes rurales': '#A8762E' },
     fin: { 'Fonds d’entretien routier': '#3B5FC0', 'Budget national d’investissement': '#C4622D', 'Collectivité locale': '#0E9AA5', 'Bailleur (programme)': '#9C5BB5' },
     sol: { 'Vases de mangrove': '#9C8AC9', 'Alluvions argilo-sableuses': '#E9D38C', 'Sols ferrallitiques (latérite)': '#C9784A' },
@@ -384,6 +385,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
       <p class="sg-pop-h">${esc(t('breakdown'))}</p>
       ${CRIT.map(([k, lab]) => bar(k, lab[lang() === 'en' ? 1 : 0])).join('')}
       ${a.obs ? `<p class="sg-pop-s">${esc(a.obs)}</p>` : ''}
+      ${collabRef ? `<p class="sg-pop-cta"><button type="button" class="sg-link sg-talk" data-code="${esc(a.code)}">${esc(t('talk'))} (${collabRef.count(a.code)}) →</button></p>` : ''}
       ${a._added ? `<p class="sg-pop-s">${esc(t('addNote'))}</p>` : `<p class="sg-pop-cta"><button type="button" class="btn btn-primary sg-3d" data-code="${esc(a.code)}">${esc(t('open3d'))} →</button></p>${a._mod ? `<p class="sg-pop-s">${esc(t('modNote'))}</p>` : ''}`}
     </div>`;
   }
@@ -426,7 +428,10 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
     renderLegend();
     renderTable();
   }
+  let collabRef = null;
   map.on('popupopen', (e) => {
+    const tb = e.popup.getElement().querySelector('.sg-talk');
+    if (tb) tb.addEventListener('click', () => { showTab('collab'); collabRef.filterLink(tb.getAttribute('data-code')); });
     const btn = e.popup.getElement().querySelector('.sg-3d');
     if (btn) btn.addEventListener('click', () => open3d(A.find((x) => x.code === btn.getAttribute('data-code'))));
   });
@@ -746,6 +751,14 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
         store.log(code, `${what} (${tv(a.etat)} → ${tv('Bon')} ; ${money(a.cout)} → ${money(cout)})`);
       },
     });
+  }
+  if ((Z.platform || []).includes('collab')) {
+    boards.collab = createCollabBoard(ui.body_collab, {
+      lang, esc, store, tv, assets: () => A, projects: () => (boards.proj ? boards.proj.ensure() : []),
+      focus: (code) => { showTab('map'); setTimeout(() => { map.invalidateSize(); select(code, true); }, 80); },
+      openProject: (id) => { showTab('proj'); boards.proj.open(id); },
+    });
+    collabRef = boards.collab;
   }
   if (store) {
     store.subscribe((what) => {
