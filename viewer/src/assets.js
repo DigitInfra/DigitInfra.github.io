@@ -6,7 +6,7 @@ const S = {
   fr: {
     you: 'Vous êtes', demo: 'Démonstration : membres et données fictifs. Les modifications restent dans ce navigateur ; exportez-les pour les conserver ou les transmettre.',
     noStore: 'Le navigateur n’autorise pas l’enregistrement local : les modifications seront perdues au rechargement.',
-    rights: 'Vos droits', rightsList: { editAsset: 'modifier les ouvrages', addAsset: 'ajouter des ouvrages', manageData: 'importer, exporter, réinitialiser' }, readOnly: 'consultation seule',
+    rights: 'Vos droits', rightsList: { editAsset: 'modifier les ouvrages', addAsset: 'ajouter des ouvrages', manageData: 'importer, exporter, réinitialiser', manageProject: 'créer et piloter les projets', validateStep: 'valider les étapes', checkQuality: 'renseigner les contrôles qualité', assignTask: 'attribuer des tâches', comment: 'commenter et proposer' }, readOnly: 'consultation seule',
     add: '+ Ajouter un ouvrage', exp: 'Exporter (JSON)', imp: 'Importer', reset: 'Réinitialiser la démonstration',
     resetQ: 'Effacer toutes les modifications enregistrées dans ce navigateur et revenir aux données d’origine ?', impErr: 'Fichier non reconnu : il doit provenir de l’export de cette page.',
     kAssets: 'Ouvrages au registre', kMod: 'Ouvrages mis à jour', kAdd: 'Ouvrages ajoutés', kLast: 'Dernière mise à jour', never: 'aucune',
@@ -29,7 +29,7 @@ const S = {
   en: {
     you: 'You are', demo: 'Demonstration: fictitious members and data. Changes stay in this browser; export them to keep or share them.',
     noStore: 'This browser does not allow local storage: changes will be lost on reload.',
-    rights: 'Your rights', rightsList: { editAsset: 'update assets', addAsset: 'add assets', manageData: 'import, export, reset' }, readOnly: 'read only',
+    rights: 'Your rights', rightsList: { editAsset: 'update assets', addAsset: 'add assets', manageData: 'import, export, reset', manageProject: 'create and run projects', validateStep: 'validate steps', checkQuality: 'record quality checks', assignTask: 'assign tasks', comment: 'comment and suggest' }, readOnly: 'read only',
     add: '+ Add an asset', exp: 'Export (JSON)', imp: 'Import', reset: 'Reset the demonstration',
     resetQ: 'Erase all changes stored in this browser and return to the original data?', impErr: 'File not recognised: it must come from this page’s export.',
     kAssets: 'Assets in the register', kMod: 'Assets updated', kAdd: 'Assets added', kLast: 'Last update', never: 'none',
