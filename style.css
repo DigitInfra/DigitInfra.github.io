@@ -615,3 +615,29 @@ html.sg-ov-open, html.sg-ov-open body{overflow:hidden;}
 .ch-leg{margin-top:10px;} .cc .ch + .cc-note{margin-top:10px;}
 .pf-table td.pf-wrap{white-space:normal; min-width:260px; max-width:380px;}
 .pf-table td:nth-child(2){white-space:nowrap;}
+
+/* GIN²CO — platform: user strip, asset register */
+.pl-user{display:flex; flex-wrap:wrap; align-items:flex-end; gap:10px 22px; margin:0 0 6px;}
+.pl-user select{min-width:320px; max-width:100%;}
+.pl-rights{margin:0; font-size:.8rem; color:var(--charcoal);}
+.pl-demo{margin:0 0 14px; font-size:.72rem; color:#7A5A00; background:#FFF6DB; border-left:3px solid #E0A100; padding:6px 10px;}
+.pl-bar{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:0 0 14px;}
+.pl-file{cursor:pointer;}
+.pl-form{border:1px solid var(--teal); background:#fff; padding:14px 16px; margin:0 0 16px;}
+.pl-form-grid{display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); gap:22px;}
+.pl-fields{display:grid; grid-template-columns:1fr 1fr; gap:4px 14px; align-content:start;}
+.pl-fields .sd-f:has(textarea), .pl-fields .sd-actions, .pl-fields .pl-err{grid-column:1 / -1;}
+.pl-fields input, .pl-fields select, .pl-fields textarea{font:inherit; font-size:.85rem; padding:6px 8px; border:1px solid var(--line); width:100%; box-sizing:border-box; background:#fff;}
+.pl-hint{display:block; font-size:.72rem; color:var(--steel); margin-top:3px;}
+.pl-pos{display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:.8rem;}
+.pl-err{color:#B3261E; font-size:.8rem; margin:4px 0 0; min-height:1em;}
+.pl-prev{background:#F7F9FC; border:1px solid var(--line); padding:10px 12px; font-size:.82rem; align-self:start;}
+.pl-h5{font-size:.72rem; text-transform:uppercase; letter-spacing:.06em; color:var(--steel); margin:6px 0 6px; font-family:'IBM Plex Mono',monospace;}
+.pl-tag{display:inline-block; font-size:.72rem; padding:2px 7px; border:1px solid currentColor;}
+.pl-mod{color:#8A6100;} .pl-add{color:#1F7A50;}
+.pf-table tr.pl-cur td{background:#F2FAFB;}
+.pl-pickmsg{margin:0; padding:8px 12px; background:#0D2B5C; color:#fff; font-size:.85rem;}
+.pl-picking{cursor:crosshair !important;}
+.pl-picking .leaflet-interactive{cursor:crosshair !important;}
+@media (max-width: 860px){ .pl-form-grid{grid-template-columns:1fr;} .pl-fields{grid-template-columns:1fr;} .pl-user select{min-width:0; width:100%;} }
+.pl-fields .sd-f{align-self:start;}

@@ -3,6 +3,9 @@ import L from 'leaflet';
 import { createAssistant } from './assistant.js';
 import { createScenarioBoard } from './scenarios.js';
 import { createProfileBoard } from './profiles.js';
+import { createAssetBoard } from './assets.js';
+import { createStore, MEMBERS } from './store.js';
+import { impactGN, throughFrom } from './impact_gn.js';
 
 /* ------------------------------------------------------------------ i18n */
 const T = {
@@ -27,7 +30,7 @@ const T = {
     floodCls: ['Faible', 'Modéré', 'Élevé', 'Très élevé'], fac: { 'École': 'École', 'Centre de santé': 'Centre de santé', 'Marché': 'Marché' },
     vpj: 'véh./j', hint: 'Cliquez sur un ouvrage ou sur une ligne du tableau.', noTraffic: 'non applicable',
     budgetNote: 'Les ouvrages sont retenus par ordre de score ; un ouvrage qui dépasse le reliquat est sauté au profit des suivants.',
-    tabMap: 'Carte et classement', tabDash: 'Tableau de bord des scénarios', tabProf: 'Vues par profil',
+    tabMap: 'Carte et classement', tabDash: 'Tableau de bord des scénarios', tabProf: 'Vues par profil', tabAssets: 'Patrimoine et mises à jour', pickMsg: 'Cliquez sur la carte pour placer le nouvel ouvrage (Échap pour annuler).', modNote: 'Données mises à jour après la production de la maquette : les coûts des éléments peuvent différer.', addNote: 'Ouvrage ajouté : sa maquette IFC reste à produire.',
   },
   en: {
     colorBy: 'Colour assets by', base: 'Base layer', none: 'None', traffic: 'Traffic', facilities: 'Facilities',
@@ -50,7 +53,7 @@ const T = {
     floodCls: ['Low', 'Moderate', 'High', 'Very high'], fac: { 'École': 'School', 'Centre de santé': 'Health centre', 'Marché': 'Market' },
     vpj: 'veh./day', hint: 'Click an asset or a table row.', noTraffic: 'not applicable',
     budgetNote: 'Assets are selected by score; an asset exceeding the remaining amount is skipped in favour of the next ones.',
-    tabMap: 'Map and ranking', tabDash: 'Scenario dashboard', tabProf: 'Profile views',
+    tabMap: 'Map and ranking', tabDash: 'Scenario dashboard', tabProf: 'Profile views', tabAssets: 'Assets and updates', pickMsg: 'Click on the map to place the new asset (Esc to cancel).', modNote: 'Data updated after the model was produced: element costs may differ.', addNote: 'Added asset: its IFC model is still to be produced.',
   },
 };
 const CRIT = [
@@ -94,7 +97,7 @@ const ZONES = {
     basins: ['Bassins agricoles', 'Farm basins'],
   },
   gn: {
-    cur: 'GNF', div: 1e9, sfx: ['Md', 'bn'], step: 1e8, minZoom: 11, platform: ['prof'],
+    cur: 'GNF', div: 1e9, sfx: ['Md', 'bn'], step: 1e8, minZoom: 11, platform: ['prof', 'assets'],
     fam: { 'Ouvrages d’art': '#3B5FC0', 'Routes revêtues': '#0E9AA5', 'Pistes rurales': '#A8762E' },
     fin: { 'Fonds d’entretien routier': '#3B5FC0', 'Budget national d’investissement': '#C4622D', 'Collectivité locale': '#0E9AA5', 'Bailleur (programme)': '#9C5BB5' },
     sol: { 'Vases de mangrove': '#9C8AC9', 'Alluvions argilo-sableuses': '#E9D38C', 'Sols ferrallitiques (latérite)': '#C9784A' },
@@ -137,19 +140,85 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
   root.innerHTML = '';
   const ui = buildUI(root, Z.platform || []);
 
-  const A = data.assets;
-  const max = {
-    pop: Math.max(...A.map((a) => a.pop)), tmja: Math.max(...A.map((a) => a.tmja || 0)),
-    equip: Math.max(1, ...A.map((a) => a.equip)), fin: Math.max(...A.map((a) => Math.log1p(a.inaction / a.cout))),
+  const A = [];
+  const ORIG = data.assets.map((a) => JSON.parse(JSON.stringify(a)));
+  const NOTE_ETAT = { 1: 'Bon', 2: 'Moyen', 3: 'Dégradé', 4: 'Critique' };
+  const GN = data.meta?.zone === 'gn';
+  const store = (Z.platform || []).length ? createStore(data.meta?.zone || 'bj') : null;
+  const R_E = 6371000;
+  const dist = (p, q) => { const dl = (q.lat - p.lat) * Math.PI / 180, dn = (q.lon - p.lon) * Math.PI / 180 * Math.cos(p.lat * Math.PI / 180); return R_E * Math.hypot(dl, dn); };
+  const cellOf = (p) => data.cells.reduce((b, c) => { const d = dist(p, { lat: (c.b[0] + c.b[2]) / 2, lon: (c.b[1] + c.b[3]) / 2 }); return !b || d < b.d ? { c, d } : b; }, null).c;
+  const segDist = (p, a, b) => { // metres, local planar approximation
+    const k = Math.cos(p.lat * Math.PI / 180) * Math.PI / 180 * R_E, kl = Math.PI / 180 * R_E;
+    const ax = (a[1] - p.lon) * k, ay = (a[0] - p.lat) * kl, bx = (b[1] - p.lon) * k, by = (b[0] - p.lat) * kl;
+    const dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy;
+    const u = L2 ? Math.max(0, Math.min(1, -(ax * dx + ay * dy) / L2)) : 0;
+    return Math.hypot(ax + u * dx, ay + u * dy);
   };
-  for (const a of A) {
-    a.crit = {
-      etat: (a.note - 1) / 3, pop: a.pop / max.pop, trafic: (a.tmja || 0) / max.tmja, flood: a.flood,
-      sol: SOL_V[a.sol], equip: a.equip / max.equip, fin: Math.log1p(a.inaction / a.cout) / max.fin,
-    };
+  // context of a point: same proxies as the generator (cell values, nearest count point, facilities within 500 m, flows passing)
+  function contextAt(p) {
+    const c = cellOf(p);
+    const area = (data.meta?.cell_m || 600) ** 2 / 1e6;
+    const pop = Math.round(data.cells.reduce((acc, x) => { const d = dist(p, { lat: (x.b[0] + x.b[2]) / 2, lon: (x.b[1] + x.b[3]) / 2 }); return d < 600 ? acc + x.pop * area * (1 - d / 600) : acc; }, 0) / 100) * 100;
+    const tp = data.traffic.map((q) => ({ q, d: dist(p, q) })).sort((x, y) => x.d - y.d)[0];
+    const equip = data.facilities.filter((f) => dist(p, f) <= 500).length;
+    const flows = (data.flowpaths || []).filter((f) => f.path.some((pt, i) => i && segDist(p, f.path[i - 1], pt) < 120));
+    return { flood: c.flood, sol: c.sol, pop, tmjaHint: tp && tp.d <= 900 ? tp.q.tmja : null, equip, flows };
   }
-  const totalCost = A.reduce((s, a) => s + a.cout, 0);
-  const maxCost = Math.max(...A.map((a) => a.cout));
+  function makeAdded(def) {
+    const cx = contextAt(def);
+    const through = cx.flows.reduce((acc, f) => acc + f.t, 0);
+    const names = (k) => [...new Set(cx.flows.map((f) => f[k]))].sort().join(', ');
+    const a = {
+      code: def.code, name: `${def.type} ${def.code}`, famille: def.famille, type: def.type, lat: def.lat, lon: def.lon,
+      note: def.note, etat: NOTE_ETAT[def.note], annee: def.annee || '—', cout: def.cout, financement: def.financement,
+      tmja: def.tmja, pop: cx.pop, flood: cx.flood, sol: cx.sol, equip: cx.equip, inspection: def.inspection, obs: def.obs || '',
+      _added: true, _through: through, _hh: through / 3.2, _flows: cx.flows.map((f) => ({ id: f.id, t: f.t })),
+      _origin: cx.flows.length ? { fr: names('bname'), en: names('bname_en') } : null,
+    };
+    if (GN) Object.assign(a, impactGN(a));
+    return a;
+  }
+  function prepGN(a) {
+    const o = (a.impact.kpis || []).find((k) => /^Origines/.test(k.fr));
+    Object.assign(a, { _through: throughFrom(a), _hh: a.impact.hh, _hhKpi: (a.impact.kpis[3] || {}).v, _flows: a.impact.flows, _origin: o ? { fr: o.txt, en: o.txt_en } : null });
+  }
+  function applyFields(a, f) {
+    for (const k of ['note', 'cout', 'tmja', 'inspection', 'financement', 'obs']) if (f[k] !== undefined) a[k] = f[k];
+    a.etat = NOTE_ETAT[a.note];
+    if (GN) Object.assign(a, impactGN(a));
+  }
+  function previewAsset(code, fields, def) {
+    if (def) return makeAdded(def);
+    const a = JSON.parse(JSON.stringify(A.find((x) => x.code === code)));
+    applyFields(a, fields);
+    return a;
+  }
+  let totalCost = 0, maxCost = 1;
+  function rebuild() {
+    A.length = 0;
+    for (const o of ORIG) {
+      const a = JSON.parse(JSON.stringify(o));
+      if (GN) prepGN(a);
+      const ed = store && store.state.edits[a.code];
+      if (ed) { applyFields(a, ed); a._mod = true; }
+      A.push(a);
+    }
+    if (store) for (const d of store.state.added) A.push(makeAdded(d));
+    const max = {
+      pop: Math.max(1, ...A.map((a) => a.pop)), tmja: Math.max(1, ...A.map((a) => a.tmja || 0)),
+      equip: Math.max(1, ...A.map((a) => a.equip)), fin: Math.max(1e-9, ...A.map((a) => Math.log1p(a.inaction / a.cout))),
+    };
+    for (const a of A) {
+      a.crit = {
+        etat: (a.note - 1) / 3, pop: a.pop / max.pop, trafic: (a.tmja || 0) / max.tmja, flood: a.flood,
+        sol: SOL_V[a.sol], equip: a.equip / max.equip, fin: Math.log1p(a.inaction / a.cout) / max.fin,
+      };
+    }
+    totalCost = A.reduce((s_, a) => s_ + a.cout, 0);
+    maxCost = Math.max(...A.map((a) => a.cout));
+  }
+  rebuild();
   const state = {
     w: Object.fromEntries(CRIT.map(([k, , d]) => [k, d])), color: 'score', base: 'none',
     traffic: false, facilities: false, basins: false, query: null, queryLabel: '', budget: Math.round(totalCost * 0.3 / Z.step) * Z.step, selected: null,
@@ -266,7 +335,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
       if (!m) {
         m = L.circleMarker([a.lat, a.lon], style).addTo(assetLayer);
         m.on('click', () => select(a.code, false));
-        m.bindTooltip(() => `<strong>${esc(a.code)}</strong> — ${esc(tv(a.type))}<br>${esc(t('score'))} ${a.score}/100`, { className: 'sg-tip', direction: 'top' });
+        m.bindTooltip(() => { const x = A.find((y) => y.code === a.code) || a; return `<strong>${esc(x.code)}</strong> — ${esc(tv(x.type))}<br>${esc(t('score'))} ${x.score}/100`; }, { className: 'sg-tip', direction: 'top' });
         markers.set(a.code, m);
       } else m.setStyle(style);
       if (state.selected === a.code) m.setStyle({ color: '#00C2CB', weight: 4 });
@@ -313,7 +382,8 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
       ${impactHtml(a)}
       <p class="sg-pop-h">${esc(t('breakdown'))}</p>
       ${CRIT.map(([k, lab]) => bar(k, lab[lang() === 'en' ? 1 : 0])).join('')}
-      <p class="sg-pop-cta"><button type="button" class="btn btn-primary sg-3d" data-code="${esc(a.code)}">${esc(t('open3d'))} →</button></p>
+      ${a.obs ? `<p class="sg-pop-s">${esc(a.obs)}</p>` : ''}
+      ${a._added ? `<p class="sg-pop-s">${esc(t('addNote'))}</p>` : `<p class="sg-pop-cta"><button type="button" class="btn btn-primary sg-3d" data-code="${esc(a.code)}">${esc(t('open3d'))} →</button></p>${a._mod ? `<p class="sg-pop-s">${esc(t('modNote'))}</p>` : ''}`}
     </div>`;
   }
 
@@ -633,8 +703,46 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
   if ((Z.platform || []).includes('prof')) {
     boards.prof = createProfileBoard(ui.body_prof, {
       lang, tv, money, fmt, pct, esc, Z, ETAT_C, VERDICT_C, FAM_C: () => FAM_C, FIN_C: () => FIN_C, bounds: data.bounds,
-      ranked: () => ranked, budget: () => state.budget, getLog: () => [],
+      ranked: () => ranked, budget: () => state.budget, getLog: () => (store ? store.state.log.filter((l) => l.kind === 'asset') : []),
       focus: (code) => { showTab('map'); setTimeout(() => { map.invalidateSize(); select(code, true); }, 80); },
+    });
+  }
+  if ((Z.platform || []).includes('assets')) {
+    const typesOf = (fam) => [...new Set(ORIG.filter((a) => a.famille === fam).map((a) => a.type))];
+    boards.assets = createAssetBoard(ui.body_assets, {
+      lang, tv, fmt, money, esc, Z, ETAT_C, VERDICT_C, store, FAM_C: () => FAM_C, FIN_C: () => FIN_C,
+      assets: () => A, typesOf, preview: previewAsset, contextAt,
+      focus: (code) => { showTab('map'); setTimeout(() => { map.invalidateSize(); select(code, true); }, 80); },
+      saveEdit: (code, fields, what) => {
+        const d = store.state.added.find((x) => x.code === code);
+        if (d) Object.assign(d, fields); else store.state.edits[code] = { ...(store.state.edits[code] || {}), ...fields };
+        store.log(code, what); store.commit('asset');
+      },
+      addAsset: (def, what) => { store.state.added.push(def); store.log(def.code, what); store.commit('asset'); },
+      removeAdded: (code, what) => { store.state.added = store.state.added.filter((x) => x.code !== code); store.log(code, what); store.commit('asset'); },
+      pickOnMap: (cb) => {
+        showTab('map');
+        ui.pickmsg.textContent = t('pickMsg'); ui.pickmsg.hidden = false;
+        map.getContainer().classList.add('pl-picking');
+        const done = () => { ui.pickmsg.hidden = true; map.getContainer().classList.remove('pl-picking'); map.off('click', onClick); document.removeEventListener('keydown', onKey); };
+        const onClick = (e) => { done(); cb(e.latlng); showTab('assets'); };
+        const onKey = (e) => { if (e.key === 'Escape') { done(); showTab('assets'); } };
+        setTimeout(() => { map.on('click', onClick); document.addEventListener('keydown', onKey); }, 50);
+        ui.map.scrollIntoView({ block: 'center' });
+      },
+    });
+  }
+  if (store) {
+    store.subscribe((what) => {
+      if (what !== 'user') {
+        rebuild();
+        for (const [code, m] of markers) if (!A.some((a) => a.code === code)) { m.remove(); markers.delete(code); }
+        if (state.selected && !A.some((a) => a.code === state.selected)) state.selected = null;
+        map.closePopup(); impactLayer.clearLayers();
+        state.budget = Math.min(state.budget, Math.ceil(totalCost / Z.step) * Z.step);
+        renderControls(); update();
+      }
+      if (boards[tab] && tab !== 'map') boards[tab].render();
     });
   }
   let tab = 'map';
@@ -732,6 +840,7 @@ function buildUI(root, extras) {
       <label class="bv-field sg-cb"><input type="checkbox" data-r="basinCb"><span data-r="basinLabel"></span></label>
     </div>
     <p class="sg-disclaimer mono" data-discl></p>
+    <p class="pl-pickmsg" data-r="pickmsg" role="status" hidden></p>
     <div class="bv-main">
       <div class="sg-map" data-r="map"></div>
       <aside class="bv-side">
