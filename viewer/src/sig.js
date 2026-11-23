@@ -2,6 +2,7 @@
 import L from 'leaflet';
 import { createAssistant } from './assistant.js';
 import { createScenarioBoard } from './scenarios.js';
+import { createProfileBoard } from './profiles.js';
 
 /* ------------------------------------------------------------------ i18n */
 const T = {
@@ -26,7 +27,7 @@ const T = {
     floodCls: ['Faible', 'Modéré', 'Élevé', 'Très élevé'], fac: { 'École': 'École', 'Centre de santé': 'Centre de santé', 'Marché': 'Marché' },
     vpj: 'véh./j', hint: 'Cliquez sur un ouvrage ou sur une ligne du tableau.', noTraffic: 'non applicable',
     budgetNote: 'Les ouvrages sont retenus par ordre de score ; un ouvrage qui dépasse le reliquat est sauté au profit des suivants.',
-    tabMap: 'Carte et classement', tabDash: 'Tableau de bord des scénarios',
+    tabMap: 'Carte et classement', tabDash: 'Tableau de bord des scénarios', tabProf: 'Vues par profil',
   },
   en: {
     colorBy: 'Colour assets by', base: 'Base layer', none: 'None', traffic: 'Traffic', facilities: 'Facilities',
@@ -49,7 +50,7 @@ const T = {
     floodCls: ['Low', 'Moderate', 'High', 'Very high'], fac: { 'École': 'School', 'Centre de santé': 'Health centre', 'Marché': 'Market' },
     vpj: 'veh./day', hint: 'Click an asset or a table row.', noTraffic: 'not applicable',
     budgetNote: 'Assets are selected by score; an asset exceeding the remaining amount is skipped in favour of the next ones.',
-    tabMap: 'Map and ranking', tabDash: 'Scenario dashboard',
+    tabMap: 'Map and ranking', tabDash: 'Scenario dashboard', tabProf: 'Profile views',
   },
 };
 const CRIT = [
@@ -93,9 +94,9 @@ const ZONES = {
     basins: ['Bassins agricoles', 'Farm basins'],
   },
   gn: {
-    cur: 'GNF', div: 1e9, sfx: ['Md', 'bn'], step: 1e8, minZoom: 11,
-    fam: { 'Ouvrages d’art': '#0D2B5C', 'Routes revêtues': '#00A3AD', 'Pistes rurales': '#C9784A' },
-    fin: { 'Fonds d’entretien routier': '#0D2B5C', 'Budget national d’investissement': '#7A5CC2', 'Collectivité locale': '#4CA64C', 'Bailleur (programme)': '#E07A3F' },
+    cur: 'GNF', div: 1e9, sfx: ['Md', 'bn'], step: 1e8, minZoom: 11, platform: ['prof'],
+    fam: { 'Ouvrages d’art': '#3B5FC0', 'Routes revêtues': '#0E9AA5', 'Pistes rurales': '#A8762E' },
+    fin: { 'Fonds d’entretien routier': '#3B5FC0', 'Budget national d’investissement': '#C4622D', 'Collectivité locale': '#0E9AA5', 'Bailleur (programme)': '#9C5BB5' },
     sol: { 'Vases de mangrove': '#9C8AC9', 'Alluvions argilo-sableuses': '#E9D38C', 'Sols ferrallitiques (latérite)': '#C9784A' },
     solv: { 'Vases de mangrove': 1, 'Alluvions argilo-sableuses': 0.6, 'Sols ferrallitiques (latérite)': 0.2 },
     fac: { 'Marché': ['#7A5CC2', 'Marché', 'Market'], 'Point de collecte': ['#2E7D32', 'Point de collecte', 'Collection point'], 'Centre de santé': ['#C24C7A', 'Centre de santé', 'Health centre'] },
@@ -134,7 +135,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
   const flowGeom = (f, a) => (f.id != null && FP[f.id] ? FP[f.id] : { ...f, path: [f.from, [a.lat, a.lon], f.to] });
   root.classList.add('bv-ready');
   root.innerHTML = '';
-  const ui = buildUI(root);
+  const ui = buildUI(root, Z.platform || []);
 
   const A = data.assets;
   const max = {
@@ -517,10 +518,8 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
     ui.budget.step = String(Z.step);
     ui.budget.value = String(state.budget);
     ui.budgetNote.textContent = t('budgetNote');
-    ui.disclaimer.textContent = t('disclaimer');
-    ui.disclaimer2.textContent = t('disclaimer');
-    ui.tabMap.textContent = t('tabMap');
-    ui.tabDash.textContent = t('tabDash');
+    for (const b of ui.tabBtns) b.textContent = t(b.dataset.lab);
+    for (const d of ui.discl) d.textContent = t('disclaimer');
   }
 
   function renderStats(ranked) {
@@ -591,6 +590,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
     renderStats(ranked);
     renderLegend();
     renderTable();
+    if (tab !== 'map' && tab !== 'dash' && boards[tab]) boards[tab].render();
   }
 
   /* --- events */
@@ -629,26 +629,35 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
     getMap: () => ({ w: { ...state.w }, budget: state.budget }),
     apply: (w, budget) => { state.w = w; state.budget = budget; renderControls(); update(); showTab('map'); },
   });
+  const boards = { dash: board };
+  if ((Z.platform || []).includes('prof')) {
+    boards.prof = createProfileBoard(ui.body_prof, {
+      lang, tv, money, fmt, pct, esc, Z, ETAT_C, VERDICT_C, FAM_C: () => FAM_C, FIN_C: () => FIN_C, bounds: data.bounds,
+      ranked: () => ranked, budget: () => state.budget, getLog: () => [],
+      focus: (code) => { showTab('map'); setTimeout(() => { map.invalidateSize(); select(code, true); }, 80); },
+    });
+  }
   let tab = 'map';
   function showTab(k) {
     tab = k;
-    ui.paneMap.hidden = k !== 'map'; ui.paneDash.hidden = k !== 'dash';
-    for (const b of [ui.tabMap, ui.tabDash]) {
+    for (const p_ of ui.panes) p_.hidden = p_.dataset.pane !== k;
+    for (const b of ui.tabBtns) {
       const on = b.dataset.tab === k;
       b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1;
     }
-    if (k === 'dash') board.render(); else setTimeout(() => map.invalidateSize(), 30);
+    if (boards[k]) boards[k].render(); else setTimeout(() => map.invalidateSize(), 30);
   }
-  for (const b of [ui.tabMap, ui.tabDash]) {
+  ui.tabBtns.forEach((b, i) => {
     b.addEventListener('click', () => showTab(b.dataset.tab));
     b.addEventListener('keydown', (e) => {
       if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
-      const o = b === ui.tabMap ? ui.tabDash : ui.tabMap; o.focus(); showTab(o.dataset.tab);
+      const o = ui.tabBtns[(i + (e.key === 'ArrowRight' ? 1 : ui.tabBtns.length - 1)) % ui.tabBtns.length];
+      o.focus(); showTab(o.dataset.tab);
     });
-  }
+  });
   new MutationObserver(() => {
     renderControls(); drawBase(); drawContext(); update();
-    if (tab === 'dash') board.render();
+    if (boards[tab]) boards[tab].render();
     map.closePopup();
   }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-lang'] });
   new ResizeObserver(() => map.invalidateSize()).observe(ui.map);
@@ -705,15 +714,16 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
   return { map, state, assets: A, assistant, showTab, open3d: (code) => open3d(A.find((x) => x.code === code)), get overlay() { return overlay; } };
 }
 
-function buildUI(root) {
+const TAB_LAB = { map: 'tabMap', dash: 'tabDash', prof: 'tabProf', assets: 'tabAssets', proj: 'tabProj', collab: 'tabCollab' };
+function buildUI(root, extras) {
   const wrap = document.createElement('div');
   wrap.className = 'bv sg';
+  const keys = ['map', 'dash', ...extras];
   wrap.innerHTML = `
-    <div class="sg-tabs" role="tablist">
-      <button type="button" role="tab" id="sg-tab-map" aria-controls="sg-pane-map" aria-selected="true" data-r="tabMap" data-tab="map"></button>
-      <button type="button" role="tab" id="sg-tab-dash" aria-controls="sg-pane-dash" aria-selected="false" tabindex="-1" data-r="tabDash" data-tab="dash"></button>
+    <div class="sg-tabs" role="tablist">${keys.map((k, i) => `
+      <button type="button" role="tab" id="sg-tab-${k}" aria-controls="sg-pane-${k}" aria-selected="${i === 0}"${i ? ' tabindex="-1"' : ''} data-tab="${k}" data-lab="${TAB_LAB[k]}"></button>`).join('')}
     </div>
-    <div role="tabpanel" id="sg-pane-map" aria-labelledby="sg-tab-map" data-r="paneMap">
+    <div role="tabpanel" id="sg-pane-map" aria-labelledby="sg-tab-map" data-pane="map">
     <div class="bv-toolbar">
       <label class="bv-field"><span class="bv-l" data-r="colorLabel"></span><select data-r="color"></select></label>
       <label class="bv-field"><span class="bv-l" data-r="baseLabel"></span><select data-r="base"></select></label>
@@ -721,7 +731,7 @@ function buildUI(root) {
       <label class="bv-field sg-cb"><input type="checkbox" data-r="facCb"><span data-r="facLabel"></span></label>
       <label class="bv-field sg-cb"><input type="checkbox" data-r="basinCb"><span data-r="basinLabel"></span></label>
     </div>
-    <p class="sg-disclaimer mono" data-r="disclaimer"></p>
+    <p class="sg-disclaimer mono" data-discl></p>
     <div class="bv-main">
       <div class="sg-map" data-r="map"></div>
       <aside class="bv-side">
@@ -742,12 +752,15 @@ function buildUI(root) {
     <p class="sg-qchip" data-r="qchip" hidden></p>
     <div class="bv-table-wrap"><table class="bv-table sg-table" data-r="table"></table></div>
     </div>
-    <div role="tabpanel" id="sg-pane-dash" aria-labelledby="sg-tab-dash" class="sd" data-r="paneDash" hidden>
-      <p class="sg-disclaimer mono" data-r="disclaimer2"></p>
-      <div class="sd-body" data-r="dash"></div>
-    </div>`;
+    ${keys.slice(1).map((k) => `<div role="tabpanel" id="sg-pane-${k}" aria-labelledby="sg-tab-${k}" class="sd" data-pane="${k}" hidden>
+      <p class="sg-disclaimer mono" data-discl></p>
+      <div class="sd-body" data-r="${k === 'dash' ? 'dash' : `body_${k}`}"></div>
+    </div>`).join('')}`;
   root.append(wrap);
   const ui = {};
   wrap.querySelectorAll('[data-r]').forEach((el) => { ui[el.getAttribute('data-r')] = el; });
+  ui.tabBtns = [...wrap.querySelectorAll('[data-tab]')];
+  ui.panes = [...wrap.querySelectorAll('[data-pane]')];
+  ui.discl = [...wrap.querySelectorAll('[data-discl]')];
   return ui;
 }
