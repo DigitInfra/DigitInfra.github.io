@@ -91,7 +91,7 @@ function getApi(wasmPath) {
   return apiPromise;
 }
 
-export async function mount(root, { ifcUrl, wasmPath, context }) {
+export async function mount(root, { ifcUrl, wasmPath, context, onSelect, extraProps }) {
   root.innerHTML = '';
   root.classList.add('bv-ready');
   const status = h('p', { class: 'bv-status mono' }, esc(t('loading')));
@@ -311,7 +311,7 @@ export async function mount(root, { ifcUrl, wasmPath, context }) {
   renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
 
   /* --- state */
-  const state = { color: 'Etat', fparam: '', fval: '', hiddenCats: new Set(), isolate: null, selected: null, queryIds: null,
+  const state = { color: 'Etat', fparam: '', fval: '', hiddenCats: new Set(), isolate: null, selected: null, queryIds: null, hl: null,
     sortKey: 'PrioriteEntretien', sortDir: 1 };
   const all = [...elements.values()];
   const valOf = (rec, k) => (k === 'name' ? rec.name : k === 'code' ? rec.code : rec.props[k]);
@@ -338,8 +338,8 @@ export async function mount(root, { ifcUrl, wasmPath, context }) {
     for (const rec of all) {
       const vis = isVisible(rec);
       const col = state.color === 'original' ? rec.original : new THREE.Color(colorFor(state.color, valOf(rec, state.color)));
-      const sel = rec.id === state.selected;
-      const dim = state.selected !== null && !sel;
+      const sel = rec.id === state.selected || (state.hl !== null && state.hl.has(rec.id));
+      const dim = (state.selected !== null || state.hl !== null) && !sel;
       const ghost = rec.objectType === 'Remblai' && !sel;
       const op = dim ? 0.18 : ghost ? 0.3 : 1;
       for (const m of rec.meshes) {
@@ -422,7 +422,7 @@ export async function mount(root, { ifcUrl, wasmPath, context }) {
         ${row(pl('Volume'), esc(tv(p.Volume)))}
         ${row(pl('Longueur'), esc(tv(p.Longueur)))}
       </table>
-      <p class="bv-muted bv-src mono">Pset_GIN2CO_Patrimoine · Qto_GIN2CO_Quantites</p>`;
+      <p class="bv-muted bv-src mono">Pset_GIN2CO_Patrimoine · Qto_GIN2CO_Quantites</p>${extraProps ? extraProps(rec.code) : ''}`;
   }
 
   function renderTable() {
@@ -490,9 +490,11 @@ export async function mount(root, { ifcUrl, wasmPath, context }) {
     const tr = e.target.closest('tr[data-id]');
     if (tr && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); select(Number(tr.getAttribute('data-id'))); }
   });
+  const notify = () => { if (onSelect) onSelect(state.selected === null ? null : elements.get(state.selected)?.code || null); };
   function select(id) {
     state.selected = state.selected === id ? null : id;
-    apply();
+    state.hl = null;
+    apply(); notify();
   }
 
   const ray = new THREE.Raycaster();
@@ -506,7 +508,8 @@ export async function mount(root, { ifcUrl, wasmPath, context }) {
     const hit = ray.intersectObjects(pickable, false)[0]
       || ray.intersectObjects(meshesRoot.children.filter((m) => m.visible), false)[0];
     state.selected = hit ? hit.object.userData.id : null;
-    apply();
+    state.hl = null;
+    apply(); notify();
   });
 
   const mo = new MutationObserver(() => { renderToolbar(); apply(); buildContext(); renderCtxPanel(false); });
@@ -543,6 +546,18 @@ export async function mount(root, { ifcUrl, wasmPath, context }) {
         items: shown.map((r) => ({ name: r.name, code: r.code, etat: r.props.Etat, prio: r.props.PrioriteEntretien, cout: r.props.CoutEstime || 0 })),
       };
     },
+    /** Highlights the elements whose tag is in codes (null clears); returns how many were found. */
+    highlight(codes) {
+      const set = codes ? new Set(codes) : null;
+      const ids = set ? all.filter((r) => set.has(r.code)).map((r) => r.id) : [];
+      state.hl = ids.length ? new Set(ids) : null;
+      state.selected = ids.length === 1 ? ids[0] : null; state.isolate = null; state.queryIds = null;
+      apply();
+      return ids.length;
+    },
+    /** Selects the element with this tag. */
+    selectCode(code) { const r = all.find((x) => x.code === code); if (r) { state.hl = null; state.selected = r.id; apply(); } return !!r; },
+    refreshProps() { renderProps(); },
     destroy() {
       mo.disconnect();
       ro.disconnect();

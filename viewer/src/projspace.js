@@ -2,6 +2,7 @@
 // Tasks, comments and documents are the shared ones (collaborative space, GED): the workspace shows those linked to the project or to its assets.
 import { kpis } from './charts.js';
 import { MEMBERS } from './store.js';
+import { targetPicker, readPicker } from './parts.js';
 
 const S = {
   fr: {
@@ -12,7 +13,11 @@ const S = {
     version: 'Version affichée', existing: (c) => `Existant — ${c} (registre)`, full: 'Plein écran', newVer: 'Déposer une nouvelle version IFC', loading: 'Chargement de la maquette…', err3d: 'La maquette n’a pas pu être chargée.', note3d: 'La maquette « existant » vient du registre du patrimoine ; les versions suivantes sont celles déposées dans la GED du projet.',
     cols: { todo: 'À faire', doing: 'En cours', review: 'En validation', done: 'Terminé' }, prio: { high: 'Haute', mid: 'Normale', low: 'Basse' },
     newTask: '+ Nouvelle tâche', title: 'Intitulé', desc: 'Description', assignee: 'Attribuée à', due: 'Échéance', priority: 'Priorité', link: 'Rattachement', create: 'Créer', cancel: 'Annuler', errTask: 'Donnez un intitulé.', noTasks: 'Aucune tâche.', late: 'en retard', move: 'Statut', noAssign: 'Votre rôle permet de suivre les tâches, pas d’en attribuer.',
-    upDoc: '+ Déposer un document', file: 'Fichier', type: 'Type', phase: 'Étape', save: 'Déposer', errFile: 'Choisissez un fichier.', inGed: 'Ouvrir dans la GED', open: 'Ouvrir', noDocs: 'Aucun document pour cette étape.', docsIntro: 'Documents du projet et de ses ouvrages, classés par étape. Ils sont les mêmes que dans la GED commune.',
+    gen: 'Général du projet', genDocs: 'Documents généraux du projet', direct: 'Documents propres', belowA: 'Sur ses parties et éléments', belowP: 'Sur ses éléments', above: 'Hérités', from: 'Rattachés à :', noNode: 'Aucun document pour cet élément.', genNote: (n) => `${n} document(s) général(aux) du projet s’appliquent aussi.`,
+    kinds: { asset: 'Ouvrage', part: 'Partie d’ouvrage', el: 'Élément (maquette IFC)' }, treeL: 'Arborescence des ouvrages', elements: 'Afficher les éléments', noIfc: 'Pas de maquette IFC pour cet ouvrage.',
+    byStruct: 'Par ouvrage et partie', byPhase: 'Par étape', attach: 'Rattacher', saveT: 'Enregistrer le rattachement', concerns: 'Concerne', pickHint: 'cochez l’ouvrage entier, une partie ou des éléments ; ne rien cocher pour un document général du projet',
+    see3d2: 'Voir en 3D', model: 'Maquette', hlOn: 'Surbrillance :', hlClear: 'Effacer', elDocs: 'Documents de l’élément', noElDocs: 'Aucun document rattaché.', via: 'via', allElDocs: 'Tous ses documents',
+    upDoc: '+ Déposer un document', file: 'Fichier', type: 'Type', phase: 'Étape', save: 'Déposer', errFile: 'Choisissez un fichier.', inGed: 'Ouvrir dans la GED', open: 'Ouvrir', noDocs: 'Aucun document pour cette étape.', docsIntro: 'Chaque document est soit général au projet, soit rattaché à un ou plusieurs ouvrages, parties d’ouvrage ou éléments de la maquette. Choisissez un nœud pour voir ses documents propres et ceux dont il hérite. Ce sont les mêmes documents que dans la GED commune.',
     types: { comment: 'Commentaire', suggestion: 'Suggestion', question: 'Question', nc: 'Non-conformité' }, newThread: '+ Nouvelle discussion', text: 'Message', post: 'Publier', errText: 'Écrivez un message.', reply: 'Répondre', replyPh: 'Votre réponse…', resolve: 'Marquer comme résolu', reopen: 'Rouvrir', resolved: 'Résolu', openS: 'Ouvert', noTalk: 'Aucune discussion.', mention: 'Mentionnez un membre avec @ suivi de son prénom.',
     team: 'Membres impliqués', role: 'Rôle', openT: 'Tâches ouvertes', lastAct: 'Dernière action', hist: 'Historique du projet', noHist: 'Aucun événement.', project: 'Projet',
     logTask: (t) => `Tâche créée : ${t}`, logMove: (t, c) => `Tâche « ${t} » → ${c}`, logThread: 'Nouvelle discussion', logReply: 'Réponse publiée', logResolve: 'Discussion résolue',
@@ -25,7 +30,11 @@ const S = {
     version: 'Version shown', existing: (c) => `Existing — ${c} (register)`, full: 'Full screen', newVer: 'Upload a new IFC version', loading: 'Loading the model…', err3d: 'The model could not be loaded.', note3d: 'The “existing” model comes from the asset register; the following versions are those uploaded to the project’s documents.',
     cols: { todo: 'To do', doing: 'In progress', review: 'In review', done: 'Done' }, prio: { high: 'High', mid: 'Normal', low: 'Low' },
     newTask: '+ New task', title: 'Title', desc: 'Description', assignee: 'Assigned to', due: 'Due date', priority: 'Priority', link: 'Attached to', create: 'Create', cancel: 'Cancel', errTask: 'Give a title.', noTasks: 'No task.', late: 'overdue', move: 'Status', noAssign: 'Your role lets you follow tasks, not assign them.',
-    upDoc: '+ Upload a document', file: 'File', type: 'Type', phase: 'Step', save: 'Upload', errFile: 'Choose a file.', inGed: 'Open in the EDMS', open: 'Open', noDocs: 'No document for this step.', docsIntro: 'Documents of the project and its assets, by step. They are the same as in the shared EDMS.',
+    gen: 'General project', genDocs: 'General project documents', direct: 'Own documents', belowA: 'On its parts and elements', belowP: 'On its elements', above: 'Inherited', from: 'Attached to:', noNode: 'No document for this item.', genNote: (n) => `${n} general project document(s) also apply.`,
+    kinds: { asset: 'Asset', part: 'Part of works', el: 'Element (IFC model)' }, treeL: 'Asset tree', elements: 'Show elements', noIfc: 'No IFC model for this asset.',
+    byStruct: 'By asset and part', byPhase: 'By step', attach: 'Attach', saveT: 'Save attachment', concerns: 'Concerns', pickHint: 'tick the whole asset, a part or elements; tick nothing for a general project document',
+    see3d2: 'Show in 3D', model: 'Model', hlOn: 'Highlighted:', hlClear: 'Clear', elDocs: 'Element documents', noElDocs: 'No attached document.', via: 'via', allElDocs: 'All its documents',
+    upDoc: '+ Upload a document', file: 'File', type: 'Type', phase: 'Step', save: 'Upload', errFile: 'Choose a file.', inGed: 'Open in the EDMS', open: 'Open', noDocs: 'No document for this step.', docsIntro: 'Each document is either general to the project or attached to one or more assets, parts of works or model elements. Pick a node to see its own documents and those it inherits. They are the same documents as in the shared EDMS.',
     types: { comment: 'Comment', suggestion: 'Suggestion', question: 'Question', nc: 'Non-conformity' }, newThread: '+ New discussion', text: 'Message', post: 'Post', errText: 'Write a message.', reply: 'Reply', replyPh: 'Your reply…', resolve: 'Mark as resolved', reopen: 'Reopen', resolved: 'Resolved', openS: 'Open', noTalk: 'No discussion.', mention: 'Mention a member with @ followed by their first name.',
     team: 'Members involved', role: 'Role', openT: 'Open tasks', lastAct: 'Last action', hist: 'Project history', noHist: 'No event.', project: 'Project',
     logTask: (t) => `Task created: ${t}`, logMove: (t, c) => `Task “${t}” → ${c}`, logThread: 'New discussion', logReply: 'Reply posted', logResolve: 'Discussion resolved',
@@ -49,6 +58,23 @@ export function createSpace(ctx, h) {
   const docsOf = (p) => { const g = ged(); return g ? links(p).flatMap((l) => g.docsFor(l)) : []; };
   const mentions = (t) => MEMBERS.filter((m) => new RegExp(`@${m.name.split(' ')[0]}\\b`, 'i').test(t)).map((m) => m.id);
   let taskForm = false, threadForm = false, docForm = false, ver = null;
+  let docView = 'struct', node = 'gen', openParts = new Set(), editDoc = null, hl = null; // hl: { id, title, codes }
+  const C = () => (ctx.catalog ? ctx.catalog() : null);
+  const isAsset = (l) => ctx.assets().some((a) => a.code === l);
+  const tg = (d) => { const g = ged(); return g ? g.targetsOf(d) : []; };
+  const projAssets = (p) => p.codes.map((c) => ctx.assets().find((a) => a.code === c)).filter(Boolean);
+  const nodeLabel = (k) => (k === 'gen' ? s('gen') : C() ? C().label(k, lang()) : k);
+  // documents of the project concerning a node of the tree: direct, below it, inherited from above
+  function docsAt(p, k) {
+    const D = docsOf(p), c = C();
+    if (k === 'gen') return { direct: D.filter((d) => !tg(d).length), below: [], above: [] };
+    const direct = D.filter((d) => tg(d).includes(k));
+    const below = D.filter((d) => !direct.includes(d) && tg(d).some((t) => t !== k && c.inside(t, k)));
+    const anc = c.ancestors(k);
+    const above = D.filter((d) => !direct.includes(d) && !below.includes(d) && tg(d).some((t) => anc.includes(t)));
+    return { direct, below, above };
+  }
+  const countAt = (p, k) => { const r = docsAt(p, k); return r.direct.length + r.below.length; };
   let v3 = null; // { pid, key, host, viewer }
 
   /* --- 3D versions: register model of each asset, then IFC versions uploaded to the project */
@@ -102,7 +128,19 @@ export function createSpace(ctx, h) {
       <button type="button" class="bv-btn" data-ps-full>${esc(s('full'))}</button>
       ${store.can('uploadDoc') ? `<label class="bv-btn ps-file">${esc(s('newVer'))}<input type="file" accept=".ifc" data-ps-ifc hidden></label>` : ''}</div>
       ${V.some((v) => !v.d) ? `<p class="cc-note">${esc(s('note3d'))}</p>` : ''}
+      ${hl ? `<p class="ps-hl" role="status"><span>${esc(s('hlOn'))} <b>${esc(hl.title)}</b> — ${esc(hl.targets)}</span><button type="button" class="sg-link" data-ps-a="hlclear">${esc(s('hlClear'))}</button></p>` : ''}
       <div data-ps3d class="ps-3dslot"></div>`;
+  }
+  // documents of an element, shown in the 3D side panel
+  function elementDocs(p, code) {
+    const c = C(); if (!c || !c.elIndex.has(code)) return '';
+    const { direct, above } = docsAt(p, code);
+    const part = c.parentOf(code), asset = c.assetOf(code);
+    const li = (d, why) => `<li><button type="button" class="sg-link" data-ps-open="${esc(d.id)}">${esc(nm(d.title))}</button><small class="mono">${esc(d.code)} · ${esc(d.versions.at(-1).ver)}${why ? ` · ${esc(why)}` : ''}</small></li>`;
+    const via = (d) => (tg(d).includes(part) ? c.partName(part.split('#')[1], lang()) : asset);
+    return `<div class="ps-eldocs"><h4 class="bv-h">${esc(s('elDocs'))} (${direct.length + above.length})</h4>
+      ${direct.length + above.length ? `<ul>${direct.map((d) => li(d, '')).join('')}${above.map((d) => li(d, `${s('via')} ${via(d)}`)).join('')}</ul>` : `<p class="bv-muted">${esc(s('noElDocs'))}</p>`}
+      <p><button type="button" class="sg-link" data-ps-node="${esc(code)}">${esc(s('allElDocs'))} →</button></p></div>`;
   }
 
   function memberOpts(sel) { return MEMBERS.map((m) => `<option value="${m.id}"${m.id === sel ? ' selected' : ''}>${esc(m.name)} — ${esc(m[lang()])}</option>`).join(''); }
@@ -130,26 +168,71 @@ export function createSpace(ctx, h) {
       <div class="cl-board">${Object.keys(S.fr.cols).map((k) => { const xs = T.filter((t) => t.status === k); return `<section class="cl-col"><h5 class="pl-h5">${esc(s('cols')[k])} <span>${xs.length}</span></h5>${xs.map(card).join('') || `<p class="bv-muted">—</p>`}</section>`; }).join('')}</div>`;
   }
 
+  function docRow(p, d, mode) {
+    const g = ged(), c = C();
+    const lv = d.versions.at(-1); const is3d = d.type === 'M3D' && lv.file.kind !== 'demo';
+    const t = tg(d);
+    const can3d = c && t.some((x) => c.expand(x).length);
+    const chips = t.length ? t.map((x) => `<button type="button" class="gd-chip" data-ps-node="${esc(x)}">${esc(c ? c.label(x, lang()) : x)}</button>`).join(' ') : `<span class="gd-chip gd-gen">${esc(s('gen'))}</span>`;
+    return `<tr${editDoc === d.id ? ' class="pl-cur"' : ''}><td class="mono">${esc(d.code)}</td><td class="pf-wrap">${esc(nm(d.title))}<div class="gd-chips">${chips}</div></td>${mode === 'phase' ? `<td>${esc(g.typeName(d.type))}</td>` : ''}<td class="mono">${esc(lv.ver)}</td>
+      <td><span class="bv-badge" style="--c:${ST_C[d.status]}">${esc(g.label(d.status))}</span></td>${mode === 'phase' ? '' : `<td>${esc(nm((h.STEPS.find((x) => x.k === d.phase) || {}).n))}</td>`}
+      <td class="ps-acts">${is3d ? `<button type="button" class="sg-link" data-ps-tab3d="${esc(d.id)}:${esc(lv.ver)}">${esc(s('model'))}</button>` : `<button type="button" class="sg-link" data-ps-open="${esc(d.id)}">${esc(s('open'))}</button>`}
+        ${can3d ? `<button type="button" class="sg-link" data-ps-hl="${esc(d.id)}">${esc(s('see3d2'))}</button>` : ''}
+        <button type="button" class="sg-link" data-ps-ged="${esc(d.id)}">${esc(s('inGed'))}</button>
+        ${store.can('uploadDoc') && c ? `<button type="button" class="sg-link" data-ps-edit="${esc(d.id)}">${esc(s('attach'))}</button>` : ''}</td></tr>`;
+  }
+  const docTable = (p, xs, mode) => `<div class="bv-table-wrap sd-wrap"><table class="bv-table pf-table ps-docs"><tbody>${xs.map((d) => docRow(p, d, mode)).join('')}</tbody></table></div>`;
+
+  function tree(p) {
+    const c = C();
+    const btn = (k, lab, n, cls = '') => `<button type="button" class="ps-tn${cls}${node === k ? ' is-on' : ''}" data-ps-node="${esc(k)}"><span>${lab}</span>${n ? `<i>${n}</i>` : ''}</button>`;
+    return `<nav class="ps-tree" aria-label="${esc(s('treeL'))}">
+      ${btn('gen', esc(s('gen')), docsAt(p, 'gen').direct.length, ' ps-tgen')}
+      ${projAssets(p).map((a) => `<div class="ps-ta">${btn(a.code, `<b class="mono">${esc(a.code)}</b> ${esc(tv(a.type))}`, countAt(p, a.code), ' ps-tasset')}
+        ${c.partsOf(a.code).map((pt) => { const open = openParts.has(pt.key) || (node !== 'gen' && c.inside(node, pt.key));
+          return `<div class="ps-tp"><div class="ps-tprow"><button type="button" class="ps-tog" data-ps-tog="${esc(pt.key)}" aria-expanded="${open}" aria-label="${esc(s('elements'))}">${open ? '▾' : '▸'}</button>${btn(pt.key, esc(c.partName(pt.k, lang())), countAt(p, pt.key))}</div>
+            ${open ? `<div class="ps-tels">${pt.els.map((e) => btn(e.c, `<span class="mono">${esc(e.c.slice(a.code.length + 1))}</span> ${esc(e.n)}`, countAt(p, e.c), ' ps-tel')).join('')}</div>` : ''}</div>`; }).join('')}
+        ${c.partsOf(a.code).length ? '' : `<p class="bv-muted ps-tnone">${esc(s('noIfc'))}</p>`}</div>`).join('')}
+    </nav>`;
+  }
+
   function docs(p) {
     const { STEPS } = h;
     const D = docsOf(p);
-    const g = ged();
-    const row = (d) => { const lv = d.versions.at(-1); const is3d = d.type === 'M3D' && lv.file.kind !== 'demo';
-      return `<tr><td class="mono">${esc(d.code)}</td><td class="pf-wrap">${esc(nm(d.title))}${d.link !== p.id ? ` <small class="mono">(${esc(d.link)})</small>` : ''}</td><td>${esc(g.typeName(d.type))}</td><td class="mono">${esc(lv.ver)}</td>
-        <td><span class="bv-badge" style="--c:${ST_C[d.status]}">${esc(g.label(d.status))}</span></td><td class="mono">${esc(lv.date)}</td>
-        <td class="ps-acts">${is3d ? `<button type="button" class="sg-link" data-ps-tab3d="${esc(d.id)}:${esc(lv.ver)}">3D</button>` : `<button type="button" class="sg-link" data-ps-open="${esc(d.id)}">${esc(s('open'))}</button>`} <button type="button" class="sg-link" data-ps-ged="${esc(d.id)}">${esc(s('inGed'))}</button></td></tr>`; };
-    return `<p class="sd-intro">${esc(s('docsIntro'))}</p>
-      <div class="pl-bar">${store.can('uploadDoc') ? `<button type="button" class="btn btn-primary" data-ps-a="dnew">${esc(s('upDoc'))}</button>` : ''}</div>
+    const g = ged(), c = C();
+    const ed = editDoc && D.find((d) => d.id === editDoc);
+    const head = `<p class="sd-intro">${esc(s('docsIntro'))}</p>
+      <div class="pl-bar"><div class="ps-seg" role="group">${['struct', 'phase'].map((k) => `<button type="button" class="${docView === k ? 'is-on' : ''}" data-ps-view="${k}">${esc(s(k === 'struct' ? 'byStruct' : 'byPhase'))}</button>`).join('')}</div>
+        ${store.can('uploadDoc') ? `<button type="button" class="btn btn-primary" data-ps-a="dnew">${esc(s('upDoc'))}</button>` : ''}</div>
       ${docForm ? `<section class="pl-form"><div class="pl-fields">
         <label class="sd-f"><span class="bv-l">${esc(s('file'))}</span><input type="file" data-ps-df="file"></label>
         <label class="sd-f"><span class="bv-l">${esc(s('title'))}</span><input type="text" data-ps-df="title" maxlength="140"></label>
         <label class="sd-f"><span class="bv-l">${esc(s('type'))}</span><select data-ps-df="type">${g.types().map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join('')}</select></label>
         <label class="sd-f"><span class="bv-l">${esc(s('phase'))}</span><select data-ps-df="phase">${STEPS.map((st, i) => `<option value="${st.k}"${i === Math.min(p.step, STEPS.length - 1) ? ' selected' : ''}>${esc(nm(st.n))}</option>`).join('')}</select></label>
-        <label class="sd-f"><span class="bv-l">${esc(s('link'))}</span><select data-ps-df="link">${linkOpts(p)}</select></label>
+        ${c ? `<div class="sd-f ps-wide"><span class="bv-l">${esc(s('concerns'))} — ${esc(s('pickHint'))}</span>${targetPicker(c, projAssets(p), node === 'gen' ? [] : [node], { lang: lang(), esc, name: 'psup', tv })}</div>` : ''}
         <p class="pl-err" data-ps-err role="alert"></p>
         <div class="sd-actions"><button type="button" class="sg-link" data-ps-a="dcancel">${esc(s('cancel'))}</button><button type="button" class="btn btn-primary" data-ps-a="dsave">${esc(s('save'))}</button></div></div></section>` : ''}
-      ${STEPS.map((st, i) => { const xs = D.filter((d) => d.phase === st.k); if (!xs.length && i > p.step) return '';
-        return `<h5 class="pl-h5 ps-ph">${i + 1}. ${esc(nm(st.n))} <span>${xs.length}</span></h5>${xs.length ? `<div class="bv-table-wrap sd-wrap"><table class="bv-table pf-table ps-docs"><tbody>${xs.map(row).join('')}</tbody></table></div>` : `<p class="bv-muted">${esc(s('noDocs'))}</p>`}`; }).join('')}`;
+      ${ed ? `<section class="pl-form"><h4 class="bv-h">${esc(s('attach'))} — ${esc(nm(ed.title))}</h4><p class="cc-note">${esc(s('pickHint'))}</p>
+        ${targetPicker(c, projAssets(p), tg(ed), { lang: lang(), esc, name: 'psedit', tv })}
+        <div class="sd-actions"><button type="button" class="sg-link" data-ps-a="ecancel">${esc(s('cancel'))}</button><button type="button" class="btn btn-primary" data-ps-a="esave">${esc(s('saveT'))}</button></div></section>` : ''}`;
+    if (docView === 'phase' || !c) {
+      return head + STEPS.map((st, i) => { const xs = D.filter((d) => d.phase === st.k); if (!xs.length && i > p.step) return '';
+        return `<h5 class="pl-h5 ps-ph">${i + 1}. ${esc(nm(st.n))} <span>${xs.length}</span></h5>${xs.length ? docTable(p, xs, 'phase') : `<p class="bv-muted">${esc(s('noDocs'))}</p>`}`; }).join('');
+    }
+    const r = docsAt(p, node);
+    const k = node === 'gen' ? 'gen' : c.kind(node);
+    const up = node === 'gen' ? [] : c.ancestors(node);
+    const sec = (title, xs, note) => (xs.length ? `<h5 class="pl-h5 ps-ph">${esc(title)} <span>${xs.length}</span></h5>${note ? `<p class="cc-note">${esc(note)}</p>` : ''}${docTable(p, xs, 'struct')}` : '');
+    const showIn3d = k !== 'gen' && c.expand(node).length;
+    return head + `<div class="ps-docgrid">${tree(p)}<div class="ps-doclist">
+      <div class="ps-nodehead"><h4 class="bv-h">${esc(nodeLabel(node))}</h4>${k !== 'gen' ? `<small>${esc(s('kinds')[k])}</small>` : ''}
+        ${showIn3d ? `<button type="button" class="sg-link" data-ps-hlnode="${esc(node)}">${esc(s('see3d2'))}</button>` : ''}</div>
+      ${sec(k === 'gen' ? s('genDocs') : s('direct'), r.direct)}
+      ${sec(k === 'asset' ? s('belowA') : s('belowP'), r.below)}
+      ${sec(s('above'), r.above, up.length ? `${s('from')} ${up.map((x) => (c.kind(x) === 'part' ? `${s('kinds').part.toLowerCase()} « ${c.partName(x.split('#')[1], lang())} »` : `${s('kinds').asset.toLowerCase()} ${x}`)).join(lang() === 'en' ? ' and ' : ' et ')}` : '')}
+      ${!r.direct.length && !r.below.length && !r.above.length ? `<p class="bv-muted">${esc(s('noNode'))}</p>` : ''}
+      ${k !== 'gen' ? `<p class="cc-note">${esc(s('genNote')(docsAt(p, 'gen').direct.length))} <button type="button" class="sg-link" data-ps-node="gen">${esc(s('gen'))} →</button></p>` : ''}
+    </div></div>`;
   }
 
   function talk(p) {
@@ -208,13 +291,23 @@ export function createSpace(ctx, h) {
     return { tasks: tasksOf(p).filter((t) => t.status !== 'done').length, docs: docsOf(p).length, talk: talksOf(p).filter((c) => c.status === 'open').length, m3d: versions(p).length };
   }
 
+  // prepares a 3D highlight of the elements covered by targets, on a version of the right asset
+  function showIn3d(p, targets, title) {
+    const c = C();
+    const codes = [...new Set(targets.flatMap((t) => c.expand(t)))];
+    const assets = new Set(targets.map((t) => c.assetOf(t)));
+    const V = versions(p), cv = curVer(p);
+    if (cv && !assets.has(cv.asset?.code)) { const alt = [...V].reverse().find((v) => assets.has(v.asset?.code)); if (alt) ver = alt.key; }
+    hl = { title, codes, targets: targets.map((t) => c.label(t, lang())).join(', ') };
+  }
+
   /* --- inline 3D viewer kept alive across re-renders */
   function leave() { if (v3) { v3.viewer?.destroy(); v3.host.remove(); v3 = null; } }
   async function after(el, p, tab) {
     const slot = el.querySelector('[data-ps3d]');
     if (tab !== 'm3d' || !slot) { leave(); return; }
     const cv = curVer(p);
-    if (v3 && v3.pid === p.id && v3.key === cv.key) { slot.replaceWith(v3.host); return; }
+    if (v3 && v3.pid === p.id && v3.key === cv.key) { slot.replaceWith(v3.host); if (v3.viewer) { if (hl) v3.viewer.highlight(hl.codes); else v3.viewer.refreshProps?.(); } return; }
     leave();
     const host = document.createElement('div');
     host.className = 'ps-3dhost';
@@ -225,8 +318,11 @@ export function createSpace(ctx, h) {
     try {
       const url = cv.url || await ged().urlOf(cv.d, cv.v);
       host.innerHTML = '';
-      const viewer = await ctx.mount3d(host, cv.asset, url);
-      if (v3 === mine) mine.viewer = viewer; else viewer.destroy();
+      const viewer = await ctx.mount3d(host, cv.asset, url, {
+        extraProps: (code) => elementDocs(p, code),
+        onSelect: () => { if (hl) { hl = null; el.querySelector('.ps-hl')?.remove(); } },
+      });
+      if (v3 === mine) { mine.viewer = viewer; if (hl) viewer.highlight(hl.codes); } else viewer.destroy();
     } catch (err) {
       console.error(err);
       if (v3 === mine) host.innerHTML = `<p class="bv-status">${esc(s('err3d'))}</p>`;
@@ -242,6 +338,15 @@ export function createSpace(ctx, h) {
     if ((b = q('[data-ps-open]'))) { const g = ged(); const d = g.ensure().find((x) => x.id === b.dataset.psOpen); g.openVersion(d, d.versions.at(-1)); return true; }
     if ((b = q('[data-ps-ged]'))) { ctx.openDoc(b.dataset.psGed); return true; }
     if ((b = q('[data-ps-tab3d]'))) { ver = b.dataset.psTab3d; rerender('m3d'); return true; }
+    if ((b = q('[data-ps-node]'))) { node = b.dataset.psNode; docView = 'struct'; editDoc = null; rerender('docs'); el.querySelector('.ps-doclist')?.scrollIntoView({ block: 'nearest' }); return true; }
+    if ((b = q('[data-ps-tog]'))) { const k = b.dataset.psTog; if (openParts.has(k)) openParts.delete(k); else openParts.add(k); rerender(); return true; }
+    if ((b = q('[data-ps-view]'))) { docView = b.dataset.psView; rerender(); return true; }
+    if ((b = q('[data-ps-edit]'))) { editDoc = b.dataset.psEdit; docForm = false; rerender(); el.querySelector('.pl-form')?.scrollIntoView({ block: 'nearest' }); return true; }
+    if ((b = q('[data-ps-hl]'))) {
+      const d = ged().ensure().find((x) => x.id === b.dataset.psHl);
+      showIn3d(p, tg(d), nm(d.title)); rerender('m3d'); return true;
+    }
+    if ((b = q('[data-ps-hlnode]'))) { showIn3d(p, [b.dataset.psHlnode], nodeLabel(b.dataset.psHlnode)); rerender('m3d'); return true; }
     if (q('[data-ps-full]')) { const cv = curVer(p); Promise.resolve(cv.url || ged().urlOf(cv.d, cv.v)).then((url) => ctx.fullscreen3d(p, cv, url)); return true; }
     if ((b = q('[data-ps-rep]'))) {
       const inp = el.querySelector(`[data-ps-rin="${b.dataset.psRep}"]`); const txt = inp.value.trim(); if (!txt) return true;
@@ -252,6 +357,9 @@ export function createSpace(ctx, h) {
     if (!(b = q('[data-ps-a]'))) return false;
     const a = b.dataset.psA;
     const err = (m) => { const x = el.querySelector('[data-ps-err]'); if (x) x.textContent = m; };
+    if (a === 'hlclear') { hl = null; v3?.viewer?.highlight(null); rerender(); return true; }
+    if (a === 'ecancel') { editDoc = null; rerender(); return true; }
+    if (a === 'esave') { const d = ged().ensure().find((x) => x.id === editDoc); editDoc = null; ged().setTargets(d, readPicker(el, 'psedit')); return true; }
     if (a === 'tnew') { taskForm = true; rerender(); } else if (a === 'tcancel') { taskForm = false; rerender(); }
     else if (a === 'tcreate') {
       const g = (k) => el.querySelector(`[data-ps-tf="${k}"]`).value;
@@ -269,7 +377,8 @@ export function createSpace(ctx, h) {
       const g = (k) => el.querySelector(`[data-ps-df="${k}"]`);
       const file = g('file').files[0]; if (!file) { err(s('errFile')); return true; }
       docForm = false;
-      ged().addDoc({ file, title: g('title').value.trim() || file.name, type: g('type').value, link: g('link').value, phase: g('phase').value });
+      const targets = C() ? readPicker(el, 'psup') : [];
+      ged().addDoc({ file, title: g('title').value.trim() || file.name, type: g('type').value, link: p.id, phase: g('phase').value, targets });
     }
     return true;
   }

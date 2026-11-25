@@ -815,6 +815,10 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
   /* --- boards: each module is downloaded the first time its space is opened */
   const boards = {};
   const loading = {};
+  // parts of works and IFC elements of each asset (document targets)
+  let catalog = null, catalogP = null;
+  const loadCatalog = () => (catalogP ||= Promise.all([import('./parts.js'), fetch(dataUrl.replace(/[^/]*$/, 'parts.json')).then((r) => (r.ok ? r.json() : {})).catch(() => ({}))])
+    .then(([m, d]) => { catalog = m.createCatalog(d); return catalog; }));
   const focusMap = (code) => { showTab('map').then(() => setTimeout(() => { map.invalidateSize(); select(code, true); }, 80)); };
   const FACT = {
     dash: async () => (await import('./scenarios.js')).createScenarioBoard(ui.dash, {
@@ -852,14 +856,15 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
         },
       });
     },
-    proj: async () => { await getBoard('ged'); return (await import('./projects.js')).createProjectBoard(ui.body_proj, {
+    proj: async () => { await Promise.all([getBoard('ged'), loadCatalog()]); return (await import('./projects.js')).createProjectBoard(ui.body_proj, {
       lang, esc, fmt, money, store, tv, pct, assets: () => A, ranked: () => ranked, focus: focusMap, modelsBase,
       ged: () => boards.ged || null, focusProject: (id) => focusProject(id),
       openDoc: (id) => showTab('ged').then((b) => b && b.openDoc(id)),
-      mount3d: async (host, a, url) => {
+      mount3d: async (host, a, url, opts = {}) => {
         const { mount: mountViewer } = await import(/* @vite-ignore */ viewerUrl);
-        return mountViewer(host, { ifcUrl: url, wasmPath, context: contextFor(a, { base: state.base, traffic: state.traffic, facilities: state.facilities }) });
+        return mountViewer(host, { ...opts, ifcUrl: url, wasmPath, context: contextFor(a, { base: state.base, traffic: state.traffic, facilities: state.facilities }) });
       },
+      catalog: () => catalog,
       fullscreen3d: (p, cv, url) => (cv.d ? open3dVersions(cv.asset, p.id, cv.v.ver, url) : open3d(cv.asset)),
       resetCondition: (code, what) => {
         const d = store.state.added.find((x) => x.code === code);
@@ -880,10 +885,11 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
       return b;
     },
     ged: async () => {
+      await loadCatalog();
       const projList = () => (boards.proj ? boards.proj.ensure() : (store.state.projects || []));
       return (await import('./ged.js')).createGedBoard(ui.body_ged, {
         lang, esc, store, tv, modelsBase, assets: () => A, projects: projList,
-        openProject: (id) => openProjectSpace(id),
+        openProject: (id) => openProjectSpace(id), catalog: () => catalog,
         open3d: (d, vv, url) => {
           const p = projList().find((x) => x.id === d.link);
           const a = A.find((x) => x.code === (p ? p.codes[0] : d.link));
