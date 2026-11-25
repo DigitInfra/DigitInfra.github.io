@@ -15,7 +15,7 @@ export const MEMBERS = [
 // Rights by role. Kept deliberately simple and readable.
 // What each role sees in the platform: spaces (menu) and dashboard views ("casquettes").
 export const ACCESS = {
-  ministre: { spaces: ['home', 'map', 'dash', 'prof', 'collab', 'ged'], views: ['ministre'] },
+  ministre: { spaces: ['home', 'map', 'dash', 'prof', 'proj', 'collab', 'ged'], views: ['ministre'] },
   mo: { spaces: ['home', 'map', 'dash', 'prof', 'assets', 'proj', 'collab', 'ged'], views: ['mo', 'tech'] },
   tech: { spaces: ['home', 'map', 'prof', 'assets', 'proj', 'collab', 'ged'], views: ['tech'] },
   bailleur: { spaces: ['home', 'map', 'dash', 'prof', 'proj', 'collab', 'ged'], views: ['bailleur'] },

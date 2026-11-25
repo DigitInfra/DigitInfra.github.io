@@ -27,7 +27,7 @@ const T = {
     floodCls: ['Faible', 'Modéré', 'Élevé', 'Très élevé'], fac: { 'École': 'École', 'Centre de santé': 'Centre de santé', 'Marché': 'Marché' },
     vpj: 'véh./j', hint: 'Cliquez sur un ouvrage ou sur une ligne du tableau.', noTraffic: 'non applicable',
     budgetNote: 'Les ouvrages sont retenus par ordre de score ; un ouvrage qui dépasse le reliquat est sauté au profit des suivants.',
-    navHome: 'Mon espace', navMap: 'Carte', navDash: 'Scénarios', navProf: 'Tableaux de bord', navAssets: 'Patrimoine', navProj: 'Projets et qualité', navCollab: 'Collaboration', spaces: 'Espaces accessibles', views: 'Vues de tableau de bord', noView: 'aucune', search: 'Rechercher un ouvrage', demoBadge: 'Démonstration · données fictives', switchProfile: 'Changer de profil', rights: 'Vos droits', readOnly: 'consultation et commentaires', ranking: 'Classement détaillé', site: 'Site DigitInfra', otherZone: 'Démonstrateur Bénin', menu: 'Menu', tabMap: 'Carte et classement', tabDash: 'Tableau de bord des scénarios', tabProf: 'Vues par profil', tabAssets: 'Patrimoine et mises à jour', tabProj: 'Projets et qualité', tabCollab: 'Espace collaboratif', talk: 'Échanges', pickMsg: 'Cliquez sur la carte pour placer le nouvel ouvrage (Échap pour annuler).', modNote: 'Données mises à jour après la production de la maquette : les coûts des éléments peuvent différer.', addNote: 'Ouvrage ajouté : sa maquette IFC reste à produire.', navGed: 'Documents (GED)', projLayer: 'Projets en cours', projOf: 'Projet en cours', stepL: 'Étape', progress: 'Avancement des étapes', docsL: 'Documents du projet', noDocs: 'Aucun document.', ver3d: 'Maquette 3D', verPick: 'Version de la maquette', openProj: 'Suivi du projet', openGed: 'Tous les documents', moreDocs: (n) => `+ ${n} autre(s)`, open3dV: 'Ouvrir la version en 3D',
+    navHome: 'Mon espace', navMap: 'Carte', navDash: 'Scénarios', navProf: 'Tableaux de bord', navAssets: 'Patrimoine', navProj: 'Projets', navCollab: 'Collaboration', spaces: 'Espaces accessibles', views: 'Vues de tableau de bord', noView: 'aucune', search: 'Rechercher un ouvrage', demoBadge: 'Démonstration · données fictives', switchProfile: 'Changer de profil', rights: 'Vos droits', readOnly: 'consultation et commentaires', ranking: 'Classement détaillé', site: 'Site DigitInfra', otherZone: 'Démonstrateur Bénin', menu: 'Menu', tabMap: 'Carte et classement', tabDash: 'Tableau de bord des scénarios', tabProf: 'Vues par profil', tabAssets: 'Patrimoine et mises à jour', tabProj: 'Projets et qualité', tabCollab: 'Espace collaboratif', talk: 'Échanges', pickMsg: 'Cliquez sur la carte pour placer le nouvel ouvrage (Échap pour annuler).', modNote: 'Données mises à jour après la production de la maquette : les coûts des éléments peuvent différer.', addNote: 'Ouvrage ajouté : sa maquette IFC reste à produire.', navGed: 'Documents (GED)', projLayer: 'Projets en cours', projOf: 'Projet en cours', stepL: 'Étape', progress: 'Avancement des étapes', docsL: 'Documents du projet', noDocs: 'Aucun document.', ver3d: 'Maquette 3D', verPick: 'Version de la maquette', openProj: 'Espace projet', openGed: 'Tous les documents', moreDocs: (n) => `+ ${n} autre(s)`, open3dV: 'Ouvrir la version en 3D',
   },
   en: {
     colorBy: 'Colour assets by', base: 'Base layer', none: 'None', traffic: 'Traffic', facilities: 'Facilities',
@@ -50,7 +50,7 @@ const T = {
     floodCls: ['Low', 'Moderate', 'High', 'Very high'], fac: { 'École': 'School', 'Centre de santé': 'Health centre', 'Marché': 'Market' },
     vpj: 'veh./day', hint: 'Click an asset or a table row.', noTraffic: 'not applicable',
     budgetNote: 'Assets are selected by score; an asset exceeding the remaining amount is skipped in favour of the next ones.',
-    navHome: 'My space', navMap: 'Map', navDash: 'Scenarios', navProf: 'Dashboards', navAssets: 'Assets', navProj: 'Projects & quality', navCollab: 'Collaboration', spaces: 'Available spaces', views: 'Dashboard views', noView: 'none', search: 'Search an asset', demoBadge: 'Demonstration · fictitious data', switchProfile: 'Switch profile', rights: 'Your rights', readOnly: 'view and comment', ranking: 'Detailed ranking', site: 'DigitInfra website', otherZone: 'Benin demonstrator', menu: 'Menu', tabMap: 'Map and ranking', tabDash: 'Scenario dashboard', tabProf: 'Profile views', tabAssets: 'Assets and updates', tabProj: 'Projects and quality', tabCollab: 'Collaborative space', talk: 'Discussions', pickMsg: 'Click on the map to place the new asset (Esc to cancel).', modNote: 'Data updated after the model was produced: element costs may differ.', addNote: 'Added asset: its IFC model is still to be produced.', navGed: 'Documents (EDMS)', projLayer: 'Ongoing projects', projOf: 'Ongoing project', stepL: 'Step', progress: 'Step progress', docsL: 'Project documents', noDocs: 'No document.', ver3d: '3D model', verPick: 'Model version', openProj: 'Project follow-up', openGed: 'All documents', moreDocs: (n) => `+ ${n} more`, open3dV: 'Open this version in 3D',
+    navHome: 'My space', navMap: 'Map', navDash: 'Scenarios', navProf: 'Dashboards', navAssets: 'Assets', navProj: 'Projects', navCollab: 'Collaboration', spaces: 'Available spaces', views: 'Dashboard views', noView: 'none', search: 'Search an asset', demoBadge: 'Demonstration · fictitious data', switchProfile: 'Switch profile', rights: 'Your rights', readOnly: 'view and comment', ranking: 'Detailed ranking', site: 'DigitInfra website', otherZone: 'Benin demonstrator', menu: 'Menu', tabMap: 'Map and ranking', tabDash: 'Scenario dashboard', tabProf: 'Profile views', tabAssets: 'Assets and updates', tabProj: 'Projects and quality', tabCollab: 'Collaborative space', talk: 'Discussions', pickMsg: 'Click on the map to place the new asset (Esc to cancel).', modNote: 'Data updated after the model was produced: element costs may differ.', addNote: 'Added asset: its IFC model is still to be produced.', navGed: 'Documents (EDMS)', projLayer: 'Ongoing projects', projOf: 'Ongoing project', stepL: 'Step', progress: 'Step progress', docsL: 'Project documents', noDocs: 'No document.', ver3d: '3D model', verPick: 'Model version', openProj: 'Project space', openGed: 'All documents', moreDocs: (n) => `+ ${n} more`, open3dV: 'Open this version in 3D',
   },
 };
 const CRIT = [
@@ -430,7 +430,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
     const tb = e.popup.getElement().querySelector('.sg-talk');
     if (tb) tb.addEventListener('click', () => { const c = tb.getAttribute('data-code'); showTab('collab').then((b) => b && b.filterLink(c)); });
     const pb = e.popup.getElement().querySelector('.sg-proj');
-    if (pb) pb.addEventListener('click', () => { const id = pb.getAttribute('data-pid'); map.closePopup(); focusProject(id); });
+    if (pb) pb.addEventListener('click', () => { const id = pb.getAttribute('data-pid'); map.closePopup(); openProjectSpace(id); });
     const btn = e.popup.getElement().querySelector('.sg-3d');
     if (btn) btn.addEventListener('click', () => open3d(A.find((x) => x.code === btn.getAttribute('data-code'))));
   });
@@ -488,7 +488,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
   map.on('popupopen', async (e) => {
     const el = e.popup.getElement();
     const pp = el.querySelector('[data-pproj]');
-    if (pp) pp.addEventListener('click', () => { const id = pp.dataset.pproj; map.closePopup(); (allowed('proj') ? showTab('proj').then((b) => b && b.open(id)) : focusProject(id)); });
+    if (pp) pp.addEventListener('click', () => { const id = pp.dataset.pproj; map.closePopup(); openProjectSpace(id); });
     const pg = el.querySelector('[data-pged]');
     if (pg) pg.addEventListener('click', () => { const id = pg.dataset.pged; map.closePopup(); showTab('ged').then((b) => b && b.openFolder(id)); });
     el.querySelectorAll('[data-pdoc]').forEach((b_) => b_.addEventListener('click', () => { map.closePopup(); showTab('ged').then((b) => b && b.openDoc(b_.dataset.pdoc)); }));
@@ -514,7 +514,12 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
     if (overlay) overlay.close();
     open3d(a, versions.length ? { versions, idx } : {});
   }
+  function openProjectSpace(id, t, ver) {
+    if (allowed('proj')) return showTab('proj').then((b) => b && b.open(id, t, ver));
+    return focusProject(id);
+  }
   function focusProject(id) {
+    if (!ui.projCb) { const p = (store.state.projects || []).find((x) => x.id === id); if (p) focusMap(p.codes[0]); return; }
     showTab('map').then(async () => {
       if (!ui.projCb.checked) { ui.projCb.checked = true; }
       await drawProjects();
@@ -847,8 +852,15 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
         },
       });
     },
-    proj: async () => (await import('./projects.js')).createProjectBoard(ui.body_proj, {
-      lang, esc, fmt, money, store, tv, pct, assets: () => A, ranked: () => ranked, focus: focusMap,
+    proj: async () => { await getBoard('ged'); return (await import('./projects.js')).createProjectBoard(ui.body_proj, {
+      lang, esc, fmt, money, store, tv, pct, assets: () => A, ranked: () => ranked, focus: focusMap, modelsBase,
+      ged: () => boards.ged || null, focusProject: (id) => focusProject(id),
+      openDoc: (id) => showTab('ged').then((b) => b && b.openDoc(id)),
+      mount3d: async (host, a, url) => {
+        const { mount: mountViewer } = await import(/* @vite-ignore */ viewerUrl);
+        return mountViewer(host, { ifcUrl: url, wasmPath, context: contextFor(a, { base: state.base, traffic: state.traffic, facilities: state.facilities }) });
+      },
+      fullscreen3d: (p, cv, url) => (cv.d ? open3dVersions(cv.asset, p.id, cv.v.ver, url) : open3d(cv.asset)),
       resetCondition: (code, what) => {
         const d = store.state.added.find((x) => x.code === code);
         const a = A.find((x) => x.code === code);
@@ -857,22 +869,23 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
         if (d) Object.assign(d, { note: 1, cout }); else store.state.edits[code] = { ...(store.state.edits[code] || {}), note: 1, cout };
         store.log(code, `${what} (${tv(a.etat)} → ${tv('Bon')} ; ${money(a.cout)} → ${money(cout)})`);
       },
-    }),
+    }); },
     collab: async () => {
       const proj = await getBoard('proj');
       const b = (await import('./collab.js')).createCollabBoard(ui.body_collab, {
         lang, esc, store, tv, assets: () => A, projects: () => (proj ? proj.ensure() : []), focus: focusMap,
-        openProject: (id) => { showTab('proj').then(() => boards.proj.open(id)); },
+        openProject: (id) => openProjectSpace(id),
       });
       collabRef = b;
       return b;
     },
     ged: async () => {
-      const proj = await getBoard('proj');
+      const projList = () => (boards.proj ? boards.proj.ensure() : (store.state.projects || []));
       return (await import('./ged.js')).createGedBoard(ui.body_ged, {
-        lang, esc, store, tv, modelsBase, assets: () => A, projects: () => (proj ? proj.ensure() : []),
+        lang, esc, store, tv, modelsBase, assets: () => A, projects: projList,
+        openProject: (id) => openProjectSpace(id),
         open3d: (d, vv, url) => {
-          const p = proj && proj.ensure().find((x) => x.id === d.link);
+          const p = projList().find((x) => x.id === d.link);
           const a = A.find((x) => x.code === (p ? p.codes[0] : d.link));
           if (a) open3dVersions(a, d.link, vv.ver, url);
         },
@@ -885,7 +898,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
         lang, esc, store, tv, money, pct, ranked: () => ranked, allowed,
         projects: () => (proj ? proj.ensure() : []), docs: () => (ged ? ged.ensure() : []),
         go: (k) => showTab(k), focus: focusMap,
-        openProject: (id) => (allowed('proj') ? showTab('proj').then((b) => b && b.open(id)) : focusProject(id)),
+        openProject: (id) => openProjectSpace(id),
         openDoc: (id) => showTab('ged').then((b) => b && b.openDoc(id)),
       });
     },
@@ -914,6 +927,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
   let tab = 'map';
   async function showTab(k) {
     if (!allowed(k)) return null;
+    if (tab === 'proj' && k !== 'proj') boards.proj?.leave();
     tab = k;
     for (const p_ of ui.panes) p_.hidden = p_.dataset.pane !== k;
     for (const b of ui.tabBtns) {
@@ -983,6 +997,16 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
       const a = A.find((x) => x.code.toUpperCase() === q) || A.find((x) => x.code.toUpperCase().startsWith(q) || tv(x.type).toUpperCase().includes(q));
       if (a) { ui.search.value = ''; focusMap(a.code); }
     };
+    // language toggle of the app bar (the site script only wires the first toggle of the page)
+    const syncLang = () => document.querySelectorAll('[data-lang-btn]').forEach((b) => b.classList.toggle('active', b.dataset.langBtn === lang()));
+    root.querySelectorAll('.ga-lang [data-lang-btn]').forEach((b) => b.addEventListener('click', () => {
+      const l = b.dataset.langBtn;
+      document.documentElement.setAttribute('data-lang', l); document.documentElement.setAttribute('lang', l);
+      try { const u = new URL(location.href); u.searchParams.set('lang', l); history.replaceState({}, '', u); } catch { /* ignore */ }
+      syncLang();
+    }));
+    syncLang();
+    new MutationObserver(syncLang).observe(document.documentElement, { attributes: true, attributeFilter: ['data-lang'] });
     ui.search.addEventListener('change', go);
     ui.search.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); go(); } });
     ui.who.addEventListener('click', () => { const open = ui.whoMenu.hidden; ui.whoMenu.hidden = !open; ui.who.setAttribute('aria-expanded', String(open)); });

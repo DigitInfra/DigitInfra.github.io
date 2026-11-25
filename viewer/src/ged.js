@@ -18,7 +18,7 @@ const S = {
     upload: '+ Déposer un document', newVer: 'Déposer une nouvelle version', file: 'Fichier', link: 'Rattachement', note: 'Commentaire de version',
     save: 'Déposer', cancel: 'Annuler', errFile: 'Choisissez un fichier.', errTitle: 'Donnez un titre.', versions: 'Historique des versions',
     noRight: 'Votre rôle permet de consulter les documents, pas d’en déposer.', none: 'Aucun document pour ce filtre.', fictive: 'Document fictif de démonstration',
-    logUp: (c) => `Document déposé : ${c}`, logVer: (c, v) => `Nouvelle version ${v} : ${c}`, logSt: (c, s1) => `${c} → ${s1}`, close: 'Fermer', size: 'Taille', noPhase: '—',
+    logUp: (c) => `Document déposé : ${c}`, logVer: (c, v) => `Nouvelle version ${v} : ${c}`, logSt: (c, s1) => `${c} → ${s1}`, close: 'Fermer', space: 'Espace du projet', size: 'Taille', noPhase: '—',
   },
   en: {
     intro: 'Shared document space: each document is attached to a project or an asset and to a step, versioned, and follows a status workflow inspired by ISO 19650 (work in progress → shared → published → archived).',
@@ -31,7 +31,7 @@ const S = {
     upload: '+ Upload a document', newVer: 'Upload a new version', file: 'File', link: 'Attached to', note: 'Version note',
     save: 'Upload', cancel: 'Cancel', errFile: 'Choose a file.', errTitle: 'Give a title.', versions: 'Version history',
     noRight: 'Your role lets you view documents, not upload them.', none: 'No document for this filter.', fictive: 'Fictitious demonstration document',
-    logUp: (c) => `Document uploaded: ${c}`, logVer: (c, v) => `New version ${v}: ${c}`, logSt: (c, s1) => `${c} → ${s1}`, close: 'Close', size: 'Size', noPhase: '—',
+    logUp: (c) => `Document uploaded: ${c}`, logVer: (c, v) => `New version ${v}: ${c}`, logSt: (c, s1) => `${c} → ${s1}`, close: 'Close', space: 'Project space', size: 'Size', noPhase: '—',
   },
 };
 const NEXT = { wip: ['shared'], shared: ['published', 'wip'], published: ['archived'], archived: [] };
@@ -128,6 +128,7 @@ export function createGedBoard(el, ctx) {
       <table class="bv-kv"><tr><th>${esc(s('code'))}</th><td class="mono">${esc(d.code)}</td></tr><tr><th>${esc(s('type'))}</th><td>${esc(nm(TYPES[d.type]))}</td></tr>
         <tr><th>${esc(s('link'))}</th><td>${esc(linkName(d.link))}</td></tr><tr><th>${esc(s('phase'))}</th><td>${esc(phaseName(d.phase))}</td></tr><tr><th>${esc(s('status'))}</th><td>${badge(d.status)}</td></tr></table>
       ${moves.length ? `<p class="gd-moves">${moves.map((m) => `<button type="button" class="bv-btn" data-move="${m}">${esc(s('to')[m] || s('st')[m])}</button>`).join(' ')}</p>` : ''}
+      ${ctx.projects().some((p) => p.id === d.link) && ctx.openProject ? `<p><button type="button" class="sg-link" data-a="space">${esc(s('space'))} ${esc(d.link)} →</button></p>` : ''}
       <h5 class="pl-h5">${esc(s('versions'))}</h5>
       <ol class="gd-vers">${d.versions.slice().reverse().map((vv, i) => `<li><span class="mono">${esc(vv.ver)}</span> · ${esc(vv.date)} · ${esc(vv.author)}${vv.note ? `<br><small>${esc(vv.note)}</small>` : ''}
         <button type="button" class="sg-link" data-ov="${d.versions.length - 1 - i}">${esc(d.type === 'M3D' && vv.file.kind !== 'demo' ? s('view3d') : s('open'))}</button></li>`).join('')}</ol>
@@ -160,6 +161,23 @@ export function createGedBoard(el, ctx) {
   }
   const commit = () => store.commit('ged');
   const nextCode = (link, type) => { const n = docs().filter((d) => d.link === link && d.type === type).length + 1; return `GIN-${link}-${type}-${String(n).padStart(3, '0')}`; };
+  async function addDoc({ file, title, type, link, phase }) {
+    if (/\.ifc$/i.test(file.name)) type = 'M3D';
+    const code = nextCode(link, type);
+    const fileRef = await storeFile(file);
+    const d = { id: `D${Date.now()}`, code, title: { fr: title, en: title }, type, link, phase, status: 'wip', versions: [{ ver: 'V1', date: new Date().toISOString().slice(0, 10), author: store.me().name, note: '', file: fileRef }] };
+    docs().push(d);
+    store.activity(link, s('logUp')(code), 'ged'); commit();
+    return d;
+  }
+  async function addVersion(d, file, note = '') {
+    const ver = `V${d.versions.length + 1}`;
+    const v = { ver, date: new Date().toISOString().slice(0, 10), author: store.me().name, note, file: await storeFile(file) };
+    d.versions.push(v);
+    if (d.status === 'published') d.status = 'shared';
+    store.activity(d.link, s('logVer')(d.code, ver), 'ged'); commit();
+    return v;
+  }
   async function storeFile(file) { const key = `f${Date.now()}${Math.random().toString(36).slice(2, 6)}`; await idb.put(key, file); return { kind: 'idb', key, name: file.name, size: file.size }; }
 
   el.addEventListener('click', async (e) => {
@@ -172,17 +190,15 @@ export function createGedBoard(el, ctx) {
     const row = e.target.closest('tr[data-doc]'); if (row) { sel = row.dataset.doc; render(); return; }
     const a = e.target.closest('[data-a]'); if (!a) return;
     if (a.dataset.a === 'close') { sel = null; render(); }
+    else if (a.dataset.a === 'space') { const d = docs().find((x) => x.id === sel); ctx.openProject(d.link); }
     else if (a.dataset.a === 'up') { form = {}; render(); }
     else if (a.dataset.a === 'ucancel') { form = null; render(); }
     else if (a.dataset.a === 'usave') {
       const g = (k) => el.querySelector(`[data-uf="${k}"]`);
       const file = g('file').files[0], title = g('title').value.trim() || (file ? file.name : '');
       if (!file) { el.querySelector('[data-uerr]').textContent = s('errFile'); return; }
-      const type = /\.ifc$/i.test(file.name) ? 'M3D' : g('type').value, link = g('link').value;
-      const code = nextCode(link, type);
-      const fileRef = await storeFile(file);
-      docs().push({ id: `D${Date.now()}`, code, title: { fr: title, en: title }, type, link, phase: g('phase').value, status: 'wip', versions: [{ ver: 'V1', date: new Date().toISOString().slice(0, 10), author: store.me().name, note: '', file: fileRef }] });
-      store.activity(link, s('logUp')(code), 'ged'); form = null; commit();
+      form = null;
+      await addDoc({ file, title, type: g('type').value, link: g('link').value, phase: g('phase').value });
     }
   });
   el.addEventListener('keydown', (e) => { const row = e.target.closest('tr[data-doc]'); if (row && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); sel = row.dataset.doc; render(); } });
@@ -192,11 +208,7 @@ export function createGedBoard(el, ctx) {
     if (e.target.dataset.f === 'status') { fStatus = e.target.value; render(); return; }
     if (e.target.hasAttribute('data-nv') && e.target.files[0]) {
       const d = docs().find((x) => x.id === sel);
-      const ver = `V${d.versions.length + 1}`;
-      const note = el.querySelector('[data-nvnote]').value.trim();
-      d.versions.push({ ver, date: new Date().toISOString().slice(0, 10), author: store.me().name, note, file: await storeFile(e.target.files[0]) });
-      if (d.status === 'published') d.status = 'shared';
-      store.activity(d.link, s('logVer')(d.code, ver), 'ged'); commit();
+      await addVersion(d, e.target.files[0], el.querySelector('[data-nvnote]').value.trim());
     }
   });
   return {
@@ -205,6 +217,12 @@ export function createGedBoard(el, ctx) {
     models: (link) => docs().filter((d) => d.link === link && d.type === 'M3D').flatMap((d) => d.versions.filter((x) => x.file.kind !== 'demo').map((x) => ({ d, v: x }))),
     openDoc(id) { const d = docs().find((x) => x.id === id); if (d) { sel = id; folder = ctx.projects().some((p) => p.id === d.link) ? d.link : 'assets'; phaseF = ''; render(); } },
     openFolder(id) { folder = id; phaseF = ''; sel = null; render(); },
-    openVersion, urlOf, clearFiles: () => idb.clear(),
+    openVersion, urlOf, addDoc, clearFiles: () => idb.clear(),
+    types: () => Object.entries(TYPES).map(([k, v]) => [k, nm(v)]),
+    async addModelVersion(link, file, phase) {
+      let d = docs().find((x) => x.link === link && x.type === 'M3D' && x.status !== 'archived');
+      if (!d) { d = await addDoc({ file, title: file.name, type: 'M3D', link, phase }); return { d, v: d.versions[0] }; }
+      return { d, v: await addVersion(d, file) };
+    },
   };
 }

@@ -1,4 +1,5 @@
 // GIN²CO — project follow-up from feasibility to final acceptance, with quality-control checkpoints (demonstration)
+import { createSpace, SPACE_TABS } from './projspace.js';
 import { kpis, donut, hbars } from './charts.js';
 import { userStrip } from './assets.js';
 
@@ -108,7 +109,7 @@ export function createProjectBoard(el, ctx) {
   const { lang, esc, fmt, money, store, tv } = ctx;
   const s = (k) => S[lang()][k];
   const nm = (o) => o[lang()];
-  let sel = null, viewStep = null, creating = false;
+  let sel = null, viewStep = null, creating = false, tab = 'summary';
   const projects = () => { if (!store.state.projects) store.state.projects = seed(ctx.assets()); return store.state.projects; };
   const amountOf = (p) => p.codes.reduce((acc, c) => acc + ((ctx.assets().find((a) => a.code === c) || {}).cout || 0), 0);
   const checksOf = (p, i) => STEPS[i].checks || worksChecks(p.codes.map((c) => (ctx.assets().find((a) => a.code === c) || {}).type).filter(Boolean));
@@ -120,6 +121,7 @@ export function createProjectBoard(el, ctx) {
     const oc = st.c.filter((c) => c.s !== 'ok').length; if (oc) out.push(s('openC')(oc));
     return out;
   };
+  const space = createSpace(ctx, { STEPS, plan, blockers: (p, i) => blockers(p, i), openIssues: (p) => openIssues(p), validatedCount: (p) => validatedCount(p), amountOf: (p) => amountOf(p) });
   const hist = (p, what) => { p.hist.push({ when: store.stamp(), who: store.me().name, what }); store.activity(p.id, what, 'project'); };
 
   function stepper(p, interactive) {
@@ -168,7 +170,6 @@ export function createProjectBoard(el, ctx) {
     const bl = blockers(p, i);
     const checks = checksOf(p, i);
     return `<section class="pj-detail" aria-label="${esc(nm(p.name))}">
-      <h4 class="bv-h">${esc(p.id)} — ${esc(nm(p.name))}</h4>
       ${stepper(p, true)}
       ${validatedCount(p) === STEPS.length ? `<p class="pf-msg">${esc(s('closedAll'))}</p>` : ''}
       <div class="pj-cols">
@@ -207,20 +208,42 @@ export function createProjectBoard(el, ctx) {
       <div class="sd-actions"><button type="button" class="sg-link" data-act="pcancel">${esc(s('cancel'))}</button><button type="button" class="btn btn-primary" data-act="pcreate">${esc(s('create'))}</button></div></div></section>`;
   }
 
+  function workspace(p) {
+    const T = space.tabs(), n = space.counts(p);
+    const cur = Math.min(p.step, STEPS.length - 1);
+    return `<div class="ps">
+      <header class="ps-head"><button type="button" class="sg-link" data-ps-back>${esc(space.label('back'))}</button>
+        <div class="ps-title"><span class="ps-id mono">${esc(p.id)}</span><h2>${esc(nm(p.name))}</h2></div>
+        <p class="ps-meta">${esc(s('assetsL'))} : ${p.codes.map((c) => `<button type="button" class="sg-link mono" data-go="${esc(c)}">${esc(c)}</button>`).join(' ')} · ${esc(s('step'))} ${cur + 1}/${STEPS.length} — ${esc(nm(STEPS[cur].n))} · ${esc(s('amount'))} <span class="mono">${esc(money(amountOf(p)))}</span>
+          · <button type="button" class="sg-link" data-ps-map>${esc(space.label('onMap'))}</button></p>
+        ${stepper(p, false)}</header>
+      <nav class="ps-tabs" role="tablist">${SPACE_TABS.map((k) => `<button type="button" role="tab" aria-selected="${tab === k}" class="${tab === k ? 'is-on' : ''}" data-ps-tab="${k}">${esc(T[k])}${n[k] ? ` <span>${n[k]}</span>` : ''}</button>`).join('')}</nav>
+      <div class="ps-body">${tab === 'quality' ? detail() : space.body(tab, p)}</div></div>`;
+  }
+
   function render() {
     projects();
+    const p = sel && projects().find((x) => x.id === sel);
+    if (p) { el.innerHTML = workspace(p); space.after(el, p, tab); return; }
+    space.leave();
     el.innerHTML = `${userStrip(store, lang, esc, ['manageProject', 'validateStep', 'checkQuality'])}
       <p class="sd-intro">${esc(s('intro'))}</p>
       ${portfolio()}
       <div class="pl-bar sd-h">${store.can('manageProject') ? `<button type="button" class="btn btn-primary" data-act="new">${esc(s('newP'))}</button>` : ''}</div>
-      ${createForm()}${list()}${detail()}`;
+      ${createForm()}${list()}`;
   }
+  const rerender = (t) => { if (t) tab = t; render(); };
   const commit = () => store.commit('projects');
 
   el.addEventListener('click', (e) => {
     const go = e.target.closest('[data-go]'); if (go) { ctx.focus(go.dataset.go); return; }
     const op = e.target.closest('[data-open]');
-    if (op) { sel = op.dataset.open; viewStep = null; render(); el.querySelector('.pj-detail')?.scrollIntoView({ block: 'start' }); return; }
+    if (op) { sel = op.dataset.open; viewStep = null; tab = 'summary'; render(); el.scrollIntoView?.({ block: 'start' }); return; }
+    if (e.target.closest('[data-ps-back]')) { sel = null; render(); return; }
+    if (e.target.closest('[data-ps-map]')) { ctx.focusProject(sel); return; }
+    const tb = e.target.closest('[data-ps-tab]'); if (tb) { tab = tb.dataset.psTab; render(); return; }
+    const cp = sel && projects().find((x) => x.id === sel);
+    if (cp && space.onClick(e, cp, el, rerender)) return;
     const sb = e.target.closest('[data-step]'); if (sb) { viewStep = Number(sb.dataset.step); render(); return; }
     if (e.target.closest('[data-validate]')) {
       const p = projects().find((x) => x.id === sel);
@@ -243,12 +266,13 @@ export function createProjectBoard(el, ctx) {
       const id = `P${projects().length + 1}`;
       const p = { id, name: { fr: name, en: name }, codes, start, step: 0, pct: 0, steps: blankSteps(types), hist: [] };
       projects().push(p); hist(p, s('logNew')(name));
-      creating = false; sel = id; viewStep = 0; commit();
+      creating = false; sel = id; viewStep = 0; tab = 'summary'; commit();
     }
   });
   el.addEventListener('change', (e) => {
     if (e.target.matches('[data-user]')) { store.setUser(e.target.value); return; }
     const p = projects().find((x) => x.id === sel); if (!p) return;
+    if (space.onChange(e, p, el, rerender)) return;
     const st = p.steps[viewStep];
     if (e.target.dataset.deliv != null) {
       const j = Number(e.target.dataset.deliv); st.d[j] = e.target.checked;
@@ -263,6 +287,9 @@ export function createProjectBoard(el, ctx) {
     }
   });
   el.addEventListener('input', (e) => { if (e.target.hasAttribute('data-pct')) e.target.nextElementSibling.textContent = `${e.target.value} %`; });
-  return { render, ensure: projects, open(id) { sel = id; viewStep = null; render(); } };
+  return {
+    render, ensure: projects, leave: () => space.leave(),
+    open(id, t = 'summary', ver = null) { sel = id; viewStep = null; tab = SPACE_TABS.includes(t) ? t : 'summary'; if (ver) space.setVersion(ver); render(); },
+  };
 }
 
