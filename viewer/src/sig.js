@@ -1,7 +1,7 @@
 // GIN²CO — GIS decision-support demo (Leaflet + OpenStreetMap basemap, fictitious asset data)
 import L from 'leaflet';
 import { createAssistant } from './assistant.js';
-import { createStore, MEMBERS } from './store.js';
+import { createStore, MEMBERS, ACCESS } from './store.js';
 import { impactGN, throughFrom } from './impact_gn.js';
 
 /* ------------------------------------------------------------------ i18n */
@@ -27,7 +27,7 @@ const T = {
     floodCls: ['Faible', 'Modéré', 'Élevé', 'Très élevé'], fac: { 'École': 'École', 'Centre de santé': 'Centre de santé', 'Marché': 'Marché' },
     vpj: 'véh./j', hint: 'Cliquez sur un ouvrage ou sur une ligne du tableau.', noTraffic: 'non applicable',
     budgetNote: 'Les ouvrages sont retenus par ordre de score ; un ouvrage qui dépasse le reliquat est sauté au profit des suivants.',
-    navHome: 'Mon espace', navMap: 'Carte', navDash: 'Scénarios', navProf: 'Tableaux de bord', navAssets: 'Patrimoine', navProj: 'Projets et qualité', navCollab: 'Collaboration', search: 'Rechercher un ouvrage', demoBadge: 'Démonstration · données fictives', switchProfile: 'Changer de profil', rights: 'Vos droits', readOnly: 'consultation et commentaires', ranking: 'Classement détaillé', site: 'Site DigitInfra', otherZone: 'Démonstrateur Bénin', menu: 'Menu', tabMap: 'Carte et classement', tabDash: 'Tableau de bord des scénarios', tabProf: 'Vues par profil', tabAssets: 'Patrimoine et mises à jour', tabProj: 'Projets et qualité', tabCollab: 'Espace collaboratif', talk: 'Échanges', pickMsg: 'Cliquez sur la carte pour placer le nouvel ouvrage (Échap pour annuler).', modNote: 'Données mises à jour après la production de la maquette : les coûts des éléments peuvent différer.', addNote: 'Ouvrage ajouté : sa maquette IFC reste à produire.',
+    navHome: 'Mon espace', navMap: 'Carte', navDash: 'Scénarios', navProf: 'Tableaux de bord', navAssets: 'Patrimoine', navProj: 'Projets et qualité', navCollab: 'Collaboration', spaces: 'Espaces accessibles', views: 'Vues de tableau de bord', noView: 'aucune', search: 'Rechercher un ouvrage', demoBadge: 'Démonstration · données fictives', switchProfile: 'Changer de profil', rights: 'Vos droits', readOnly: 'consultation et commentaires', ranking: 'Classement détaillé', site: 'Site DigitInfra', otherZone: 'Démonstrateur Bénin', menu: 'Menu', tabMap: 'Carte et classement', tabDash: 'Tableau de bord des scénarios', tabProf: 'Vues par profil', tabAssets: 'Patrimoine et mises à jour', tabProj: 'Projets et qualité', tabCollab: 'Espace collaboratif', talk: 'Échanges', pickMsg: 'Cliquez sur la carte pour placer le nouvel ouvrage (Échap pour annuler).', modNote: 'Données mises à jour après la production de la maquette : les coûts des éléments peuvent différer.', addNote: 'Ouvrage ajouté : sa maquette IFC reste à produire.',
   },
   en: {
     colorBy: 'Colour assets by', base: 'Base layer', none: 'None', traffic: 'Traffic', facilities: 'Facilities',
@@ -50,7 +50,7 @@ const T = {
     floodCls: ['Low', 'Moderate', 'High', 'Very high'], fac: { 'École': 'School', 'Centre de santé': 'Health centre', 'Marché': 'Market' },
     vpj: 'veh./day', hint: 'Click an asset or a table row.', noTraffic: 'not applicable',
     budgetNote: 'Assets are selected by score; an asset exceeding the remaining amount is skipped in favour of the next ones.',
-    navHome: 'My space', navMap: 'Map', navDash: 'Scenarios', navProf: 'Dashboards', navAssets: 'Assets', navProj: 'Projects & quality', navCollab: 'Collaboration', search: 'Search an asset', demoBadge: 'Demonstration · fictitious data', switchProfile: 'Switch profile', rights: 'Your rights', readOnly: 'view and comment', ranking: 'Detailed ranking', site: 'DigitInfra website', otherZone: 'Benin demonstrator', menu: 'Menu', tabMap: 'Map and ranking', tabDash: 'Scenario dashboard', tabProf: 'Profile views', tabAssets: 'Assets and updates', tabProj: 'Projects and quality', tabCollab: 'Collaborative space', talk: 'Discussions', pickMsg: 'Click on the map to place the new asset (Esc to cancel).', modNote: 'Data updated after the model was produced: element costs may differ.', addNote: 'Added asset: its IFC model is still to be produced.',
+    navHome: 'My space', navMap: 'Map', navDash: 'Scenarios', navProf: 'Dashboards', navAssets: 'Assets', navProj: 'Projects & quality', navCollab: 'Collaboration', spaces: 'Available spaces', views: 'Dashboard views', noView: 'none', search: 'Search an asset', demoBadge: 'Demonstration · fictitious data', switchProfile: 'Switch profile', rights: 'Your rights', readOnly: 'view and comment', ranking: 'Detailed ranking', site: 'DigitInfra website', otherZone: 'Benin demonstrator', menu: 'Menu', tabMap: 'Map and ranking', tabDash: 'Scenario dashboard', tabProf: 'Profile views', tabAssets: 'Assets and updates', tabProj: 'Projects and quality', tabCollab: 'Collaborative space', talk: 'Discussions', pickMsg: 'Click on the map to place the new asset (Esc to cancel).', modNote: 'Data updated after the model was produced: element costs may differ.', addNote: 'Added asset: its IFC model is still to be produced.',
   },
 };
 const CRIT = [
@@ -710,6 +710,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
     }),
     prof: async () => (await import('./profiles.js')).createProfileBoard(ui.body_prof, {
       lang, tv, money, fmt, pct, esc, Z, ETAT_C, VERDICT_C, FAM_C: () => FAM_C, FIN_C: () => FIN_C, bounds: data.bounds,
+      views: () => (access() ? access().views : ['ministre', 'mo', 'tech', 'bailleur', 'audit']),
       ranked: () => ranked, budget: () => state.budget, getLog: () => (store ? store.state.log.filter((l) => l.kind === 'asset') : []),
       focus: focusMap,
     }),
@@ -779,6 +780,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
   }
   let tab = 'map';
   async function showTab(k) {
+    if (!allowed(k)) return null;
     tab = k;
     for (const p_ of ui.panes) p_.hidden = p_.dataset.pane !== k;
     for (const b of ui.tabBtns) {
@@ -806,9 +808,17 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
     });
   });
   /* --- application shell (full-screen platform) */
+  const access = () => (app && store ? ACCESS[store.me().role] || ACCESS.admin : null);
+  const allowed = (k) => { const a = access(); return !a || a.spaces.includes(k); };
+  function applyAccess() {
+    if (!app) return;
+    for (const b of ui.tabBtns) b.hidden = !allowed(b.dataset.tab);
+    if (!allowed(tab)) land();
+  }
   const LAND = { ministre: ['prof', 'ministre'], mo: ['prof', 'mo'], tech: ['assets'], bailleur: ['prof', 'bailleur'], audit: ['prof', 'audit'], entreprise: ['collab', 'mine'], controle: ['proj'], admin: ['map'] };
   async function land() {
-    const [k, sub] = LAND[store ? store.me().role : 'admin'] || ['map'];
+    let [k, sub] = LAND[store ? store.me().role : 'admin'] || ['map'];
+    if (!allowed(k)) { k = 'map'; sub = null; }
     const b = await showTab(k);
     if (app) { ui.home.classList.add('is-on'); for (const t_ of ui.tabBtns) t_.classList.remove('is-on'); }
     if (b && sub && k === 'prof') b.setProfile(sub);
@@ -829,7 +839,12 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
       ui.who.innerHTML = `<span class="ga-av">${esc(ini)}</span><span class="ga-who-t"><b>${esc(me.name)}</b><small>${esc(me[lang()])}</small></span>`;
       const names = { editAsset: ['modifier les ouvrages', 'update assets'], addAsset: ['ajouter des ouvrages', 'add assets'], manageProject: ['piloter les projets', 'run projects'], validateStep: ['valider les étapes', 'validate steps'], checkQuality: ['contrôles qualité', 'quality checks'], assignTask: ['attribuer des tâches', 'assign tasks'] };
       const r = Object.keys(names).filter((k) => store.can(k)).map((k) => names[k][lang() === 'en' ? 1 : 0]);
-      ui.whoMenu.innerHTML = `<p class="ga-menu-h">${esc(t('rights'))}</p><p class="ga-menu-r">${esc(r.length ? r.join(' · ') : t('readOnly'))}</p>
+      const ac = access();
+      const vn = { ministre: ['Ministre', 'Minister'], mo: ['Maître d’ouvrage', 'Asset owner'], tech: ['Technicien', 'Technician'], bailleur: ['Bailleur', 'Funder'], audit: ['Auditeur', 'Auditor'] };
+      const L_ = lang() === 'en' ? 1 : 0;
+      ui.whoMenu.innerHTML = `<p class="ga-menu-h">${esc(t('spaces'))}</p><p class="ga-menu-r">${esc(ac.spaces.map((k) => t(NAV_LAB[k])).join(' · '))}</p>
+        <p class="ga-menu-h">${esc(t('views'))}</p><p class="ga-menu-r">${esc(ac.views.length ? ac.views.map((v) => vn[v][L_]).join(' · ') : t('noView'))}</p>
+        <p class="ga-menu-h">${esc(t('rights'))}</p><p class="ga-menu-r">${esc(r.length ? r.join(' · ') : t('readOnly'))}</p>
         <button type="button" class="ga-menu-b" data-act="switch">${esc(t('switchProfile'))}</button>`;
     }
   }
@@ -845,7 +860,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
     ui.who.addEventListener('click', () => { const open = ui.whoMenu.hidden; ui.whoMenu.hidden = !open; ui.who.setAttribute('aria-expanded', String(open)); });
     document.addEventListener('click', (e) => { if (!e.target.closest('.ga-prof')) { ui.whoMenu.hidden = true; ui.who.setAttribute('aria-expanded', 'false'); } });
     ui.whoMenu.addEventListener('click', (e) => { if (e.target.closest('[data-act=switch]')) { ui.whoMenu.hidden = true; app.onSwitch && app.onSwitch(); } });
-    if (store) store.subscribe(() => renderShell());
+    if (store) store.subscribe((w) => { renderShell(); if (w === 'user') applyAccess(); });
   }
   new MutationObserver(() => {
     renderShell();
@@ -905,7 +920,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
   drawContext();
   update();
   renderShell();
-  if (app) land();
+  if (app) { applyAccess(); land(); }
   return {
     map, state, assets: A, assistant, showTab, land,
     setUser: (id) => { if (store) { store.setUser(id); land(); } }, open3d: (code) => open3d(A.find((x) => x.code === code)), get overlay() { return overlay; } };

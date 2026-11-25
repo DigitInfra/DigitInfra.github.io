@@ -13,6 +13,18 @@ export const MEMBERS = [
 ];
 
 // Rights by role. Kept deliberately simple and readable.
+// What each role sees in the platform: spaces (menu) and dashboard views ("casquettes").
+export const ACCESS = {
+  ministre: { spaces: ['map', 'dash', 'prof', 'collab'], views: ['ministre'] },
+  mo: { spaces: ['map', 'dash', 'prof', 'assets', 'proj', 'collab'], views: ['mo', 'tech'] },
+  tech: { spaces: ['map', 'prof', 'assets', 'proj', 'collab'], views: ['tech'] },
+  bailleur: { spaces: ['map', 'dash', 'prof', 'proj', 'collab'], views: ['bailleur'] },
+  audit: { spaces: ['map', 'prof', 'assets', 'proj', 'collab'], views: ['audit'] },
+  controle: { spaces: ['map', 'prof', 'assets', 'proj', 'collab'], views: ['tech'] },
+  entreprise: { spaces: ['map', 'proj', 'collab'], views: [] },
+  admin: { spaces: ['map', 'dash', 'prof', 'assets', 'proj', 'collab'], views: ['ministre', 'mo', 'tech', 'bailleur', 'audit'] },
+};
+
 export const RIGHTS = {
   editAsset: ['mo', 'tech', 'controle', 'admin'],
   addAsset: ['mo', 'admin'],

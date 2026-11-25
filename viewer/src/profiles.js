@@ -96,15 +96,16 @@ export function createProfileBoard(el, ctx) {
   const s = (k) => P[lang()][k];
   const nf = (x, d = 1) => new Intl.NumberFormat(lang() === 'en' ? 'en-GB' : 'fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d }).format(x);
   const pf = (x) => pct(x);
-  let cur = 'ministre';
+  const order = () => { const v = ctx.views ? ctx.views() : ORDER; return v.length ? v : ORDER; };
+  let cur = order()[0];
   const kpiOf = (a, re) => (a.impact.kpis || []).find((k) => re.test(k.fr));
   const monthsSince = (ym) => { if (!ym) return null; const [y, m] = ym.split('-').map(Number); const d = new Date(); return (d.getFullYear() * 12 + d.getMonth() + 1) - (y * 12 + m); };
   const sum = (arr, g) => arr.reduce((acc, x) => acc + g(x), 0);
   const famList = () => Object.keys(ctx.FAM_C());
 
   function header() {
-    return `<p class="sd-intro">${esc(s('intro'))}</p>
-      <div class="pf-pick" role="radiogroup" aria-label="${esc(s('pick'))}">${ORDER.map((k) => `
+    return `${order().length > 1 ? `<p class="sd-intro">${esc(s('intro'))}</p>` : ''}
+      <div class="pf-pick${order().length === 1 ? ' pf-one' : ''}" role="radiogroup" aria-label="${esc(s('pick'))}">${order().map((k) => `
         <button type="button" role="radio" aria-checked="${k === cur}" class="pf-chip${k === cur ? ' is-on' : ''}" data-pf="${k}">
           <b>${esc(s('profiles')[k][0])}</b><span>${esc(s('profiles')[k][1])}</span></button>`).join('')}</div>`;
   }
@@ -281,8 +282,8 @@ export function createProfileBoard(el, ctx) {
   el.addEventListener('keydown', (ev) => {
     const b = ev.target.closest('[data-pf]');
     if (!b || (ev.key !== 'ArrowRight' && ev.key !== 'ArrowLeft')) return;
-    const i = (ORDER.indexOf(b.dataset.pf) + (ev.key === 'ArrowRight' ? 1 : ORDER.length - 1)) % ORDER.length;
-    cur = ORDER[i]; render(); el.querySelector(`[data-pf="${cur}"]`).focus();
+    const o = order(); const i = (o.indexOf(b.dataset.pf) + (ev.key === 'ArrowRight' ? 1 : o.length - 1)) % o.length;
+    cur = o.at(i); render(); el.querySelector(`[data-pf="${cur}"]`).focus();
   });
-  return { render, setProfile(k) { if (views[k]) { cur = k; render(); } } };
+  return { render: () => { if (!order().includes(cur)) cur = order()[0]; render(); }, setProfile(k) { if (views[k] && order().includes(k)) cur = k; else cur = order()[0]; render(); } };
 }

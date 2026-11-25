@@ -857,3 +857,6 @@ html.sg-ov-open, html.sg-ov-open body{overflow:hidden;}
   .ga-on .as-toggle{padding:10px 12px; font-size:.8rem;}
   .ga-demo{display:inline-block; max-width:54px; overflow:hidden; text-overflow:ellipsis; padding:3px 7px; font-size:.68rem;}
 }
+.ga .pf-pick.pf-one{grid-template-columns:minmax(0,420px);}
+.ga .pf-one .pf-chip{cursor:default; box-shadow:none; border-color:#E6EBF2; background:#fff;}
+.ga-item[hidden]{display:none;}
