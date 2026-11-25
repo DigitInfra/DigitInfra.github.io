@@ -27,7 +27,7 @@ const T = {
     floodCls: ['Faible', 'Modéré', 'Élevé', 'Très élevé'], fac: { 'École': 'École', 'Centre de santé': 'Centre de santé', 'Marché': 'Marché' },
     vpj: 'véh./j', hint: 'Cliquez sur un ouvrage ou sur une ligne du tableau.', noTraffic: 'non applicable',
     budgetNote: 'Les ouvrages sont retenus par ordre de score ; un ouvrage qui dépasse le reliquat est sauté au profit des suivants.',
-    navHome: 'Mon espace', navMap: 'Carte', navDash: 'Scénarios', navProf: 'Tableaux de bord', navAssets: 'Patrimoine', navProj: 'Projets et qualité', navCollab: 'Collaboration', spaces: 'Espaces accessibles', views: 'Vues de tableau de bord', noView: 'aucune', search: 'Rechercher un ouvrage', demoBadge: 'Démonstration · données fictives', switchProfile: 'Changer de profil', rights: 'Vos droits', readOnly: 'consultation et commentaires', ranking: 'Classement détaillé', site: 'Site DigitInfra', otherZone: 'Démonstrateur Bénin', menu: 'Menu', tabMap: 'Carte et classement', tabDash: 'Tableau de bord des scénarios', tabProf: 'Vues par profil', tabAssets: 'Patrimoine et mises à jour', tabProj: 'Projets et qualité', tabCollab: 'Espace collaboratif', talk: 'Échanges', pickMsg: 'Cliquez sur la carte pour placer le nouvel ouvrage (Échap pour annuler).', modNote: 'Données mises à jour après la production de la maquette : les coûts des éléments peuvent différer.', addNote: 'Ouvrage ajouté : sa maquette IFC reste à produire.',
+    navHome: 'Mon espace', navMap: 'Carte', navDash: 'Scénarios', navProf: 'Tableaux de bord', navAssets: 'Patrimoine', navProj: 'Projets et qualité', navCollab: 'Collaboration', spaces: 'Espaces accessibles', views: 'Vues de tableau de bord', noView: 'aucune', search: 'Rechercher un ouvrage', demoBadge: 'Démonstration · données fictives', switchProfile: 'Changer de profil', rights: 'Vos droits', readOnly: 'consultation et commentaires', ranking: 'Classement détaillé', site: 'Site DigitInfra', otherZone: 'Démonstrateur Bénin', menu: 'Menu', tabMap: 'Carte et classement', tabDash: 'Tableau de bord des scénarios', tabProf: 'Vues par profil', tabAssets: 'Patrimoine et mises à jour', tabProj: 'Projets et qualité', tabCollab: 'Espace collaboratif', talk: 'Échanges', pickMsg: 'Cliquez sur la carte pour placer le nouvel ouvrage (Échap pour annuler).', modNote: 'Données mises à jour après la production de la maquette : les coûts des éléments peuvent différer.', addNote: 'Ouvrage ajouté : sa maquette IFC reste à produire.', navGed: 'Documents (GED)', projLayer: 'Projets en cours', projOf: 'Projet en cours', stepL: 'Étape', progress: 'Avancement des étapes', docsL: 'Documents du projet', noDocs: 'Aucun document.', ver3d: 'Maquette 3D', verPick: 'Version de la maquette', openProj: 'Suivi du projet', openGed: 'Tous les documents', moreDocs: (n) => `+ ${n} autre(s)`, open3dV: 'Ouvrir la version en 3D',
   },
   en: {
     colorBy: 'Colour assets by', base: 'Base layer', none: 'None', traffic: 'Traffic', facilities: 'Facilities',
@@ -50,7 +50,7 @@ const T = {
     floodCls: ['Low', 'Moderate', 'High', 'Very high'], fac: { 'École': 'School', 'Centre de santé': 'Health centre', 'Marché': 'Market' },
     vpj: 'veh./day', hint: 'Click an asset or a table row.', noTraffic: 'not applicable',
     budgetNote: 'Assets are selected by score; an asset exceeding the remaining amount is skipped in favour of the next ones.',
-    navHome: 'My space', navMap: 'Map', navDash: 'Scenarios', navProf: 'Dashboards', navAssets: 'Assets', navProj: 'Projects & quality', navCollab: 'Collaboration', spaces: 'Available spaces', views: 'Dashboard views', noView: 'none', search: 'Search an asset', demoBadge: 'Demonstration · fictitious data', switchProfile: 'Switch profile', rights: 'Your rights', readOnly: 'view and comment', ranking: 'Detailed ranking', site: 'DigitInfra website', otherZone: 'Benin demonstrator', menu: 'Menu', tabMap: 'Map and ranking', tabDash: 'Scenario dashboard', tabProf: 'Profile views', tabAssets: 'Assets and updates', tabProj: 'Projects and quality', tabCollab: 'Collaborative space', talk: 'Discussions', pickMsg: 'Click on the map to place the new asset (Esc to cancel).', modNote: 'Data updated after the model was produced: element costs may differ.', addNote: 'Added asset: its IFC model is still to be produced.',
+    navHome: 'My space', navMap: 'Map', navDash: 'Scenarios', navProf: 'Dashboards', navAssets: 'Assets', navProj: 'Projects & quality', navCollab: 'Collaboration', spaces: 'Available spaces', views: 'Dashboard views', noView: 'none', search: 'Search an asset', demoBadge: 'Demonstration · fictitious data', switchProfile: 'Switch profile', rights: 'Your rights', readOnly: 'view and comment', ranking: 'Detailed ranking', site: 'DigitInfra website', otherZone: 'Benin demonstrator', menu: 'Menu', tabMap: 'Map and ranking', tabDash: 'Scenario dashboard', tabProf: 'Profile views', tabAssets: 'Assets and updates', tabProj: 'Projects and quality', tabCollab: 'Collaborative space', talk: 'Discussions', pickMsg: 'Click on the map to place the new asset (Esc to cancel).', modNote: 'Data updated after the model was produced: element costs may differ.', addNote: 'Added asset: its IFC model is still to be produced.', navGed: 'Documents (EDMS)', projLayer: 'Ongoing projects', projOf: 'Ongoing project', stepL: 'Step', progress: 'Step progress', docsL: 'Project documents', noDocs: 'No document.', ver3d: '3D model', verPick: 'Model version', openProj: 'Project follow-up', openGed: 'All documents', moreDocs: (n) => `+ ${n} more`, open3dV: 'Open this version in 3D',
   },
 };
 const CRIT = [
@@ -381,6 +381,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
       <p class="sg-pop-h">${esc(t('breakdown'))}</p>
       ${CRIT.map(([k, lab]) => bar(k, lab[lang() === 'en' ? 1 : 0])).join('')}
       ${a.obs ? `<p class="sg-pop-s">${esc(a.obs)}</p>` : ''}
+      ${app && projOfAsset(a.code) ? `<p class="sg-pop-cta"><button type="button" class="sg-link sg-proj" data-pid="${esc(projOfAsset(a.code).id)}">${esc(t('projOf'))} ${esc(projOfAsset(a.code).id)} →</button></p>` : ''}
       ${(Z.platform || []).includes('collab') ? `<p class="sg-pop-cta"><button type="button" class="sg-link sg-talk" data-code="${esc(a.code)}">${esc(t('talk'))}${collabRef ? ` (${collabRef.count(a.code)})` : ''} →</button></p>` : ''}
       ${a._added ? `<p class="sg-pop-s">${esc(t('addNote'))}</p>` : `<p class="sg-pop-cta"><button type="button" class="btn btn-primary sg-3d" data-code="${esc(a.code)}">${esc(t('open3d'))} →</button></p>${a._mod ? `<p class="sg-pop-s">${esc(t('modNote'))}</p>` : ''}`}
     </div>`;
@@ -428,9 +429,100 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
   map.on('popupopen', (e) => {
     const tb = e.popup.getElement().querySelector('.sg-talk');
     if (tb) tb.addEventListener('click', () => { const c = tb.getAttribute('data-code'); showTab('collab').then((b) => b && b.filterLink(c)); });
+    const pb = e.popup.getElement().querySelector('.sg-proj');
+    if (pb) pb.addEventListener('click', () => { const id = pb.getAttribute('data-pid'); map.closePopup(); focusProject(id); });
     const btn = e.popup.getElement().querySelector('.sg-3d');
     if (btn) btn.addEventListener('click', () => open3d(A.find((x) => x.code === btn.getAttribute('data-code'))));
   });
+
+  /* --- ongoing projects on the map: step, documents (GED) and versioned 3D model */
+  const projLayer = L.layerGroup();
+  const PJ_C = { done: '#2E9E6B', cur: '#3B5FC0', todo: '#C9D2DE' };
+  const projOfAsset = (code) => (store && store.state.projects ? store.state.projects.find((p) => p.codes.includes(code) && !p.steps.every((x) => x.v)) : null);
+  let projSeq = 0;
+  async function drawProjects() {
+    const my = ++projSeq;
+    if (!app || !ui.projCb) return;
+    if (!ui.projCb.checked) { projLayer.clearLayers(); projLayer.remove(); return; }
+    const [pb, { STEPS }] = await Promise.all([getBoard('proj'), import('./projects.js'), getBoard('ged')]);
+    if (my !== projSeq || !pb) return;
+    projLayer.clearLayers();
+    projLayer.addTo(map);
+    for (const p of pb.ensure()) {
+      if (p.steps.every((x) => x.v)) continue;
+      const pts = p.codes.map((c) => A.find((a) => a.code === c)).filter(Boolean);
+      if (!pts.length) continue;
+      const lat = pts.reduce((x, a) => x + a.lat, 0) / pts.length, lon = pts.reduce((x, a) => x + a.lon, 0) / pts.length;
+      if (pts.length > 1) for (const a of pts) L.polyline([[lat, lon], [a.lat, a.lon]], { color: '#9C5BB5', weight: 2, dashArray: '4 4', interactive: false }).addTo(projLayer);
+      const st = STEPS[Math.min(p.step, STEPS.length - 1)];
+      const icon = L.divIcon({ className: 'pj-pin', html: `<span><b>${esc(p.id)}</b><i>${Math.min(p.step + 1, STEPS.length)}/${STEPS.length}</i></span>`, iconSize: [52, 26], iconAnchor: [26, 40] });
+      const m = L.marker([lat, lon], { icon, zIndexOffset: 800, keyboard: true, title: `${p.id} — ${p.name[lang()]} · ${st.n[lang()]}` }).addTo(projLayer);
+      m.bindPopup(() => projPopup(p.id, STEPS), { maxWidth: 330, maxHeight: 440, autoPanPadding: [20, 20], className: 'pj-popup' });
+      m._pid = p.id;
+    }
+  }
+  function projPopup(id, STEPS) {
+    const p = boards.proj.ensure().find((x) => x.id === id);
+    const nm = (o) => o[lang()];
+    const cur = Math.min(p.step, STEPS.length - 1);
+    const ged = boards.ged;
+    const docs = ged ? ged.docsFor(id) : [];
+    const models = ged ? ged.models(id) : [];
+    const seg = STEPS.map((st, i) => `<i style="background:${p.steps[i].v ? PJ_C.done : i === cur ? PJ_C.cur : PJ_C.todo}" title="${esc(nm(st.n))}"></i>`).join('');
+    const issues = p.steps.reduce((a, x) => a + x.c.filter((c) => c.s === 'nc' || c.s === 'res').length, 0);
+    return `<div class="sg-pop pj-pop">
+      <p class="sg-pop-t">${esc(p.id)} — ${esc(nm(p.name))}</p>
+      <p class="sg-pop-s">${esc(t('projOf'))} · ${p.codes.map((c) => `<span class="mono">${esc(c)}</span>`).join(', ')}</p>
+      <p class="sg-pop-h">${esc(t('stepL'))} ${cur + 1}/${STEPS.length} — ${esc(nm(STEPS[cur].n))}${STEPS[cur].k === 'travaux' && p.pct ? ` · <span class="mono">${p.pct} %</span>` : ''}</p>
+      <div class="pj-seg" role="img" aria-label="${esc(t('progress'))}">${seg}</div>
+      ${issues ? `<p class="sg-pop-s pj-warn">${issues} ${lang() === 'en' ? 'open non-conformity(ies) or snag(s)' : 'non-conformité(s) ou réserve(s) ouverte(s)'}</p>` : ''}
+      ${models.length ? `<p class="sg-pop-h">${esc(t('ver3d'))}</p>
+        <div class="pj-3d"><select data-pver aria-label="${esc(t('verPick'))}">${models.map((m, i) => `<option value="${i}"${i === models.length - 1 ? ' selected' : ''}>${esc(`${m.v.ver} · ${m.v.date}`)}</option>`).join('')}</select>
+        <button type="button" class="btn btn-primary pj-open3d" data-pid="${esc(id)}">${esc(t('open3dV'))} →</button></div>
+        <p class="sg-pop-s" data-pvnote>${esc(models.at(-1).v.note || '')}</p>` : ''}
+      <p class="sg-pop-h">${esc(t('docsL'))} (${docs.length})</p>
+      ${docs.length ? `<ul class="pj-docs">${docs.slice(0, 4).map((d) => `<li><button type="button" class="sg-link" data-pdoc="${esc(d.id)}">${esc(nm(d.title))}</button><small class="mono">${esc(d.code)} · ${esc(d.versions.at(-1).ver)} · ${esc(ged.label(d.status))}</small></li>`).join('')}</ul>${docs.length > 4 ? `<p class="sg-pop-s">${esc(t('moreDocs')(docs.length - 4))}</p>` : ''}` : `<p class="sg-pop-s">${esc(t('noDocs'))}</p>`}
+      <p class="sg-pop-cta pj-cta">${allowed('proj') ? `<button type="button" class="sg-link" data-pproj="${esc(id)}">${esc(t('openProj'))} →</button>` : ''}<button type="button" class="sg-link" data-pged="${esc(id)}">${esc(t('openGed'))} →</button></p>
+    </div>`;
+  }
+  map.on('popupopen', async (e) => {
+    const el = e.popup.getElement();
+    const pp = el.querySelector('[data-pproj]');
+    if (pp) pp.addEventListener('click', () => { const id = pp.dataset.pproj; map.closePopup(); (allowed('proj') ? showTab('proj').then((b) => b && b.open(id)) : focusProject(id)); });
+    const pg = el.querySelector('[data-pged]');
+    if (pg) pg.addEventListener('click', () => { const id = pg.dataset.pged; map.closePopup(); showTab('ged').then((b) => b && b.openFolder(id)); });
+    el.querySelectorAll('[data-pdoc]').forEach((b_) => b_.addEventListener('click', () => { map.closePopup(); showTab('ged').then((b) => b && b.openDoc(b_.dataset.pdoc)); }));
+    const sel = el.querySelector('[data-pver]');
+    const o3 = el.querySelector('.pj-open3d');
+    if (sel && o3) {
+      const id = o3.dataset.pid;
+      sel.addEventListener('change', () => { const m = boards.ged.models(id)[Number(sel.value)]; el.querySelector('[data-pvnote]').textContent = m.v.note || ''; });
+      o3.addEventListener('click', async () => {
+        const p = boards.proj.ensure().find((x) => x.id === id);
+        const m = boards.ged.models(id)[Number(sel.value)];
+        const url = await boards.ged.urlOf(m.d, m.v);
+        open3dVersions(A.find((x) => x.code === p.codes[0]), id, m.v.ver, url);
+      });
+    }
+  });
+  async function open3dVersions(a, link, ver, url) {
+    if (!a) return;
+    const ged = await getBoard('ged');
+    const models = ged ? ged.models(link) : [];
+    const versions = await Promise.all(models.map(async (m) => ({ label: `${m.v.ver} · ${m.v.date}`, note: m.v.note || '', ver: m.v.ver, url: m.v.ver === ver && url ? url : await ged.urlOf(m.d, m.v) })));
+    const idx = Math.max(0, versions.findIndex((v) => v.ver === ver));
+    if (overlay) overlay.close();
+    open3d(a, versions.length ? { versions, idx } : {});
+  }
+  function focusProject(id) {
+    showTab('map').then(async () => {
+      if (!ui.projCb.checked) { ui.projCb.checked = true; }
+      await drawProjects();
+      let mk = null; projLayer.eachLayer((l) => { if (l._pid === id) mk = l; });
+      if (!mk) return;
+      setTimeout(() => { map.invalidateSize(); map.once('moveend', () => mk.openPopup()); map.flyTo(mk.getLatLng(), Math.max(map.getZoom(), 14), { duration: 0.6 }); }, 80);
+    });
+  }
 
   /* --- map → 3D overlay (carries the active layers) */
   const R_EARTH = 6371000;
@@ -509,7 +601,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
   }
 
   let overlay = null;
-  async function open3d(a) {
+  async function open3d(a, opt = {}) {
     if (overlay) return;
     const snap = { base: state.base, traffic: state.traffic, facilities: state.facilities };
     map.closePopup();
@@ -523,7 +615,9 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
         <p class="sg-ov-title"><span class="mono">${esc(a.code)}</span> — <span data-o="type"></span></p>
         <p class="sg-ov-badges"><span class="bv-badge" style="--c:${ETAT_C[a.etat]}" data-o="etat"></span>
           <span class="bv-badge" style="--c:${brk(a.score, SCORE_BREAKS)}">${a.score}/100</span></p>
+        ${opt.versions ? `<label class="sg-ov-ver"><span data-o="vlab"></span><select data-o="ver">${opt.versions.map((v, i) => `<option value="${i}"${i === opt.idx ? ' selected' : ''}>${esc(v.label)}</option>`).join('')}</select></label>` : ''}
       </div>
+      ${opt.versions ? '<p class="sg-ov-vnote" data-o="vnote"></p>' : ''}
       <div class="sg-ov-body"><div class="sg-ov-viewer"><p class="bv-status mono" data-o="load"></p></div></div>`;
     document.body.append(ov);
     document.documentElement.classList.add('sg-ov-open');
@@ -532,6 +626,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
       ov.querySelector('[data-o=type]').textContent = tv(a.type);
       ov.querySelector('[data-o=etat]').textContent = tv(a.etat);
       const l = ov.querySelector('[data-o=load]'); if (l) l.textContent = t('loading3d');
+      const vl = ov.querySelector('[data-o=vlab]'); if (vl) vl.textContent = t('verPick');
     };
     labels();
     const lmo = new MutationObserver(labels);
@@ -554,17 +649,29 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
     document.addEventListener('keydown', onKey);
     back.addEventListener('click', close);
     overlay = { close };
-    try {
-      const { mount: mountViewer } = await import(/* @vite-ignore */ viewerUrl);
-      viewer = await mountViewer(ov.querySelector('.sg-ov-viewer'), {
-        ifcUrl: `${modelsBase}${a.code}.ifc`, wasmPath, context: contextFor(a, snap),
+    const loadModel = async (ifcUrl) => {
+      try {
+        const { mount: mountViewer } = await import(/* @vite-ignore */ viewerUrl);
+        viewer = await mountViewer(ov.querySelector('.sg-ov-viewer'), { ifcUrl, wasmPath, context: contextFor(a, snap) });
+        if (overlay) overlay.viewer = viewer;
+        assistant.refresh();
+      } catch (err) {
+        console.error(err);
+        ov.querySelector('.sg-ov-viewer').innerHTML = `<p class="bv-status">${lang() === 'en' ? 'The 3D model could not be loaded.' : 'La maquette 3D n’a pas pu être chargée.'}</p>`;
+      }
+    };
+    const vsel = ov.querySelector('[data-o=ver]');
+    const vnote = () => { const n = ov.querySelector('[data-o=vnote]'); if (n) { const v = opt.versions[Number(vsel.value)]; n.textContent = `${v.label}${v.note ? ` — ${v.note}` : ''}`; } };
+    if (vsel) {
+      vnote();
+      vsel.addEventListener('change', async () => {
+        vnote();
+        viewer?.destroy(); viewer = null;
+        ov.querySelector('.sg-ov-viewer').innerHTML = `<p class="bv-status mono">${esc(t('loading3d'))}</p>`;
+        await loadModel(opt.versions[Number(vsel.value)].url);
       });
-      if (overlay) overlay.viewer = viewer;
-      assistant.refresh();
-    } catch (err) {
-      console.error(err);
-      ov.querySelector('.sg-ov-viewer').innerHTML = `<p class="bv-status">${lang() === 'en' ? 'The 3D model could not be loaded.' : 'La maquette 3D n’a pas pu être chargée.'}</p>`;
     }
+    await loadModel(opt.versions ? opt.versions[opt.idx].url : `${modelsBase}${a.code}.ifc`);
   }
   map.on('popupclose', () => { if (overlay) return; state.selected = null; drawAssets(); drawImpact(); renderLegend(); renderTable(); });
 
@@ -581,6 +688,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
     ui.base.innerHTML = bopts.map(([v, l]) => `<option value="${v}"${v === state.base ? ' selected' : ''}>${esc(l)}</option>`).join('');
     ui.trafficCb.checked = state.traffic; ui.facCb.checked = state.facilities; ui.basinCb.checked = state.basins;
     ui.basinLabel.textContent = Z.basins[lang() === 'en' ? 1 : 0];
+    if (ui.projLabel) ui.projLabel.textContent = t('projLayer');
     ui.weightsH.textContent = t('weights');
     ui.resetBtn.textContent = t('reset');
     ui.weights.innerHTML = CRIT.map(([k, lab]) => `<label class="sg-w"><span>${esc(lab[L_])}</span>
@@ -674,6 +782,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
   ui.trafficCb.addEventListener('change', () => { state.traffic = ui.trafficCb.checked; drawContext(); renderLegend(); });
   ui.facCb.addEventListener('change', () => { state.facilities = ui.facCb.checked; drawContext(); renderLegend(); });
   ui.basinCb.addEventListener('change', () => { state.basins = ui.basinCb.checked; drawContext(); renderLegend(); });
+  if (ui.projCb) ui.projCb.addEventListener('change', () => drawProjects());
   ui.weights.addEventListener('input', (e) => {
     const k = e.target.getAttribute('data-w');
     if (!k) return;
@@ -758,6 +867,28 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
       collabRef = b;
       return b;
     },
+    ged: async () => {
+      const proj = await getBoard('proj');
+      return (await import('./ged.js')).createGedBoard(ui.body_ged, {
+        lang, esc, store, tv, modelsBase, assets: () => A, projects: () => (proj ? proj.ensure() : []),
+        open3d: (d, vv, url) => {
+          const p = proj && proj.ensure().find((x) => x.id === d.link);
+          const a = A.find((x) => x.code === (p ? p.codes[0] : d.link));
+          if (a) open3dVersions(a, d.link, vv.ver, url);
+        },
+      });
+    },
+    home: async () => {
+      const [proj, collab, ged] = await Promise.all([getBoard('proj'), getBoard('collab'), getBoard('ged')]);
+      if (collab) collab.count('');
+      return (await import('./home.js')).createHomeBoard(ui.body_home, {
+        lang, esc, store, tv, money, pct, ranked: () => ranked, allowed,
+        projects: () => (proj ? proj.ensure() : []), docs: () => (ged ? ged.ensure() : []),
+        go: (k) => showTab(k), focus: focusMap,
+        openProject: (id) => (allowed('proj') ? showTab('proj').then((b) => b && b.open(id)) : focusProject(id)),
+        openDoc: (id) => showTab('ged').then((b) => b && b.openDoc(id)),
+      });
+    },
   };
   function getBoard(k) {
     if (boards[k]) return Promise.resolve(boards[k]);
@@ -768,12 +899,14 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
   if (store) {
     store.subscribe((what) => {
       if (what !== 'user') {
+        map.closePopup(); // before rebuild: the close handler redraws markers from the current ranking
         rebuild();
         for (const [code, m] of markers) if (!A.some((a) => a.code === code)) { m.remove(); markers.delete(code); }
         if (state.selected && !A.some((a) => a.code === state.selected)) state.selected = null;
         map.closePopup(); impactLayer.clearLayers();
         state.budget = Math.min(state.budget, Math.ceil(totalCost / Z.step) * Z.step);
         renderControls(); update();
+        drawProjects();
       }
       if (boards[tab] && tab !== 'map') boards[tab].render();
     });
@@ -788,7 +921,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
       b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1;
       if (app) b.classList.toggle('is-on', on);
     }
-    if (app) ui.home?.classList.remove('is-on');
+    if (app) ui.home?.classList.toggle('is-on', k === 'home');
     if (k === 'map') { setTimeout(() => map.invalidateSize(), 30); return null; }
     const pane = ui.panes.find((p_) => p_.dataset.pane === k);
     if (!boards[k] && pane) pane.setAttribute('aria-busy', 'true');
@@ -815,14 +948,9 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
     for (const b of ui.tabBtns) b.hidden = !allowed(b.dataset.tab);
     if (!allowed(tab)) land();
   }
-  const LAND = { ministre: ['prof', 'ministre'], mo: ['prof', 'mo'], tech: ['assets'], bailleur: ['prof', 'bailleur'], audit: ['prof', 'audit'], entreprise: ['collab', 'mine'], controle: ['proj'], admin: ['map'] };
   async function land() {
-    let [k, sub] = LAND[store ? store.me().role : 'admin'] || ['map'];
-    if (!allowed(k)) { k = 'map'; sub = null; }
-    const b = await showTab(k);
-    if (app) { ui.home.classList.add('is-on'); for (const t_ of ui.tabBtns) t_.classList.remove('is-on'); }
-    if (b && sub && k === 'prof') b.setProfile(sub);
-    if (b && sub === 'mine' && b.showMine) b.showMine();
+    const k = allowed('home') && ui.panes.some((p_) => p_.dataset.pane === 'home') ? 'home' : 'map';
+    return showTab(k);
   }
   function renderShell() {
     if (!app) return;
@@ -849,7 +977,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
     }
   }
   if (app) {
-    ui.home.addEventListener('click', land);
+    ui.home.addEventListener('click', () => showTab('home'));
     const go = () => {
       const q = ui.search.value.trim().toUpperCase();
       const a = A.find((x) => x.code.toUpperCase() === q) || A.find((x) => x.code.toUpperCase().startsWith(q) || tv(x.type).toUpperCase().includes(q));
@@ -866,6 +994,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
     renderShell();
     renderControls(); drawBase(); drawContext(); update();
     if (boards[tab]) boards[tab].render();
+    drawProjects();
     map.closePopup();
   }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-lang'] });
   new ResizeObserver(() => map.invalidateSize()).observe(ui.map);
@@ -920,7 +1049,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
   drawContext();
   update();
   renderShell();
-  if (app) { applyAccess(); land(); }
+  if (app) { applyAccess(); land(); drawProjects(); }
   return {
     map, state, assets: A, assistant, showTab, land,
     setUser: (id) => { if (store) { store.setUser(id); land(); } }, open3d: (code) => open3d(A.find((x) => x.code === code)), get overlay() { return overlay; } };
@@ -928,7 +1057,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
 
 const initials = (n) => { const w = n.replace(/[()]/g, ' ').split(/\s+/).filter((x) => x.length > 2 && !/^(fictif|fictive)$/i.test(x)); return (w.length > 1 ? w[0][0] + w[1][0] : n.slice(0, 2)).toUpperCase(); };
 const TAB_LAB = { map: 'tabMap', dash: 'tabDash', prof: 'tabProf', assets: 'tabAssets', proj: 'tabProj', collab: 'tabCollab' };
-const NAV_LAB = { map: 'navMap', dash: 'navDash', prof: 'navProf', assets: 'navAssets', proj: 'navProj', collab: 'navCollab' };
+const NAV_LAB = { home: 'navHome', ged: 'navGed', map: 'navMap', dash: 'navDash', prof: 'navProf', assets: 'navAssets', proj: 'navProj', collab: 'navCollab' };
 const ico = (d) => `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const ICONS = {
   home: ico('<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>'),
@@ -938,6 +1067,7 @@ const ICONS = {
   assets: ico('<path d="M3 20h18"/><path d="M4 20v-6a8 8 0 0 1 16 0v6"/><path d="M9 20v-5a3 3 0 0 1 6 0v5"/>'),
   proj: ico('<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 12l2 2 4-4"/><path d="M9 17h6"/>'),
   collab: ico('<path d="M4 5h11v8H8l-4 3z"/><path d="M15 9h5v8l-3-2h-6v-2"/>'),
+  ged: ico('<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M8 13h8M8 16h5"/>'),
 };
 function buildAppUI(root, keys) {
   const wrap = document.createElement('div');
@@ -951,6 +1081,7 @@ function buildAppUI(root, keys) {
           <label class="bv-field sg-cb"><input type="checkbox" data-r="trafficCb"><span data-r="trafficLabel"></span></label>
           <label class="bv-field sg-cb"><input type="checkbox" data-r="facCb"><span data-r="facLabel"></span></label>
           <label class="bv-field sg-cb"><input type="checkbox" data-r="basinCb"><span data-r="basinLabel"></span></label>
+          <label class="bv-field sg-cb ga-projcb"><input type="checkbox" data-r="projCb" checked><span data-r="projLabel"></span></label>
         </div>
         <p class="pl-pickmsg" data-r="pickmsg" role="status" hidden></p>
         <div class="sg-map ga-map" data-r="map"></div>
@@ -977,7 +1108,7 @@ function buildAppUI(root, keys) {
   wrap.innerHTML = `
     <nav class="ga-nav" aria-label="GIN²CO">
       <a class="ga-brand" href="index.html"><span class="b1">Digit</span><span class="b2">Infra</span><small>GIN²CO</small></a>
-      <button type="button" class="ga-item ga-home" data-r="home">${ICONS.home}<span></span></button>
+      <button type="button" class="ga-item ga-home" id="ga-home-l" data-r="home">${ICONS.home}<span></span></button>
       <div class="ga-items" role="tablist" aria-orientation="vertical">${keys.map((k, i) => `
         <button type="button" class="ga-item${i ? '' : ' is-on'}" role="tab" id="sg-tab-${k}" aria-controls="sg-pane-${k}" aria-selected="${i === 0}"${i ? ' tabindex="-1"' : ''} data-tab="${k}" data-nav="${NAV_LAB[k]}">${ICONS[k]}<span></span></button>`).join('')}
       </div>
@@ -991,6 +1122,7 @@ function buildAppUI(root, keys) {
       <div class="ga-prof"><button type="button" class="ga-who" data-r="who" aria-haspopup="true" aria-expanded="false"></button><div class="ga-menu" data-r="whoMenu" hidden></div></div>
     </header>
     <main class="ga-main">${mapPane}
+      <section class="sd ga-pane hm" data-pane="home" hidden aria-labelledby="ga-home-l"><div class="sd-body" data-r="body_home"></div></section>
       ${keys.slice(1).map((k) => `<section role="tabpanel" id="sg-pane-${k}" aria-labelledby="sg-tab-${k}" class="sd ga-pane" data-pane="${k}" hidden>
         <div class="sd-body" data-r="${k === 'dash' ? 'dash' : `body_${k}`}"></div></section>`).join('')}
     </main>`;
@@ -1003,7 +1135,7 @@ function buildAppUI(root, keys) {
   return ui;
 }
 function buildUI(root, extras, app) {
-  if (app) return buildAppUI(root, ['map', 'dash', ...extras]);
+  if (app) return buildAppUI(root, ['map', 'dash', ...extras, 'ged']);
   const wrap = document.createElement('div');
   wrap.className = 'bv sg';
   const keys = ['map', 'dash', ...extras];

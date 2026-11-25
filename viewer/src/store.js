@@ -15,14 +15,14 @@ export const MEMBERS = [
 // Rights by role. Kept deliberately simple and readable.
 // What each role sees in the platform: spaces (menu) and dashboard views ("casquettes").
 export const ACCESS = {
-  ministre: { spaces: ['map', 'dash', 'prof', 'collab'], views: ['ministre'] },
-  mo: { spaces: ['map', 'dash', 'prof', 'assets', 'proj', 'collab'], views: ['mo', 'tech'] },
-  tech: { spaces: ['map', 'prof', 'assets', 'proj', 'collab'], views: ['tech'] },
-  bailleur: { spaces: ['map', 'dash', 'prof', 'proj', 'collab'], views: ['bailleur'] },
-  audit: { spaces: ['map', 'prof', 'assets', 'proj', 'collab'], views: ['audit'] },
-  controle: { spaces: ['map', 'prof', 'assets', 'proj', 'collab'], views: ['tech'] },
-  entreprise: { spaces: ['map', 'proj', 'collab'], views: [] },
-  admin: { spaces: ['map', 'dash', 'prof', 'assets', 'proj', 'collab'], views: ['ministre', 'mo', 'tech', 'bailleur', 'audit'] },
+  ministre: { spaces: ['home', 'map', 'dash', 'prof', 'collab', 'ged'], views: ['ministre'] },
+  mo: { spaces: ['home', 'map', 'dash', 'prof', 'assets', 'proj', 'collab', 'ged'], views: ['mo', 'tech'] },
+  tech: { spaces: ['home', 'map', 'prof', 'assets', 'proj', 'collab', 'ged'], views: ['tech'] },
+  bailleur: { spaces: ['home', 'map', 'dash', 'prof', 'proj', 'collab', 'ged'], views: ['bailleur'] },
+  audit: { spaces: ['home', 'map', 'prof', 'assets', 'proj', 'collab', 'ged'], views: ['audit'] },
+  controle: { spaces: ['home', 'map', 'prof', 'assets', 'proj', 'collab', 'ged'], views: ['tech'] },
+  entreprise: { spaces: ['home', 'map', 'proj', 'collab', 'ged'], views: [] },
+  admin: { spaces: ['home', 'map', 'dash', 'prof', 'assets', 'proj', 'collab', 'ged'], views: ['ministre', 'mo', 'tech', 'bailleur', 'audit'] },
 };
 
 export const RIGHTS = {
@@ -33,6 +33,8 @@ export const RIGHTS = {
   validateStep: ['mo', 'controle', 'admin'],
   checkQuality: ['controle', 'tech', 'mo', 'admin'],
   assignTask: ['mo', 'tech', 'controle', 'admin'],
+  uploadDoc: ['mo', 'tech', 'controle', 'entreprise', 'admin'],
+  publishDoc: ['mo', 'controle', 'admin'],
   comment: ['mo', 'tech', 'ministre', 'bailleur', 'audit', 'entreprise', 'controle', 'admin'],
 };
 
