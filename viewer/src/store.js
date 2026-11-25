@@ -15,14 +15,16 @@ export const MEMBERS = [
 // Rights by role. Kept deliberately simple and readable.
 // What each role sees in the platform: spaces (menu) and dashboard views ("casquettes").
 export const ACCESS = {
-  ministre: { spaces: ['home', 'map', 'dash', 'prof', 'proj', 'collab', 'ged'], views: ['ministre'] },
-  mo: { spaces: ['home', 'map', 'dash', 'prof', 'assets', 'proj', 'collab', 'ged'], views: ['mo', 'tech'] },
-  tech: { spaces: ['home', 'map', 'prof', 'assets', 'proj', 'collab', 'ged'], views: ['tech'] },
-  bailleur: { spaces: ['home', 'map', 'dash', 'prof', 'proj', 'collab', 'ged'], views: ['bailleur'] },
-  audit: { spaces: ['home', 'map', 'prof', 'assets', 'proj', 'collab', 'ged'], views: ['audit'] },
-  controle: { spaces: ['home', 'map', 'prof', 'assets', 'proj', 'collab', 'ged'], views: ['tech'] },
-  entreprise: { spaces: ['home', 'map', 'proj', 'collab', 'ged'], views: [] },
-  admin: { spaces: ['home', 'map', 'dash', 'prof', 'assets', 'proj', 'collab', 'ged'], views: ['ministre', 'mo', 'tech', 'bailleur', 'audit'] },
+  // spaces: home (actions + dashboard of the role) · map / assets / dash = modes of the « Patrimoine » space (map, register, prioritisation) · proj · collab · ged
+  // the register is open to every role; editing it depends on RIGHTS
+  ministre: { spaces: ['home', 'map', 'assets', 'dash', 'proj', 'collab', 'ged'], views: ['ministre'] },
+  mo: { spaces: ['home', 'map', 'assets', 'dash', 'proj', 'collab', 'ged'], views: ['mo', 'tech'] },
+  tech: { spaces: ['home', 'map', 'assets', 'proj', 'collab', 'ged'], views: ['tech'] },
+  bailleur: { spaces: ['home', 'map', 'assets', 'dash', 'proj', 'collab', 'ged'], views: ['bailleur'] },
+  audit: { spaces: ['home', 'map', 'assets', 'proj', 'collab', 'ged'], views: ['audit'] },
+  controle: { spaces: ['home', 'map', 'assets', 'proj', 'collab', 'ged'], views: ['tech'] },
+  entreprise: { spaces: ['home', 'map', 'assets', 'proj', 'collab', 'ged'], views: [] },
+  admin: { spaces: ['home', 'map', 'assets', 'dash', 'proj', 'collab', 'ged'], views: ['ministre', 'mo', 'tech', 'bailleur', 'audit'] },
 };
 
 export const RIGHTS = {

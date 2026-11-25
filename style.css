@@ -1018,3 +1018,20 @@ button.gd-chip{cursor:pointer;} button.gd-chip:hover{background:#DCE6F7;}
 .tp-els{display:flex; flex-direction:column; gap:2px; margin:4px 0 4px 6px;} .tp-els .tp-ck{font-size:.76rem;}
 .tp-none{font-size:.76rem; margin:2px 0 0 20px;}
 @media (max-width: 1100px){ .ps-docgrid{grid-template-columns:1fr;} .ps-tree{position:static; max-height:none;} }
+
+/* --- merged spaces: Home (actions + role dashboard), Assets (map / register / prioritisation) */
+.ga-main{display:flex; flex-direction:column;}
+.ga-main > .ga-pane, .ga-main > .ga-mapwrap{flex:1 1 auto; min-height:0; height:auto;}
+.ga-sub{flex:0 0 auto; display:flex; gap:4px; padding:8px 16px; background:#fff; border-bottom:1px solid #E3E8F0;}
+.ga-sub[hidden]{display:none;}
+.ga-sub button{font:inherit; font-size:.86rem; display:flex; align-items:center; gap:8px; border:1px solid transparent; background:none; border-radius:8px; padding:7px 14px; color:#5A6B82; cursor:pointer;}
+.ga-sub button svg{width:17px; height:17px;}
+.ga-sub button:hover{background:#F3F6FA; color:var(--navy);}
+.ga-sub button.is-on{background:#EAF0FA; color:var(--navy); font-weight:600; border-color:#D5E0F3;}
+.ga-sub button[hidden]{display:none;}
+.hm-strip{grid-template-columns:repeat(auto-fit,minmax(260px,1fr));}
+.hm-strip .hm-card{padding:14px 16px;}
+.hm-dash{margin-top:28px; padding-top:22px; border-top:1px solid #E3E8F0;}
+.hm-dash[hidden]{display:none;}
+.hm-dash-h{font-family:Inter,system-ui,sans-serif; font-size:1.15rem; font-weight:700; color:var(--navy); margin:0 0 12px;}
+@media (max-width: 860px){ .ga-sub{padding:6px 8px; overflow-x:auto;} .ga-sub button{padding:6px 10px; font-size:.8rem;} }

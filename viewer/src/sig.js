@@ -27,7 +27,7 @@ const T = {
     floodCls: ['Faible', 'Modéré', 'Élevé', 'Très élevé'], fac: { 'École': 'École', 'Centre de santé': 'Centre de santé', 'Marché': 'Marché' },
     vpj: 'véh./j', hint: 'Cliquez sur un ouvrage ou sur une ligne du tableau.', noTraffic: 'non applicable',
     budgetNote: 'Les ouvrages sont retenus par ordre de score ; un ouvrage qui dépasse le reliquat est sauté au profit des suivants.',
-    navHome: 'Mon espace', navMap: 'Carte', navDash: 'Scénarios', navProf: 'Tableaux de bord', navAssets: 'Patrimoine', navProj: 'Projets', navCollab: 'Collaboration', spaces: 'Espaces accessibles', views: 'Vues de tableau de bord', noView: 'aucune', search: 'Rechercher un ouvrage', demoBadge: 'Démonstration · données fictives', switchProfile: 'Changer de profil', rights: 'Vos droits', readOnly: 'consultation et commentaires', ranking: 'Classement détaillé', site: 'Site DigitInfra', otherZone: 'Démonstrateur Bénin', menu: 'Menu', tabMap: 'Carte et classement', tabDash: 'Tableau de bord des scénarios', tabProf: 'Vues par profil', tabAssets: 'Patrimoine et mises à jour', tabProj: 'Projets et qualité', tabCollab: 'Espace collaboratif', talk: 'Échanges', pickMsg: 'Cliquez sur la carte pour placer le nouvel ouvrage (Échap pour annuler).', modNote: 'Données mises à jour après la production de la maquette : les coûts des éléments peuvent différer.', addNote: 'Ouvrage ajouté : sa maquette IFC reste à produire.', navGed: 'Documents (GED)', projLayer: 'Projets en cours', projOf: 'Projet en cours', stepL: 'Étape', progress: 'Avancement des étapes', docsL: 'Documents du projet', noDocs: 'Aucun document.', ver3d: 'Maquette 3D', verPick: 'Version de la maquette', openProj: 'Espace projet', openGed: 'Tous les documents', moreDocs: (n) => `+ ${n} autre(s)`, open3dV: 'Ouvrir la version en 3D',
+    navHome: 'Accueil', navPat: 'Patrimoine', subMap: 'Carte', subAssets: 'Registre', subDash: 'Priorisation', myDash: 'Mon tableau de bord', navMap: 'Carte', navDash: 'Scénarios', navProf: 'Tableaux de bord', navAssets: 'Patrimoine', navProj: 'Projets', navCollab: 'Collaboration', spaces: 'Espaces accessibles', views: 'Vues de tableau de bord', noView: 'aucune', search: 'Rechercher un ouvrage', demoBadge: 'Démonstration · données fictives', switchProfile: 'Changer de profil', rights: 'Vos droits', readOnly: 'consultation et commentaires', ranking: 'Classement détaillé', site: 'Site DigitInfra', otherZone: 'Démonstrateur Bénin', menu: 'Menu', tabMap: 'Carte et classement', tabDash: 'Tableau de bord des scénarios', tabProf: 'Vues par profil', tabAssets: 'Patrimoine et mises à jour', tabProj: 'Projets et qualité', tabCollab: 'Espace collaboratif', talk: 'Échanges', pickMsg: 'Cliquez sur la carte pour placer le nouvel ouvrage (Échap pour annuler).', modNote: 'Données mises à jour après la production de la maquette : les coûts des éléments peuvent différer.', addNote: 'Ouvrage ajouté : sa maquette IFC reste à produire.', navGed: 'Documents (GED)', projLayer: 'Projets en cours', projOf: 'Projet en cours', stepL: 'Étape', progress: 'Avancement des étapes', docsL: 'Documents du projet', noDocs: 'Aucun document.', ver3d: 'Maquette 3D', verPick: 'Version de la maquette', openProj: 'Espace projet', openGed: 'Tous les documents', moreDocs: (n) => `+ ${n} autre(s)`, open3dV: 'Ouvrir la version en 3D',
   },
   en: {
     colorBy: 'Colour assets by', base: 'Base layer', none: 'None', traffic: 'Traffic', facilities: 'Facilities',
@@ -50,7 +50,7 @@ const T = {
     floodCls: ['Low', 'Moderate', 'High', 'Very high'], fac: { 'École': 'School', 'Centre de santé': 'Health centre', 'Marché': 'Market' },
     vpj: 'veh./day', hint: 'Click an asset or a table row.', noTraffic: 'not applicable',
     budgetNote: 'Assets are selected by score; an asset exceeding the remaining amount is skipped in favour of the next ones.',
-    navHome: 'My space', navMap: 'Map', navDash: 'Scenarios', navProf: 'Dashboards', navAssets: 'Assets', navProj: 'Projects', navCollab: 'Collaboration', spaces: 'Available spaces', views: 'Dashboard views', noView: 'none', search: 'Search an asset', demoBadge: 'Demonstration · fictitious data', switchProfile: 'Switch profile', rights: 'Your rights', readOnly: 'view and comment', ranking: 'Detailed ranking', site: 'DigitInfra website', otherZone: 'Benin demonstrator', menu: 'Menu', tabMap: 'Map and ranking', tabDash: 'Scenario dashboard', tabProf: 'Profile views', tabAssets: 'Assets and updates', tabProj: 'Projects and quality', tabCollab: 'Collaborative space', talk: 'Discussions', pickMsg: 'Click on the map to place the new asset (Esc to cancel).', modNote: 'Data updated after the model was produced: element costs may differ.', addNote: 'Added asset: its IFC model is still to be produced.', navGed: 'Documents (EDMS)', projLayer: 'Ongoing projects', projOf: 'Ongoing project', stepL: 'Step', progress: 'Step progress', docsL: 'Project documents', noDocs: 'No document.', ver3d: '3D model', verPick: 'Model version', openProj: 'Project space', openGed: 'All documents', moreDocs: (n) => `+ ${n} more`, open3dV: 'Open this version in 3D',
+    navHome: 'Home', navPat: 'Assets', subMap: 'Map', subAssets: 'Register', subDash: 'Prioritisation', myDash: 'My dashboard', navMap: 'Map', navDash: 'Scenarios', navProf: 'Dashboards', navAssets: 'Assets', navProj: 'Projects', navCollab: 'Collaboration', spaces: 'Available spaces', views: 'Dashboard views', noView: 'none', search: 'Search an asset', demoBadge: 'Demonstration · fictitious data', switchProfile: 'Switch profile', rights: 'Your rights', readOnly: 'view and comment', ranking: 'Detailed ranking', site: 'DigitInfra website', otherZone: 'Benin demonstrator', menu: 'Menu', tabMap: 'Map and ranking', tabDash: 'Scenario dashboard', tabProf: 'Profile views', tabAssets: 'Assets and updates', tabProj: 'Projects and quality', tabCollab: 'Collaborative space', talk: 'Discussions', pickMsg: 'Click on the map to place the new asset (Esc to cancel).', modNote: 'Data updated after the model was produced: element costs may differ.', addNote: 'Added asset: its IFC model is still to be produced.', navGed: 'Documents (EDMS)', projLayer: 'Ongoing projects', projOf: 'Ongoing project', stepL: 'Step', progress: 'Step progress', docsL: 'Project documents', noDocs: 'No document.', ver3d: '3D model', verPick: 'Model version', openProj: 'Project space', openGed: 'All documents', moreDocs: (n) => `+ ${n} more`, open3dV: 'Open this version in 3D',
   },
 };
 const CRIT = [
@@ -928,20 +928,30 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
         drawProjects();
       }
       if (boards[tab] && tab !== 'map') boards[tab].render();
+      if (app && tab === 'home' && boards.prof && !ui.dashWrap?.hidden) boards.prof.render();
     });
   }
   let tab = 'map';
+  const PAT = ['map', 'assets', 'dash'];
+  let patLast = 'map';
   async function showTab(k) {
+    if (app && k === 'prof') k = 'home'; // the role dashboard lives in the home page
     if (!allowed(k)) return null;
     if (tab === 'proj' && k !== 'proj') boards.proj?.leave();
     tab = k;
+    if (app && PAT.includes(k)) patLast = k;
     for (const p_ of ui.panes) p_.hidden = p_.dataset.pane !== k;
     for (const b of ui.tabBtns) {
-      const on = b.dataset.tab === k;
+      const on = b.dataset.tab === k || (app && b.dataset.tab === 'map' && PAT.includes(k));
       b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1;
       if (app) b.classList.toggle('is-on', on);
     }
-    if (app) ui.home?.classList.toggle('is-on', k === 'home');
+    if (app) {
+      ui.home?.classList.toggle('is-on', k === 'home');
+      ui.patBar.hidden = !PAT.includes(k);
+      for (const b of ui.subBtns) { const on = b.dataset.sub === k; b.classList.toggle('is-on', on); b.setAttribute('aria-selected', String(on)); }
+      if (k === 'home') showRoleDash();
+    }
     if (k === 'map') { setTimeout(() => map.invalidateSize(), 30); return null; }
     const pane = ui.panes.find((p_) => p_.dataset.pane === k);
     if (!boards[k] && pane) pane.setAttribute('aria-busy', 'true');
@@ -950,8 +960,17 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
     if (b && tab === k) b.render();
     return b;
   }
+  async function showRoleDash() {
+    if (!ui.dashWrap) return;
+    const has = !!(access() && access().views.length);
+    ui.dashWrap.hidden = !has;
+    if (!has) return;
+    const b = await getBoard('prof');
+    if (b && tab === 'home') b.render();
+  }
+  if (app) ui.subBtns.forEach((b) => b.addEventListener('click', () => showTab(b.dataset.sub)));
   ui.tabBtns.forEach((b, i) => {
-    b.addEventListener('click', () => showTab(b.dataset.tab));
+    b.addEventListener('click', () => showTab(app && b.dataset.tab === 'map' ? (allowed(patLast) ? patLast : 'map') : b.dataset.tab));
     b.addEventListener('keydown', (e) => {
       const fwd = app ? ['ArrowDown', 'ArrowRight'] : ['ArrowRight'], back = app ? ['ArrowUp', 'ArrowLeft'] : ['ArrowLeft'];
       if (!fwd.includes(e.key) && !back.includes(e.key)) return;
@@ -966,7 +985,8 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
   function applyAccess() {
     if (!app) return;
     for (const b of ui.tabBtns) b.hidden = !allowed(b.dataset.tab);
-    if (!allowed(tab)) land();
+    for (const b of ui.subBtns) b.hidden = !allowed(b.dataset.sub);
+    if (!allowed(tab) || tab === 'home') land();
   }
   async function land() {
     const k = allowed('home') && ui.panes.some((p_) => p_.dataset.pane === 'home') ? 'home' : 'map';
@@ -975,6 +995,9 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
   function renderShell() {
     if (!app) return;
     ui.home.querySelector('span').textContent = t('navHome');
+    const SUB = { map: 'subMap', assets: 'subAssets', dash: 'subDash' };
+    for (const b of ui.subBtns) b.querySelector('span').textContent = t(SUB[b.dataset.sub]);
+    if (ui.dashH) ui.dashH.textContent = t('myDash');
     for (const b of ui.tabBtns) { b.querySelector('span').textContent = t(b.dataset.nav); b.title = t(b.dataset.nav); }
     ui.search.placeholder = t('search'); ui.search.setAttribute('aria-label', t('search'));
     ui.searchList.innerHTML = A.map((a) => `<option value="${esc(a.code)}">${esc(tv(a.type))}</option>`).join('');
@@ -990,7 +1013,10 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
       const ac = access();
       const vn = { ministre: ['Ministre', 'Minister'], mo: ['Maître d’ouvrage', 'Asset owner'], tech: ['Technicien', 'Technician'], bailleur: ['Bailleur', 'Funder'], audit: ['Auditeur', 'Auditor'] };
       const L_ = lang() === 'en' ? 1 : 0;
-      ui.whoMenu.innerHTML = `<p class="ga-menu-h">${esc(t('spaces'))}</p><p class="ga-menu-r">${esc(ac.spaces.map((k) => t(NAV_LAB[k])).join(' · '))}</p>
+      const SUBL = { map: 'subMap', assets: 'subAssets', dash: 'subDash' };
+      const pat = PAT.filter((k) => ac.spaces.includes(k)).map((k) => t(SUBL[k]).toLowerCase());
+      const sp = ['home', 'map', 'proj', 'collab', 'ged'].filter((k) => ac.spaces.includes(k)).map((k) => (k === 'map' ? `${t('navPat')} (${pat.join(', ')})` : t(NAV_LAB[k])));
+      ui.whoMenu.innerHTML = `<p class="ga-menu-h">${esc(t('spaces'))}</p><p class="ga-menu-r">${esc(sp.join(' · '))}</p>
         <p class="ga-menu-h">${esc(t('views'))}</p><p class="ga-menu-r">${esc(ac.views.length ? ac.views.map((v) => vn[v][L_]).join(' · ') : t('noView'))}</p>
         <p class="ga-menu-h">${esc(t('rights'))}</p><p class="ga-menu-r">${esc(r.length ? r.join(' · ') : t('readOnly'))}</p>
         <button type="button" class="ga-menu-b" data-act="switch">${esc(t('switchProfile'))}</button>`;
@@ -1024,6 +1050,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
     renderShell();
     renderControls(); drawBase(); drawContext(); update();
     if (boards[tab]) boards[tab].render();
+    if (app && tab === 'home' && boards.prof && !ui.dashWrap?.hidden) boards.prof.render();
     drawProjects();
     map.closePopup();
   }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-lang'] });
@@ -1139,8 +1166,8 @@ function buildAppUI(root, keys) {
     <nav class="ga-nav" aria-label="GIN²CO">
       <a class="ga-brand" href="index.html"><span class="b1">Digit</span><span class="b2">Infra</span><small>GIN²CO</small></a>
       <button type="button" class="ga-item ga-home" id="ga-home-l" data-r="home">${ICONS.home}<span></span></button>
-      <div class="ga-items" role="tablist" aria-orientation="vertical">${keys.map((k, i) => `
-        <button type="button" class="ga-item${i ? '' : ' is-on'}" role="tab" id="sg-tab-${k}" aria-controls="sg-pane-${k}" aria-selected="${i === 0}"${i ? ' tabindex="-1"' : ''} data-tab="${k}" data-nav="${NAV_LAB[k]}">${ICONS[k]}<span></span></button>`).join('')}
+      <div class="ga-items" role="tablist" aria-orientation="vertical">${keys.filter((k) => !['dash', 'prof', 'assets'].includes(k)).map((k, i) => `
+        <button type="button" class="ga-item${i ? '' : ' is-on'}" role="tab" id="sg-tab-${k}" aria-controls="sg-pane-${k}" aria-selected="${i === 0}"${i ? ' tabindex="-1"' : ''} data-tab="${k}" data-nav="${k === 'map' ? 'navPat' : NAV_LAB[k]}">${ICONS[k === 'map' ? 'assets' : k]}<span></span></button>`).join('')}
       </div>
       <div class="ga-foot"><a href="ginco-benin.html" data-r="zoneLink"></a><a href="ginco.html" data-r="siteLink"></a></div>
     </nav>
@@ -1151,15 +1178,18 @@ function buildAppUI(root, keys) {
       <div class="lang-toggle ga-lang"><button data-lang-btn="fr" class="active">FR</button><button data-lang-btn="en">EN</button></div>
       <div class="ga-prof"><button type="button" class="ga-who" data-r="who" aria-haspopup="true" aria-expanded="false"></button><div class="ga-menu" data-r="whoMenu" hidden></div></div>
     </header>
-    <main class="ga-main">${mapPane}
-      <section class="sd ga-pane hm" data-pane="home" hidden aria-labelledby="ga-home-l"><div class="sd-body" data-r="body_home"></div></section>
-      ${keys.slice(1).map((k) => `<section role="tabpanel" id="sg-pane-${k}" aria-labelledby="sg-tab-${k}" class="sd ga-pane" data-pane="${k}" hidden>
+    <main class="ga-main">
+      <div class="ga-sub" data-r="patBar" role="tablist" hidden>${['map', 'assets', 'dash'].filter((k) => keys.includes(k)).map((k) => `<button type="button" role="tab" data-sub="${k}">${ICONS[k]}<span></span></button>`).join('')}</div>
+      ${mapPane}
+      <section class="sd ga-pane hm" data-pane="home" hidden aria-labelledby="ga-home-l"><div class="sd-body"><div data-r="body_home"></div>${keys.includes('prof') ? '<div class="hm-dash" data-r="dashWrap"><h3 class="hm-dash-h" data-r="dashH"></h3><div data-r="body_prof"></div></div>' : ''}</div></section>
+      ${keys.slice(1).filter((k) => k !== 'prof').map((k) => `<section role="tabpanel" id="sg-pane-${k}" aria-labelledby="sg-tab-${k}" class="sd ga-pane" data-pane="${k}" hidden>
         <div class="sd-body" data-r="${k === 'dash' ? 'dash' : `body_${k}`}"></div></section>`).join('')}
     </main>`;
   root.append(wrap);
   const ui = {};
   wrap.querySelectorAll('[data-r]').forEach((el) => { ui[el.getAttribute('data-r')] = el; });
   ui.tabBtns = [...wrap.querySelectorAll('[data-tab]')];
+  ui.subBtns = [...wrap.querySelectorAll('[data-sub]')];
   ui.panes = [...wrap.querySelectorAll('[data-pane]')];
   ui.discl = [];
   return ui;
