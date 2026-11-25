@@ -245,5 +245,5 @@ export function createCollabBoard(el, ctx) {
     }
   });
   el.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.dataset.rin) el.querySelector(`[data-rep="${e.target.dataset.rin}"]`).click(); });
-  return { render, filterLink(l) { view = 'talk'; tFilter = { type: '', link: l, status: 'all' }; render(); }, count: (l) => st().comments.filter((c) => c.link === l).length };
+  return { render, showMine() { view = 'tasks'; mine = true; render(); }, filterLink(l) { view = 'talk'; tFilter = { type: '', link: l, status: 'all' }; render(); }, count: (l) => st().comments.filter((c) => c.link === l).length };
 }

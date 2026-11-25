@@ -1,11 +1,6 @@
 // GIN²CO — GIS decision-support demo (Leaflet + OpenStreetMap basemap, fictitious asset data)
 import L from 'leaflet';
 import { createAssistant } from './assistant.js';
-import { createScenarioBoard } from './scenarios.js';
-import { createProfileBoard } from './profiles.js';
-import { createAssetBoard } from './assets.js';
-import { createProjectBoard } from './projects.js';
-import { createCollabBoard } from './collab.js';
 import { createStore, MEMBERS } from './store.js';
 import { impactGN, throughFrom } from './impact_gn.js';
 
@@ -32,7 +27,7 @@ const T = {
     floodCls: ['Faible', 'Modéré', 'Élevé', 'Très élevé'], fac: { 'École': 'École', 'Centre de santé': 'Centre de santé', 'Marché': 'Marché' },
     vpj: 'véh./j', hint: 'Cliquez sur un ouvrage ou sur une ligne du tableau.', noTraffic: 'non applicable',
     budgetNote: 'Les ouvrages sont retenus par ordre de score ; un ouvrage qui dépasse le reliquat est sauté au profit des suivants.',
-    tabMap: 'Carte et classement', tabDash: 'Tableau de bord des scénarios', tabProf: 'Vues par profil', tabAssets: 'Patrimoine et mises à jour', tabProj: 'Projets et qualité', tabCollab: 'Espace collaboratif', talk: 'Échanges', pickMsg: 'Cliquez sur la carte pour placer le nouvel ouvrage (Échap pour annuler).', modNote: 'Données mises à jour après la production de la maquette : les coûts des éléments peuvent différer.', addNote: 'Ouvrage ajouté : sa maquette IFC reste à produire.',
+    navHome: 'Mon espace', navMap: 'Carte', navDash: 'Scénarios', navProf: 'Tableaux de bord', navAssets: 'Patrimoine', navProj: 'Projets et qualité', navCollab: 'Collaboration', search: 'Rechercher un ouvrage', demoBadge: 'Démonstration · données fictives', switchProfile: 'Changer de profil', rights: 'Vos droits', readOnly: 'consultation et commentaires', ranking: 'Classement détaillé', site: 'Site DigitInfra', otherZone: 'Démonstrateur Bénin', menu: 'Menu', tabMap: 'Carte et classement', tabDash: 'Tableau de bord des scénarios', tabProf: 'Vues par profil', tabAssets: 'Patrimoine et mises à jour', tabProj: 'Projets et qualité', tabCollab: 'Espace collaboratif', talk: 'Échanges', pickMsg: 'Cliquez sur la carte pour placer le nouvel ouvrage (Échap pour annuler).', modNote: 'Données mises à jour après la production de la maquette : les coûts des éléments peuvent différer.', addNote: 'Ouvrage ajouté : sa maquette IFC reste à produire.',
   },
   en: {
     colorBy: 'Colour assets by', base: 'Base layer', none: 'None', traffic: 'Traffic', facilities: 'Facilities',
@@ -55,7 +50,7 @@ const T = {
     floodCls: ['Low', 'Moderate', 'High', 'Very high'], fac: { 'École': 'School', 'Centre de santé': 'Health centre', 'Marché': 'Market' },
     vpj: 'veh./day', hint: 'Click an asset or a table row.', noTraffic: 'not applicable',
     budgetNote: 'Assets are selected by score; an asset exceeding the remaining amount is skipped in favour of the next ones.',
-    tabMap: 'Map and ranking', tabDash: 'Scenario dashboard', tabProf: 'Profile views', tabAssets: 'Assets and updates', tabProj: 'Projects and quality', tabCollab: 'Collaborative space', talk: 'Discussions', pickMsg: 'Click on the map to place the new asset (Esc to cancel).', modNote: 'Data updated after the model was produced: element costs may differ.', addNote: 'Added asset: its IFC model is still to be produced.',
+    navHome: 'My space', navMap: 'Map', navDash: 'Scenarios', navProf: 'Dashboards', navAssets: 'Assets', navProj: 'Projects & quality', navCollab: 'Collaboration', search: 'Search an asset', demoBadge: 'Demonstration · fictitious data', switchProfile: 'Switch profile', rights: 'Your rights', readOnly: 'view and comment', ranking: 'Detailed ranking', site: 'DigitInfra website', otherZone: 'Benin demonstrator', menu: 'Menu', tabMap: 'Map and ranking', tabDash: 'Scenario dashboard', tabProf: 'Profile views', tabAssets: 'Assets and updates', tabProj: 'Projects and quality', tabCollab: 'Collaborative space', talk: 'Discussions', pickMsg: 'Click on the map to place the new asset (Esc to cancel).', modNote: 'Data updated after the model was produced: element costs may differ.', addNote: 'Added asset: its IFC model is still to be produced.',
   },
 };
 const CRIT = [
@@ -130,7 +125,7 @@ const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&l
 const brk = (v, b) => b.find(([x]) => v >= x)[1];
 const floodCls = (f) => t('floodCls')[f >= 0.75 ? 3 : f >= 0.5 ? 2 : f >= 0.25 ? 1 : 0];
 
-export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) {
+export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, app = null }) {
   root.innerHTML = `<p class="bv-status mono">${esc(t('loading'))}</p>`;
   const data = await (await fetch(dataUrl)).json();
   Z = ZONES[data.meta?.zone] || ZONES.bj;
@@ -140,13 +135,14 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
   const flowGeom = (f, a) => (f.id != null && FP[f.id] ? FP[f.id] : { ...f, path: [f.from, [a.lat, a.lon], f.to] });
   root.classList.add('bv-ready');
   root.innerHTML = '';
-  const ui = buildUI(root, Z.platform || []);
+  const ui = buildUI(root, Z.platform || [], app);
 
   const A = [];
   const ORIG = data.assets.map((a) => JSON.parse(JSON.stringify(a)));
   const NOTE_ETAT = { 1: 'Bon', 2: 'Moyen', 3: 'Dégradé', 4: 'Critique' };
   const GN = data.meta?.zone === 'gn';
   const store = (Z.platform || []).length ? createStore(data.meta?.zone || 'bj') : null;
+  if (store && app && app.user) store.state.user = app.user;
   const R_E = 6371000;
   const dist = (p, q) => { const dl = (q.lat - p.lat) * Math.PI / 180, dn = (q.lon - p.lon) * Math.PI / 180 * Math.cos(p.lat * Math.PI / 180); return R_E * Math.hypot(dl, dn); };
   const cellOf = (p) => data.cells.reduce((b, c) => { const d = dist(p, { lat: (c.b[0] + c.b[2]) / 2, lon: (c.b[1] + c.b[3]) / 2 }); return !b || d < b.d ? { c, d } : b; }, null).c;
@@ -385,7 +381,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
       <p class="sg-pop-h">${esc(t('breakdown'))}</p>
       ${CRIT.map(([k, lab]) => bar(k, lab[lang() === 'en' ? 1 : 0])).join('')}
       ${a.obs ? `<p class="sg-pop-s">${esc(a.obs)}</p>` : ''}
-      ${collabRef ? `<p class="sg-pop-cta"><button type="button" class="sg-link sg-talk" data-code="${esc(a.code)}">${esc(t('talk'))} (${collabRef.count(a.code)}) →</button></p>` : ''}
+      ${(Z.platform || []).includes('collab') ? `<p class="sg-pop-cta"><button type="button" class="sg-link sg-talk" data-code="${esc(a.code)}">${esc(t('talk'))}${collabRef ? ` (${collabRef.count(a.code)})` : ''} →</button></p>` : ''}
       ${a._added ? `<p class="sg-pop-s">${esc(t('addNote'))}</p>` : `<p class="sg-pop-cta"><button type="button" class="btn btn-primary sg-3d" data-code="${esc(a.code)}">${esc(t('open3d'))} →</button></p>${a._mod ? `<p class="sg-pop-s">${esc(t('modNote'))}</p>` : ''}`}
     </div>`;
   }
@@ -431,7 +427,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
   let collabRef = null;
   map.on('popupopen', (e) => {
     const tb = e.popup.getElement().querySelector('.sg-talk');
-    if (tb) tb.addEventListener('click', () => { showTab('collab'); collabRef.filterLink(tb.getAttribute('data-code')); });
+    if (tb) tb.addEventListener('click', () => { const c = tb.getAttribute('data-code'); showTab('collab').then((b) => b && b.filterLink(c)); });
     const btn = e.popup.getElement().querySelector('.sg-3d');
     if (btn) btn.addEventListener('click', () => open3d(A.find((x) => x.code === btn.getAttribute('data-code'))));
   });
@@ -594,7 +590,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
     ui.budget.step = String(Z.step);
     ui.budget.value = String(state.budget);
     ui.budgetNote.textContent = t('budgetNote');
-    for (const b of ui.tabBtns) b.textContent = t(b.dataset.lab);
+    if (!app) for (const b of ui.tabBtns) b.textContent = t(b.dataset.lab);
     for (const d of ui.discl) d.textContent = t('disclaimer');
   }
 
@@ -669,6 +665,9 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
     if (tab !== 'map' && tab !== 'dash' && boards[tab]) boards[tab].render();
   }
 
+  let pending = 0; // coalesce slider events: one recalculation per frame
+  function updateSoon() { if (!pending) pending = requestAnimationFrame(() => { pending = 0; update(); }); }
+
   /* --- events */
   ui.color.addEventListener('change', () => { state.color = ui.color.value; update(); });
   ui.base.addEventListener('change', () => { state.base = ui.base.value; drawBase(); renderLegend(); });
@@ -680,13 +679,13 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
     if (!k) return;
     state.w[k] = Number(e.target.value);
     e.target.nextElementSibling.textContent = e.target.value;
-    update();
+    updateSoon();
   });
   ui.resetBtn.addEventListener('click', () => {
     state.w = Object.fromEntries(CRIT.map(([k, , d]) => [k, d]));
     renderControls(); update();
   });
-  ui.budget.addEventListener('input', () => { state.budget = Number(ui.budget.value); update(); });
+  ui.budget.addEventListener('input', () => { state.budget = Number(ui.budget.value); updateSoon(); });
   ui.qchip.addEventListener('click', (e) => { if (e.target.closest('[data-act=clearq]')) setQuery(null); });
   function setQuery(codes, label = '') {
     state.query = codes ? new Set(codes) : null;
@@ -699,49 +698,47 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
     const tr = e.target.closest('tr[data-code]');
     if (tr && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); select(tr.getAttribute('data-code'), true); }
   });
-  /* --- scenario dashboard */
-  const board = createScenarioBoard(ui.dash, {
-    A, CRIT, Z, lang, tv, money, fmt, pct, esc, FAM_C, ETAT_C, totalCost, defaultBudget: state.budget,
-    getMap: () => ({ w: { ...state.w }, budget: state.budget }),
-    apply: (w, budget) => { state.w = w; state.budget = budget; renderControls(); update(); showTab('map'); },
-  });
-  const boards = { dash: board };
-  if ((Z.platform || []).includes('prof')) {
-    boards.prof = createProfileBoard(ui.body_prof, {
+  /* --- boards: each module is downloaded the first time its space is opened */
+  const boards = {};
+  const loading = {};
+  const focusMap = (code) => { showTab('map').then(() => setTimeout(() => { map.invalidateSize(); select(code, true); }, 80)); };
+  const FACT = {
+    dash: async () => (await import('./scenarios.js')).createScenarioBoard(ui.dash, {
+      A, CRIT, Z, lang, tv, money, fmt, pct, esc, FAM_C, ETAT_C, totalCost, defaultBudget: state.budget,
+      getMap: () => ({ w: { ...state.w }, budget: state.budget }),
+      apply: (w, budget) => { state.w = w; state.budget = budget; renderControls(); update(); showTab('map'); },
+    }),
+    prof: async () => (await import('./profiles.js')).createProfileBoard(ui.body_prof, {
       lang, tv, money, fmt, pct, esc, Z, ETAT_C, VERDICT_C, FAM_C: () => FAM_C, FIN_C: () => FIN_C, bounds: data.bounds,
       ranked: () => ranked, budget: () => state.budget, getLog: () => (store ? store.state.log.filter((l) => l.kind === 'asset') : []),
-      focus: (code) => { showTab('map'); setTimeout(() => { map.invalidateSize(); select(code, true); }, 80); },
-    });
-  }
-  if ((Z.platform || []).includes('assets')) {
-    const typesOf = (fam) => [...new Set(ORIG.filter((a) => a.famille === fam).map((a) => a.type))];
-    boards.assets = createAssetBoard(ui.body_assets, {
-      lang, tv, fmt, money, esc, Z, ETAT_C, VERDICT_C, store, FAM_C: () => FAM_C, FIN_C: () => FIN_C,
-      assets: () => A, typesOf, preview: previewAsset, contextAt,
-      focus: (code) => { showTab('map'); setTimeout(() => { map.invalidateSize(); select(code, true); }, 80); },
-      saveEdit: (code, fields, what) => {
-        const d = store.state.added.find((x) => x.code === code);
-        if (d) Object.assign(d, fields); else store.state.edits[code] = { ...(store.state.edits[code] || {}), ...fields };
-        store.log(code, what); store.commit('asset');
-      },
-      addAsset: (def, what) => { store.state.added.push(def); store.log(def.code, what); store.commit('asset'); },
-      removeAdded: (code, what) => { store.state.added = store.state.added.filter((x) => x.code !== code); store.log(code, what); store.commit('asset'); },
-      pickOnMap: (cb) => {
-        showTab('map');
-        ui.pickmsg.textContent = t('pickMsg'); ui.pickmsg.hidden = false;
-        map.getContainer().classList.add('pl-picking');
-        const done = () => { ui.pickmsg.hidden = true; map.getContainer().classList.remove('pl-picking'); map.off('click', onClick); document.removeEventListener('keydown', onKey); };
-        const onClick = (e) => { done(); cb(e.latlng); showTab('assets'); };
-        const onKey = (e) => { if (e.key === 'Escape') { done(); showTab('assets'); } };
-        setTimeout(() => { map.on('click', onClick); document.addEventListener('keydown', onKey); }, 50);
-        ui.map.scrollIntoView({ block: 'center' });
-      },
-    });
-  }
-  if ((Z.platform || []).includes('proj')) {
-    boards.proj = createProjectBoard(ui.body_proj, {
-      lang, esc, fmt, money, store, tv, pct, assets: () => A, ranked: () => ranked,
-      focus: (code) => { showTab('map'); setTimeout(() => { map.invalidateSize(); select(code, true); }, 80); },
+      focus: focusMap,
+    }),
+    assets: async () => {
+      const typesOf = (fam) => [...new Set(ORIG.filter((a) => a.famille === fam).map((a) => a.type))];
+      return (await import('./assets.js')).createAssetBoard(ui.body_assets, {
+        lang, tv, fmt, money, esc, Z, ETAT_C, VERDICT_C, store, FAM_C: () => FAM_C, FIN_C: () => FIN_C,
+        assets: () => A, typesOf, preview: previewAsset, contextAt, focus: focusMap,
+        saveEdit: (code, fields, what) => {
+          const d = store.state.added.find((x) => x.code === code);
+          if (d) Object.assign(d, fields); else store.state.edits[code] = { ...(store.state.edits[code] || {}), ...fields };
+          store.log(code, what); store.commit('asset');
+        },
+        addAsset: (def, what) => { store.state.added.push(def); store.log(def.code, what); store.commit('asset'); },
+        removeAdded: (code, what) => { store.state.added = store.state.added.filter((x) => x.code !== code); store.log(code, what); store.commit('asset'); },
+        pickOnMap: (cb) => {
+          showTab('map');
+          ui.pickmsg.textContent = t('pickMsg'); ui.pickmsg.hidden = false;
+          map.getContainer().classList.add('pl-picking');
+          const done = () => { ui.pickmsg.hidden = true; map.getContainer().classList.remove('pl-picking'); map.off('click', onClick); document.removeEventListener('keydown', onKey); };
+          const onClick = (e) => { done(); cb(e.latlng); showTab('assets'); };
+          const onKey = (e) => { if (e.key === 'Escape') { done(); showTab('assets'); } };
+          setTimeout(() => { map.on('click', onClick); document.addEventListener('keydown', onKey); }, 50);
+          if (!app) ui.map.scrollIntoView({ block: 'center' });
+        },
+      });
+    },
+    proj: async () => (await import('./projects.js')).createProjectBoard(ui.body_proj, {
+      lang, esc, fmt, money, store, tv, pct, assets: () => A, ranked: () => ranked, focus: focusMap,
       resetCondition: (code, what) => {
         const d = store.state.added.find((x) => x.code === code);
         const a = A.find((x) => x.code === code);
@@ -750,15 +747,22 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
         if (d) Object.assign(d, { note: 1, cout }); else store.state.edits[code] = { ...(store.state.edits[code] || {}), note: 1, cout };
         store.log(code, `${what} (${tv(a.etat)} → ${tv('Bon')} ; ${money(a.cout)} → ${money(cout)})`);
       },
-    });
-  }
-  if ((Z.platform || []).includes('collab')) {
-    boards.collab = createCollabBoard(ui.body_collab, {
-      lang, esc, store, tv, assets: () => A, projects: () => (boards.proj ? boards.proj.ensure() : []),
-      focus: (code) => { showTab('map'); setTimeout(() => { map.invalidateSize(); select(code, true); }, 80); },
-      openProject: (id) => { showTab('proj'); boards.proj.open(id); },
-    });
-    collabRef = boards.collab;
+    }),
+    collab: async () => {
+      const proj = await getBoard('proj');
+      const b = (await import('./collab.js')).createCollabBoard(ui.body_collab, {
+        lang, esc, store, tv, assets: () => A, projects: () => (proj ? proj.ensure() : []), focus: focusMap,
+        openProject: (id) => { showTab('proj').then(() => boards.proj.open(id)); },
+      });
+      collabRef = b;
+      return b;
+    },
+  };
+  function getBoard(k) {
+    if (boards[k]) return Promise.resolve(boards[k]);
+    if (!FACT[k] || !ui.panes.some((p_) => p_.dataset.pane === k)) return Promise.resolve(null);
+    if (!loading[k]) loading[k] = FACT[k]().then((b) => { boards[k] = b; return b; });
+    return loading[k];
   }
   if (store) {
     store.subscribe((what) => {
@@ -774,24 +778,77 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
     });
   }
   let tab = 'map';
-  function showTab(k) {
+  async function showTab(k) {
     tab = k;
     for (const p_ of ui.panes) p_.hidden = p_.dataset.pane !== k;
     for (const b of ui.tabBtns) {
       const on = b.dataset.tab === k;
       b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1;
+      if (app) b.classList.toggle('is-on', on);
     }
-    if (boards[k]) boards[k].render(); else setTimeout(() => map.invalidateSize(), 30);
+    if (app) ui.home?.classList.remove('is-on');
+    if (k === 'map') { setTimeout(() => map.invalidateSize(), 30); return null; }
+    const pane = ui.panes.find((p_) => p_.dataset.pane === k);
+    if (!boards[k] && pane) pane.setAttribute('aria-busy', 'true');
+    const b = await getBoard(k);
+    pane?.removeAttribute('aria-busy');
+    if (b && tab === k) b.render();
+    return b;
   }
   ui.tabBtns.forEach((b, i) => {
     b.addEventListener('click', () => showTab(b.dataset.tab));
     b.addEventListener('keydown', (e) => {
-      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
-      const o = ui.tabBtns[(i + (e.key === 'ArrowRight' ? 1 : ui.tabBtns.length - 1)) % ui.tabBtns.length];
+      const fwd = app ? ['ArrowDown', 'ArrowRight'] : ['ArrowRight'], back = app ? ['ArrowUp', 'ArrowLeft'] : ['ArrowLeft'];
+      if (!fwd.includes(e.key) && !back.includes(e.key)) return;
+      e.preventDefault();
+      const o = ui.tabBtns[(i + (fwd.includes(e.key) ? 1 : ui.tabBtns.length - 1)) % ui.tabBtns.length];
       o.focus(); showTab(o.dataset.tab);
     });
   });
+  /* --- application shell (full-screen platform) */
+  const LAND = { ministre: ['prof', 'ministre'], mo: ['prof', 'mo'], tech: ['assets'], bailleur: ['prof', 'bailleur'], audit: ['prof', 'audit'], entreprise: ['collab', 'mine'], controle: ['proj'], admin: ['map'] };
+  async function land() {
+    const [k, sub] = LAND[store ? store.me().role : 'admin'] || ['map'];
+    const b = await showTab(k);
+    if (app) { ui.home.classList.add('is-on'); for (const t_ of ui.tabBtns) t_.classList.remove('is-on'); }
+    if (b && sub && k === 'prof') b.setProfile(sub);
+    if (b && sub === 'mine' && b.showMine) b.showMine();
+  }
+  function renderShell() {
+    if (!app) return;
+    ui.home.querySelector('span').textContent = t('navHome');
+    for (const b of ui.tabBtns) { b.querySelector('span').textContent = t(b.dataset.nav); b.title = t(b.dataset.nav); }
+    ui.search.placeholder = t('search'); ui.search.setAttribute('aria-label', t('search'));
+    ui.searchList.innerHTML = A.map((a) => `<option value="${esc(a.code)}">${esc(tv(a.type))}</option>`).join('');
+    ui.demo.textContent = t('demoBadge'); ui.demo.title = t('disclaimer');
+    ui.rankSum.textContent = t('ranking');
+    ui.siteLink.textContent = t('site'); ui.zoneLink.textContent = t('otherZone');
+    if (store) {
+      const me = store.me();
+      const ini = initials(me.name);
+      ui.who.innerHTML = `<span class="ga-av">${esc(ini)}</span><span class="ga-who-t"><b>${esc(me.name)}</b><small>${esc(me[lang()])}</small></span>`;
+      const names = { editAsset: ['modifier les ouvrages', 'update assets'], addAsset: ['ajouter des ouvrages', 'add assets'], manageProject: ['piloter les projets', 'run projects'], validateStep: ['valider les étapes', 'validate steps'], checkQuality: ['contrôles qualité', 'quality checks'], assignTask: ['attribuer des tâches', 'assign tasks'] };
+      const r = Object.keys(names).filter((k) => store.can(k)).map((k) => names[k][lang() === 'en' ? 1 : 0]);
+      ui.whoMenu.innerHTML = `<p class="ga-menu-h">${esc(t('rights'))}</p><p class="ga-menu-r">${esc(r.length ? r.join(' · ') : t('readOnly'))}</p>
+        <button type="button" class="ga-menu-b" data-act="switch">${esc(t('switchProfile'))}</button>`;
+    }
+  }
+  if (app) {
+    ui.home.addEventListener('click', land);
+    const go = () => {
+      const q = ui.search.value.trim().toUpperCase();
+      const a = A.find((x) => x.code.toUpperCase() === q) || A.find((x) => x.code.toUpperCase().startsWith(q) || tv(x.type).toUpperCase().includes(q));
+      if (a) { ui.search.value = ''; focusMap(a.code); }
+    };
+    ui.search.addEventListener('change', go);
+    ui.search.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); go(); } });
+    ui.who.addEventListener('click', () => { const open = ui.whoMenu.hidden; ui.whoMenu.hidden = !open; ui.who.setAttribute('aria-expanded', String(open)); });
+    document.addEventListener('click', (e) => { if (!e.target.closest('.ga-prof')) { ui.whoMenu.hidden = true; ui.who.setAttribute('aria-expanded', 'false'); } });
+    ui.whoMenu.addEventListener('click', (e) => { if (e.target.closest('[data-act=switch]')) { ui.whoMenu.hidden = true; app.onSwitch && app.onSwitch(); } });
+    if (store) store.subscribe(() => renderShell());
+  }
   new MutationObserver(() => {
+    renderShell();
     renderControls(); drawBase(); drawContext(); update();
     if (boards[tab]) boards[tab].render();
     map.closePopup();
@@ -847,11 +904,91 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase }) 
   drawBase();
   drawContext();
   update();
-  return { map, state, assets: A, assistant, showTab, open3d: (code) => open3d(A.find((x) => x.code === code)), get overlay() { return overlay; } };
+  renderShell();
+  if (app) land();
+  return {
+    map, state, assets: A, assistant, showTab, land,
+    setUser: (id) => { if (store) { store.setUser(id); land(); } }, open3d: (code) => open3d(A.find((x) => x.code === code)), get overlay() { return overlay; } };
 }
 
+const initials = (n) => { const w = n.replace(/[()]/g, ' ').split(/\s+/).filter((x) => x.length > 2 && !/^(fictif|fictive)$/i.test(x)); return (w.length > 1 ? w[0][0] + w[1][0] : n.slice(0, 2)).toUpperCase(); };
 const TAB_LAB = { map: 'tabMap', dash: 'tabDash', prof: 'tabProf', assets: 'tabAssets', proj: 'tabProj', collab: 'tabCollab' };
-function buildUI(root, extras) {
+const NAV_LAB = { map: 'navMap', dash: 'navDash', prof: 'navProf', assets: 'navAssets', proj: 'navProj', collab: 'navCollab' };
+const ico = (d) => `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const ICONS = {
+  home: ico('<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>'),
+  map: ico('<path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/>'),
+  dash: ico('<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>'),
+  prof: ico('<path d="M12 3a9 9 0 1 0 9 9h-9z"/><path d="M15 3.5A9 9 0 0 1 20.5 9H15z"/>'),
+  assets: ico('<path d="M3 20h18"/><path d="M4 20v-6a8 8 0 0 1 16 0v6"/><path d="M9 20v-5a3 3 0 0 1 6 0v5"/>'),
+  proj: ico('<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 12l2 2 4-4"/><path d="M9 17h6"/>'),
+  collab: ico('<path d="M4 5h11v8H8l-4 3z"/><path d="M15 9h5v8l-3-2h-6v-2"/>'),
+};
+function buildAppUI(root, keys) {
+  const wrap = document.createElement('div');
+  wrap.className = 'ga bv sg';
+  const mapPane = `
+    <div class="ga-mapwrap" role="tabpanel" id="sg-pane-map" aria-labelledby="sg-tab-map" data-pane="map">
+      <div class="ga-mapcol">
+        <div class="bv-toolbar ga-tools">
+          <label class="bv-field"><span class="bv-l" data-r="colorLabel"></span><select data-r="color"></select></label>
+          <label class="bv-field"><span class="bv-l" data-r="baseLabel"></span><select data-r="base"></select></label>
+          <label class="bv-field sg-cb"><input type="checkbox" data-r="trafficCb"><span data-r="trafficLabel"></span></label>
+          <label class="bv-field sg-cb"><input type="checkbox" data-r="facCb"><span data-r="facLabel"></span></label>
+          <label class="bv-field sg-cb"><input type="checkbox" data-r="basinCb"><span data-r="basinLabel"></span></label>
+        </div>
+        <p class="pl-pickmsg" data-r="pickmsg" role="status" hidden></p>
+        <div class="sg-map ga-map" data-r="map"></div>
+        <details class="ga-drawer"><summary data-r="rankSum"></summary>
+          <p class="sg-qchip" data-r="qchip" hidden></p>
+          <div class="bv-table-wrap"><table class="bv-table sg-table" data-r="table"></table></div>
+        </details>
+      </div>
+      <aside class="bv-side ga-side">
+        <div class="sg-block">
+          <h4 class="bv-h" data-r="budgetH"></h4>
+          <input type="range" min="0" data-r="budget" class="sg-range" aria-label="budget">
+          <p class="sg-budget mono" data-r="budgetVal"></p>
+          <div class="sg-stats" data-r="stats"></div>
+          <p class="bv-muted sg-small" data-r="budgetNote"></p>
+        </div>
+        <div class="sg-block" data-r="legend"></div>
+        <div class="sg-block">
+          <div class="sg-row"><h4 class="bv-h" data-r="weightsH"></h4><button type="button" class="sg-link" data-r="resetBtn"></button></div>
+          <div data-r="weights"></div>
+        </div>
+      </aside>
+    </div>`;
+  wrap.innerHTML = `
+    <nav class="ga-nav" aria-label="GIN²CO">
+      <a class="ga-brand" href="index.html"><span class="b1">Digit</span><span class="b2">Infra</span><small>GIN²CO</small></a>
+      <button type="button" class="ga-item ga-home" data-r="home">${ICONS.home}<span></span></button>
+      <div class="ga-items" role="tablist" aria-orientation="vertical">${keys.map((k, i) => `
+        <button type="button" class="ga-item${i ? '' : ' is-on'}" role="tab" id="sg-tab-${k}" aria-controls="sg-pane-${k}" aria-selected="${i === 0}"${i ? ' tabindex="-1"' : ''} data-tab="${k}" data-nav="${NAV_LAB[k]}">${ICONS[k]}<span></span></button>`).join('')}
+      </div>
+      <div class="ga-foot"><a href="ginco-benin.html" data-r="zoneLink"></a><a href="ginco.html" data-r="siteLink"></a></div>
+    </nav>
+    <header class="ga-top">
+      <div class="ga-title"><b>GIN²CO</b><span data-fr-only>Guinée — routes et flux agricoles</span><span data-en-only>Guinea — roads and farm flows</span></div>
+      <div class="ga-search"><input type="search" list="ga-codes" data-r="search" autocomplete="off"><datalist id="ga-codes" data-r="searchList"></datalist></div>
+      <span class="ga-demo" data-r="demo" tabindex="0"></span>
+      <div class="lang-toggle ga-lang"><button data-lang-btn="fr" class="active">FR</button><button data-lang-btn="en">EN</button></div>
+      <div class="ga-prof"><button type="button" class="ga-who" data-r="who" aria-haspopup="true" aria-expanded="false"></button><div class="ga-menu" data-r="whoMenu" hidden></div></div>
+    </header>
+    <main class="ga-main">${mapPane}
+      ${keys.slice(1).map((k) => `<section role="tabpanel" id="sg-pane-${k}" aria-labelledby="sg-tab-${k}" class="sd ga-pane" data-pane="${k}" hidden>
+        <div class="sd-body" data-r="${k === 'dash' ? 'dash' : `body_${k}`}"></div></section>`).join('')}
+    </main>`;
+  root.append(wrap);
+  const ui = {};
+  wrap.querySelectorAll('[data-r]').forEach((el) => { ui[el.getAttribute('data-r')] = el; });
+  ui.tabBtns = [...wrap.querySelectorAll('[data-tab]')];
+  ui.panes = [...wrap.querySelectorAll('[data-pane]')];
+  ui.discl = [];
+  return ui;
+}
+function buildUI(root, extras, app) {
+  if (app) return buildAppUI(root, ['map', 'dash', ...extras]);
   const wrap = document.createElement('div');
   wrap.className = 'bv sg';
   const keys = ['map', 'dash', ...extras];
