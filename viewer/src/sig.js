@@ -911,7 +911,8 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
   };
   function getBoard(k) {
     if (boards[k]) return Promise.resolve(boards[k]);
-    if (!FACT[k] || !ui.panes.some((p_) => p_.dataset.pane === k)) return Promise.resolve(null);
+    // a board needs its pane, or its body inside another pane (the role dashboard lives in the home page)
+    if (!FACT[k] || !(ui.panes.some((p_) => p_.dataset.pane === k) || ui[`body_${k}`])) return Promise.resolve(null);
     if (!loading[k]) loading[k] = FACT[k]().then((b) => { boards[k] = b; return b; });
     return loading[k];
   }
