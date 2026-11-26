@@ -1003,7 +1003,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
     ui.searchList.innerHTML = A.map((a) => `<option value="${esc(a.code)}">${esc(tv(a.type))}</option>`).join('');
     ui.demo.textContent = t('demoBadge'); ui.demo.title = t('disclaimer');
     ui.rankSum.textContent = t('ranking');
-    ui.siteLink.textContent = t('site'); ui.zoneLink.textContent = t('otherZone');
+    ui.siteLink.textContent = t('site'); if (ui.zoneLink) ui.zoneLink.textContent = t('otherZone');
     if (store) {
       const me = store.me();
       const ini = initials(me.name);
@@ -1126,9 +1126,11 @@ const ICONS = {
   collab: ico('<path d="M4 5h11v8H8l-4 3z"/><path d="M15 9h5v8l-3-2h-6v-2"/>'),
   ged: ico('<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M8 13h8M8 16h5"/>'),
 };
-function buildAppUI(root, keys) {
+function buildAppUI(root, keys, app = {}) {
+  const site = app.siteBase || '';
+  const co = app.cobrand;
   const wrap = document.createElement('div');
-  wrap.className = 'ga bv sg';
+  wrap.className = `ga bv sg${co ? ' ga-cob' : ''}`;
   const mapPane = `
     <div class="ga-mapwrap" role="tabpanel" id="sg-pane-map" aria-labelledby="sg-tab-map" data-pane="map">
       <div class="ga-mapcol">
@@ -1164,15 +1166,16 @@ function buildAppUI(root, keys) {
     </div>`;
   wrap.innerHTML = `
     <nav class="ga-nav" aria-label="GIN²CO">
-      <a class="ga-brand" href="index.html"><span class="b1">Digit</span><span class="b2">Infra</span><small>GIN²CO</small></a>
+      ${co ? '<span class="ga-brand ga-brand-co">GIN²CO</span>' : `<a class="ga-brand" href="${site}index.html"><span class="b1">Digit</span><span class="b2">Infra</span><small>GIN²CO</small></a>`}
       <button type="button" class="ga-item ga-home" id="ga-home-l" data-r="home">${ICONS.home}<span></span></button>
       <div class="ga-items" role="tablist" aria-orientation="vertical">${keys.filter((k) => !['dash', 'prof', 'assets'].includes(k)).map((k, i) => `
         <button type="button" class="ga-item${i ? '' : ' is-on'}" role="tab" id="sg-tab-${k}" aria-controls="sg-pane-${k}" aria-selected="${i === 0}"${i ? ' tabindex="-1"' : ''} data-tab="${k}" data-nav="${k === 'map' ? 'navPat' : NAV_LAB[k]}">${ICONS[k === 'map' ? 'assets' : k]}<span></span></button>`).join('')}
       </div>
-      <div class="ga-foot"><a href="ginco-benin.html" data-r="zoneLink"></a><a href="ginco.html" data-r="siteLink"></a></div>
+      <div class="ga-foot">${co ? `<a class="ga-maker" href="${site}index.html" target="_blank" rel="noopener"><small><span data-fr-only>${co.creator.fr}</span><span data-en-only>${co.creator.en}</span></small><img src="${co.creator.dark}" alt="DigitInfra"></a>` : `<a href="${site}ginco-benin.html" data-r="zoneLink"></a>`}<a href="${site}ginco.html" data-r="siteLink"${co ? ' target="_blank" rel="noopener"' : ''}></a></div>
     </nav>
     <header class="ga-top">
       <div class="ga-title"><b>GIN²CO</b><span data-fr-only>Guinée — routes et flux agricoles</span><span data-en-only>Guinea — roads and farm flows</span></div>
+      ${co ? `<div class="ga-co"><small><span data-fr-only>${co.fr}</span><span data-en-only>${co.en}</span></small>${co.logos.map((l) => `<img src="${l.src}" alt="${l.alt}">`).join('')}</div>` : ''}
       <div class="ga-search"><input type="search" list="ga-codes" data-r="search" autocomplete="off"><datalist id="ga-codes" data-r="searchList"></datalist></div>
       <span class="ga-demo" data-r="demo" tabindex="0"></span>
       <div class="lang-toggle ga-lang"><button data-lang-btn="fr" class="active">FR</button><button data-lang-btn="en">EN</button></div>
@@ -1195,7 +1198,7 @@ function buildAppUI(root, keys) {
   return ui;
 }
 function buildUI(root, extras, app) {
-  if (app) return buildAppUI(root, ['map', 'dash', ...extras, 'ged']);
+  if (app) return buildAppUI(root, ['map', 'dash', ...extras, 'ged'], app);
   const wrap = document.createElement('div');
   wrap.className = 'bv sg';
   const keys = ['map', 'dash', ...extras];

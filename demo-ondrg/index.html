@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="fr" data-lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GIN²CO Guinée — démonstrateur proposé à l'ONDRG — DigitInfra</title><meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Plateforme de démonstration GIN²CO : patrimoine, scénarios, tableaux de bord par profil, projets et collaboration (données fictives).">
+<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="../viewer/leaflet.css">
+<link rel="modulepreload" href="../viewer/gin2co-sig.js">
+<link rel="preload" href="../viewer/gn/sig-data.json" as="fetch" crossorigin>
+</head>
+<body class="ga-body">
+<div class="gl" id="gl">
+  <div class="gl-box">
+    <header class="gl-head">
+      <span class="ga-brand gl-brand gl-brand-co">GIN²CO</span><div class="gl-co"><small><span data-fr-only>Démonstrateur proposé à</span><span data-en-only>Demonstrator proposed to</span></small><img src="assets/ondrg-logo.png" alt="ONDRG — Observatoire National du Développement de la République de Guinée"><img src="assets/guinee-logo.png" alt="Guinée"></div>
+      <div class="lang-toggle"><button data-lang-btn="fr" class="active">FR</button><button data-lang-btn="en">EN</button></div>
+    </header>
+    <h1><span data-fr-only>Accéder à la plateforme</span><span data-en-only>Access the platform</span></h1>
+    <p class="gl-lead"><span data-fr-only>GIN²CO Guinée — choisissez un profil pour ouvrir l'espace qui lui correspond.</span><span data-en-only>GIN²CO Guinea — choose a profile to open its workspace.</span></p>
+    <p class="gl-note"><span data-fr-only>Accès de démonstration : aucune authentification, membres et données fictifs. Ne saisissez aucun mot de passe.</span><span data-en-only>Demonstration access: no authentication, fictitious members and data. Do not enter any password.</span></p>
+    <div class="gl-grid">
+        <button type="button" class="gl-card" data-user="m3">
+          <span class="gl-av">MB</span>
+          <span class="gl-txt"><b>Mariama Bah</b><small><span data-fr-only>Conseillère technique du ministre</span><span data-en-only>Technical adviser to the minister</span></small><em><span data-fr-only>Vue stratégique : état du patrimoine, coût de l'inaction, effet du budget</span><span data-en-only>Strategic view: asset condition, cost of inaction, budget effect</span></em></span>
+        </button>
+        <button type="button" class="gl-card" data-user="m1">
+          <span class="gl-av">FC</span>
+          <span class="gl-txt"><b>Fatoumata Camara</b><small><span data-fr-only>Directrice du patrimoine — maître d'ouvrage</span><span data-en-only>Asset director — asset owner</span></small><em><span data-fr-only>Programmation : enveloppe, ouvrages retenus, financements, projets</span><span data-en-only>Programming: envelope, selected assets, funding, projects</span></em></span>
+        </button>
+        <button type="button" class="gl-card" data-user="m2">
+          <span class="gl-av">IS</span>
+          <span class="gl-txt"><b>Ibrahima Sow</b><small><span data-fr-only>Ingénieur d'entretien</span><span data-en-only>Maintenance engineer</span></small><em><span data-fr-only>Patrimoine : inspections, mises à jour, ajout d'ouvrages</span><span data-en-only>Assets: inspections, updates, new assets</span></em></span>
+        </button>
+        <button type="button" class="gl-card" data-user="m4">
+          <span class="gl-av">JH</span>
+          <span class="gl-txt"><b>Jean Haba</b><small><span data-fr-only>Chargé de projet — bailleur</span><span data-en-only>Project officer — funder</span></small><em><span data-fr-only>Bancabilité : rendement des travaux, bénéficiaires, besoins</span><span data-en-only>Bankability: return on works, beneficiaries, needs</span></em></span>
+        </button>
+        <button type="button" class="gl-card" data-user="m5">
+          <span class="gl-av">AT</span>
+          <span class="gl-txt"><b>Aminata Touré</b><small><span data-fr-only>Auditrice</span><span data-en-only>Auditor</span></small><em><span data-fr-only>Contrôle : cohérence des données, inspections, journal</span><span data-en-only>Control: data consistency, inspections, change log</span></em></span>
+        </button>
+        <button type="button" class="gl-card" data-user="m7">
+          <span class="gl-av">BC</span>
+          <span class="gl-txt"><b>Bureau de contrôle (fictif)</b><small><span data-fr-only>Bureau de contrôle</span><span data-en-only>Supervision engineer</span></small><em><span data-fr-only>Projets et qualité : points de contrôle, validation des étapes</span><span data-en-only>Projects and quality: checkpoints, step validation</span></em></span>
+        </button>
+        <button type="button" class="gl-card" data-user="m6">
+          <span class="gl-av">ET</span>
+          <span class="gl-txt"><b>Entreprise de travaux (fictive)</b><small><span data-fr-only>Entreprise de travaux</span><span data-en-only>Works contractor</span></small><em><span data-fr-only>Collaboration : tâches attribuées, réserves, échanges</span><span data-en-only>Collaboration: assigned tasks, snags, discussions</span></em></span>
+        </button>
+        <button type="button" class="gl-card" data-user="m8">
+          <span class="gl-av">DI</span>
+          <span class="gl-txt"><b>DigitInfra</b><small><span data-fr-only>Administrateur de la plateforme</span><span data-en-only>Platform administrator</span></small><em><span data-fr-only>Carte et tous les espaces</span><span data-en-only>Map and all spaces</span></em></span>
+        </button>
+    </div>
+    <p class="gl-note gl-conote"><span data-fr-only>Document de travail de DigitInfra, préparé pour l'ONDRG. Ce n'est pas un outil officiel de l'ONDRG ; les logos sont utilisés avec son accord pour cette présentation. Toutes les données sont fictives.</span><span data-en-only>DigitInfra working document prepared for ONDRG. It is not an official ONDRG tool; the logos are used with its agreement for this presentation. All data are fictitious.</span></p>
+    <footer class="gl-maker"><small><span data-fr-only>Outil conçu et développé par</span><span data-en-only>Tool designed and built by</span></small><a href="../index.html" target="_blank" rel="noopener"><img src="assets/digitinfra-light.png" alt="DigitInfra — BIM consulting &amp; digital twins"></a></footer>
+  </div>
+</div>
+<div id="app" class="ga-root" hidden></div>
+<script src="../main.js"></script>
+<script type="module">
+  const KEY = 'gin2co-profile-gn-ondrg';
+  const gl = document.getElementById('gl'), root = document.getElementById('app');
+  let api = null, booting = null;
+  const ss = { get: (k) => { try { return sessionStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { v == null ? sessionStorage.removeItem(k) : sessionStorage.setItem(k, v); } catch {} } };
+  function showLogin() { ss.set(KEY, null); root.hidden = true; gl.hidden = false; document.body.classList.remove('ga-on'); gl.querySelector('.gl-card').focus(); }
+  async function enter(user) {
+    ss.set(KEY, user);
+    gl.hidden = true; root.hidden = false; document.body.classList.add('ga-on');
+    if (api) { api.setUser(user); return; }
+    if (booting) return;
+    root.innerHTML = '<p class="bv-status mono ga-boot">' + (document.documentElement.dataset.lang === 'en' ? 'Loading the platform…' : 'Chargement de la plateforme…') + '</p>';
+    try {
+      const { mount } = await (booting = import('./../viewer/gin2co-sig.js'));
+      root.innerHTML = '';
+      const base = new URL('../viewer/', location.href).href;
+      api = await mount(root, { dataUrl: base + 'gn/sig-data.json', viewerUrl: base + 'gin2co-viewer.js', wasmPath: base, modelsBase: base + 'gn/models/',
+        app: { user, onSwitch: showLogin, siteBase: '../', cobrand: {"logos": [{"src": "assets/ondrg-logo.png", "alt": "ONDRG — Observatoire National du Développement de la République de Guinée"}, {"src": "assets/guinee-logo.png", "alt": "Guinée"}], "fr": "Démonstrateur proposé à", "en": "Demonstrator proposed to", "creator": {"fr": "Outil conçu et développé par", "en": "Tool designed and built by", "light": "assets/digitinfra-light.png", "dark": "assets/digitinfra-dark.png"}} } });
+      window.__gin2coSig = api;
+    } catch (err) {
+      console.error(err);
+      root.innerHTML = '<p class="bv-status">' + (document.documentElement.dataset.lang === 'en' ? 'The platform could not be loaded in this browser.' : 'La plateforme n’a pas pu être chargée dans ce navigateur.') + '</p>';
+    }
+  }
+  gl.addEventListener('click', (e) => { const c = e.target.closest('[data-user]'); if (c) enter(c.dataset.user); });
+  const saved = ss.get(KEY);
+  if (saved) enter(saved); else import('./../viewer/gin2co-sig.js').catch(() => {});
+</script>
+</body>
+</html>
