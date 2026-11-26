@@ -108,7 +108,7 @@ import{b as An,d as Co}from"./sig-chunks/chunk-Q4KVNVKA.js";import{a as Zs,b as 
       </aside>
     </div>`;R.innerHTML=`
     <nav class="ga-nav" aria-label="GIN\xB2CO">
-      ${q?'<span class="ga-brand ga-brand-co">GIN\xB2CO</span>':`<a class="ga-brand" href="${pt}index.html"><span class="b1">Digit</span><span class="b2">Infra</span><small>GIN\xB2CO</small></a>`}
+      ${q?"":`<a class="ga-brand" href="${pt}index.html"><span class="b1">Digit</span><span class="b2">Infra</span><small>GIN\xB2CO</small></a>`}
       <button type="button" class="ga-item ga-home" id="ga-home-l" data-r="home">${In.home}<span></span></button>
       <div class="ga-items" role="tablist" aria-orientation="vertical">${E.filter(K=>!["dash","prof","assets"].includes(K)).map((K,d)=>`
         <button type="button" class="ga-item${d?"":" is-on"}" role="tab" id="sg-tab-${K}" aria-controls="sg-pane-${K}" aria-selected="${d===0}"${d?' tabindex="-1"':""} data-tab="${K}" data-nav="${K==="map"?"navPat":jo[K]}">${In[K==="map"?"assets":K]}<span></span></button>`).join("")}
@@ -117,7 +117,7 @@ import{b as An,d as Co}from"./sig-chunks/chunk-Q4KVNVKA.js";import{a as Zs,b as 
     </nav>
     <header class="ga-top">
       <div class="ga-title"><b>GIN\xB2CO</b><span data-fr-only>Guin\xE9e \u2014 routes et flux agricoles</span><span data-en-only>Guinea \u2014 roads and farm flows</span></div>
-      ${q?`<div class="ga-co"><small><span data-fr-only>${q.fr}</span><span data-en-only>${q.en}</span></small>${q.logos.map(K=>`<img src="${K.src}" alt="${K.alt}">`).join("")}</div>`:""}
+      ${q?`<div class="ga-co">${q.fr?`<small><span data-fr-only>${q.fr}</span><span data-en-only>${q.en}</span></small>`:""}${q.logos.map(K=>`<img src="${K.src}" alt="${K.alt}">`).join("")}</div>`:""}
       <div class="ga-search"><input type="search" list="ga-codes" data-r="search" autocomplete="off"><datalist id="ga-codes" data-r="searchList"></datalist></div>
       <span class="ga-demo" data-r="demo" tabindex="0"></span>
       <div class="lang-toggle ga-lang"><button data-lang-btn="fr" class="active">FR</button><button data-lang-btn="en">EN</button></div>

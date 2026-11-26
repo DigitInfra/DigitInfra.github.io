@@ -1166,7 +1166,7 @@ function buildAppUI(root, keys, app = {}) {
     </div>`;
   wrap.innerHTML = `
     <nav class="ga-nav" aria-label="GIN²CO">
-      ${co ? '<span class="ga-brand ga-brand-co">GIN²CO</span>' : `<a class="ga-brand" href="${site}index.html"><span class="b1">Digit</span><span class="b2">Infra</span><small>GIN²CO</small></a>`}
+      ${co ? '' : `<a class="ga-brand" href="${site}index.html"><span class="b1">Digit</span><span class="b2">Infra</span><small>GIN²CO</small></a>`}
       <button type="button" class="ga-item ga-home" id="ga-home-l" data-r="home">${ICONS.home}<span></span></button>
       <div class="ga-items" role="tablist" aria-orientation="vertical">${keys.filter((k) => !['dash', 'prof', 'assets'].includes(k)).map((k, i) => `
         <button type="button" class="ga-item${i ? '' : ' is-on'}" role="tab" id="sg-tab-${k}" aria-controls="sg-pane-${k}" aria-selected="${i === 0}"${i ? ' tabindex="-1"' : ''} data-tab="${k}" data-nav="${k === 'map' ? 'navPat' : NAV_LAB[k]}">${ICONS[k === 'map' ? 'assets' : k]}<span></span></button>`).join('')}
@@ -1175,7 +1175,7 @@ function buildAppUI(root, keys, app = {}) {
     </nav>
     <header class="ga-top">
       <div class="ga-title"><b>GIN²CO</b><span data-fr-only>Guinée — routes et flux agricoles</span><span data-en-only>Guinea — roads and farm flows</span></div>
-      ${co ? `<div class="ga-co"><small><span data-fr-only>${co.fr}</span><span data-en-only>${co.en}</span></small>${co.logos.map((l) => `<img src="${l.src}" alt="${l.alt}">`).join('')}</div>` : ''}
+      ${co ? `<div class="ga-co">${co.fr ? `<small><span data-fr-only>${co.fr}</span><span data-en-only>${co.en}</span></small>` : ''}${co.logos.map((l) => `<img src="${l.src}" alt="${l.alt}">`).join('')}</div>` : ''}
       <div class="ga-search"><input type="search" list="ga-codes" data-r="search" autocomplete="off"><datalist id="ga-codes" data-r="searchList"></datalist></div>
       <span class="ga-demo" data-r="demo" tabindex="0"></span>
       <div class="lang-toggle ga-lang"><button data-lang-btn="fr" class="active">FR</button><button data-lang-btn="en">EN</button></div>

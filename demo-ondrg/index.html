@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>GIN²CO Guinée — démonstrateur proposé à l'ONDRG — DigitInfra</title><meta name="robots" content="noindex, nofollow">
+<title>ONDRG — plateforme de démonstration — DigitInfra</title><meta name="robots" content="noindex, nofollow">
 <meta name="description" content="Plateforme de démonstration GIN²CO : patrimoine, scénarios, tableaux de bord par profil, projets et collaboration (données fictives).">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="../viewer/leaflet.css">
@@ -13,12 +13,12 @@
 <body class="ga-body">
 <div class="gl" id="gl">
   <div class="gl-box">
-    <header class="gl-head">
-      <span class="ga-brand gl-brand gl-brand-co">GIN²CO</span><div class="gl-co"><small><span data-fr-only>Démonstrateur proposé à</span><span data-en-only>Demonstrator proposed to</span></small><img src="assets/ondrg-logo.png" alt="ONDRG — Observatoire National du Développement de la République de Guinée"><img src="assets/guinee-logo.png" alt="Guinée"></div>
-      <div class="lang-toggle"><button data-lang-btn="fr" class="active">FR</button><button data-lang-btn="en">EN</button></div>
+    <header class="gl-head gl-head-co">
+      <div class="gl-co"><img src="assets/ondrg-logo.png" alt="ONDRG — Observatoire National du Développement de la République de Guinée"></div><div class="gl-head-r"><div class="gl-co"><img src="assets/guinee-logo.png" alt="Guinée"></div>
+      <div class="lang-toggle"><button data-lang-btn="fr" class="active">FR</button><button data-lang-btn="en">EN</button></div></div>
     </header>
     <h1><span data-fr-only>Accéder à la plateforme</span><span data-en-only>Access the platform</span></h1>
-    <p class="gl-lead"><span data-fr-only>GIN²CO Guinée — choisissez un profil pour ouvrir l'espace qui lui correspond.</span><span data-en-only>GIN²CO Guinea — choose a profile to open its workspace.</span></p>
+    <p class="gl-lead"><span data-fr-only>Choisissez un profil pour ouvrir l'espace qui lui correspond.</span><span data-en-only>Choose a profile to open its workspace.</span></p>
     <p class="gl-note"><span data-fr-only>Accès de démonstration : aucune authentification, membres et données fictifs. Ne saisissez aucun mot de passe.</span><span data-en-only>Demonstration access: no authentication, fictitious members and data. Do not enter any password.</span></p>
     <div class="gl-grid">
         <button type="button" class="gl-card" data-user="m3">
@@ -77,7 +77,7 @@
       root.innerHTML = '';
       const base = new URL('../viewer/', location.href).href;
       api = await mount(root, { dataUrl: base + 'gn/sig-data.json', viewerUrl: base + 'gin2co-viewer.js', wasmPath: base, modelsBase: base + 'gn/models/',
-        app: { user, onSwitch: showLogin, siteBase: '../', cobrand: {"logos": [{"src": "assets/ondrg-logo.png", "alt": "ONDRG — Observatoire National du Développement de la République de Guinée"}, {"src": "assets/guinee-logo.png", "alt": "Guinée"}], "fr": "Démonstrateur proposé à", "en": "Demonstrator proposed to", "creator": {"fr": "Outil conçu et développé par", "en": "Tool designed and built by", "light": "assets/digitinfra-light.png", "dark": "assets/digitinfra-dark.png"}} } });
+        app: { user, onSwitch: showLogin, siteBase: '../', cobrand: {"logos": [{"src": "assets/ondrg-logo.png", "alt": "ONDRG — Observatoire National du Développement de la République de Guinée"}, {"src": "assets/guinee-logo.png", "alt": "Guinée"}], "fr": "", "en": "", "creator": {"fr": "Outil conçu et développé par", "en": "Tool designed and built by", "light": "assets/digitinfra-light.png", "dark": "assets/digitinfra-dark.png"}} } });
       window.__gin2coSig = api;
     } catch (err) {
       console.error(err);
