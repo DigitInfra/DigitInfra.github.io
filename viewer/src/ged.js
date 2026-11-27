@@ -6,7 +6,7 @@ import { targetsOf, targetPicker, readPicker } from './parts.js';
 
 const L = (fr, en) => ({ fr, en });
 const ST = { wip: '#8A9BB0', shared: '#3B5FC0', published: '#2E9E6B', archived: '#6B7280' };
-const TYPES = { RAP: L('Rapport', 'Report'), NDC: L('Note de calcul', 'Design calculation'), PLN: L('Plan', 'Drawing'), M3D: L('Maquette IFC', 'IFC model'), PV: L('Procès-verbal', 'Certificate'), DAO: L('Dossier d’appel d’offres', 'Tender documents'), MAR: L('Marché', 'Contract'), PHO: L('Photo', 'Photo'), AUT: L('Autre', 'Other') };
+const TYPES = { RAP: L('Rapport', 'Report'), NDC: L('Note de calcul', 'Design calculation'), PLN: L('Plan', 'Drawing'), M3D: L('Maquette IFC', 'IFC model'), PV: L('Procès-verbal', 'Certificate'), DAO: L('Dossier d’appel d’offres', 'Tender documents'), MAR: L('Marché', 'Contract'), PHO: L('Photo', 'Photo'), OIR: L('Exigences d’information organisationnelles (OIR)', 'Organisational information requirements (OIR)'), EIR: L('Exigences d’information du MOA (EIR)', 'Exchange information requirements (EIR)'), BEP: L('Convention BIM (BEP)', 'BIM execution plan (BEP)'), AUT: L('Autre', 'Other') };
 const S = {
   fr: {
     intro: 'Espace documentaire commun : chaque document est rattaché à un projet ou à un ouvrage et à une étape, versionné, et suit un circuit de statuts inspiré de l’ISO 19650 (en cours → partagé → publié → archivé).',
@@ -50,11 +50,11 @@ function seed(modelsBase) {
   const v = (ver, date, author, note, file = { kind: 'demo' }) => ({ ver, date, author, note, file });
   return [
     d('D1', 'GIN-P1-RAP-001', L('Rapport d’inspection détaillée du pont OA-01', 'Detailed inspection report, bridge OA-01'), 'RAP', 'P1', 'faisa', 'published', [v('V1', '2025-03-12', 'Ibrahima Sow', 'Inspection initiale')]),
-    d('D2', 'GIN-P1-RAP-002', L('Étude de faisabilité de la réhabilitation', 'Rehabilitation feasibility study'), 'RAP', 'P1', 'faisa', 'published', [v('V1', '2025-05-20', 'DigitInfra', 'Comparaison réparer / renforcer / remplacer')]),
+    d('D2', 'GIN-P1-RAP-002', L('Étude de faisabilité de la réhabilitation', 'Rehabilitation feasibility study'), 'RAP', 'P1', 'faisa', 'published', [v('V1', '2025-05-20', 'Bureau d’études (fictif)', 'Comparaison réparer / renforcer / remplacer')]),
     d('D3', 'GIN-P1-RAP-003', L('Note d’avant-projet sommaire', 'Outline design report'), 'RAP', 'P1', 'aps', 'published', [v('V1', '2025-08-04', 'Bureau de contrôle (fictif)', '')]),
     d('D4', 'GIN-P1-NDC-001', L('Note de calcul — renforcement des poutres de la travée 2', 'Design calculation — strengthening of span 2 girders'), 'NDC', 'P1', 'apd', 'published', [v('V1', '2025-10-02', 'Bureau de contrôle (fictif)', ''), v('V2', '2025-11-18', 'Bureau de contrôle (fictif)', 'Prise en compte des remarques du contrôle')]),
     d('D5', 'GIN-P1-M3D-001', L('Maquette numérique du pont OA-01', 'Digital model of bridge OA-01'), 'M3D', 'P1', 'travaux', 'shared', [
-      v('V1', '2025-03-15', 'DigitInfra', 'État existant au diagnostic', { kind: 'url', url: `${modelsBase}OA-01.ifc`, name: 'OA-01.ifc' }),
+      v('V1', '2025-03-15', 'Bureau d’études (fictif)', 'État existant au diagnostic', { kind: 'url', url: `${modelsBase}OA-01.ifc`, name: 'OA-01.ifc' }),
       v('V2', '2026-11-15', 'Entreprise de travaux (fictive)', 'Travaux en cours : 9 éléments réparés sur 15, réception en attente', { kind: 'url', url: `${modelsBase}versions/OA-01_v2.ifc`, name: 'OA-01_v2.ifc' })]),
     d('D6', 'GIN-P1-DAO-001', L('Dossier d’appel d’offres — travaux de réhabilitation', 'Tender documents — rehabilitation works'), 'DAO', 'P1', 'dao', 'published', [v('V1', '2026-01-10', 'Fatoumata Camara', '')]),
     d('D7', 'GIN-P1-MAR-001', L('Marché de travaux signé', 'Signed works contract'), 'MAR', 'P1', 'dao', 'published', [v('V1', '2026-04-28', 'Fatoumata Camara', '')]),
@@ -63,7 +63,7 @@ function seed(modelsBase) {
     d('D10', 'GIN-P1-PHO-001', L('Photos — calage des appareils d’appui côté aval', 'Photos — downstream bearing levelling'), 'PHO', 'P1', 'travaux', 'shared', [v('V1', '2026-11-10', 'Bureau de contrôle (fictif)', 'Réserve inscrite')]),
     d('D11', 'GIN-P1-RAP-005', L('Journal de chantier — novembre 2026', 'Site diary — November 2026'), 'RAP', 'P1', 'travaux', 'wip', [v('V1', '2026-11-20', 'Entreprise de travaux (fictive)', '')]),
     d('D12', 'GIN-P2-RAP-001', L('Note APS — remplacement des buses par des dalots', 'Outline design — replacing culverts with box culverts'), 'RAP', 'P2', 'aps', 'published', [v('V1', '2026-07-01', 'Bureau de contrôle (fictif)', '')]),
-    d('D13', 'GIN-P2-M3D-001', L('Maquette APD des dalots OA-02 et OA-04', 'Detailed design model, box culverts OA-02 and OA-04'), 'M3D', 'P2', 'apd', 'wip', [v('V1', '2026-11-05', 'DigitInfra', 'Propriétés incomplètes sur 6 éléments')]),
+    d('D13', 'GIN-P2-M3D-001', L('Maquette APD des dalots OA-02 et OA-04', 'Detailed design model, box culverts OA-02 and OA-04'), 'M3D', 'P2', 'apd', 'wip', [v('V1', '2026-11-05', 'Bureau d’études (fictif)', 'Propriétés incomplètes sur 6 éléments')]),
     d('D14', 'GIN-P3-DAO-001', L('Dossier d’appel d’offres — section RN-03', 'Tender documents — section RN-03'), 'DAO', 'P3', 'dao', 'shared', [v('V1', '2026-10-15', 'Fatoumata Camara', 'Pour avis de non-objection du bailleur')]),
     d('D15', 'GIN-P4-RAP-001', L('Fiche d’identification de la piste PR-07', 'Identification sheet, track PR-07'), 'RAP', 'P4', 'faisa', 'published', [v('V1', '2026-09-20', 'Ibrahima Sow', '')]),
     ...SEED_V2.map((x) => d(...x.slice(0, 7), [v(...x[7])])),
@@ -81,8 +81,15 @@ const SEED_V2 = [
   ['D17', 'GIN-P1-RAP-006', L('Fiche de contrôle — affouillement autour de la pile P1', 'Inspection sheet — scour around pier P1'), 'RAP', 'P1', 'travaux', 'shared', ['V1', '2026-10-22', 'Bureau de contrôle (fictif)', 'Enrochements complétés, semelle non dégarnie']],
   ['D18', 'GIN-P1-PV-002', L('PV de pose des garde-corps et des joints de chaussée', 'Installation report, guardrails and expansion joints'), 'PV', 'P1', 'travaux', 'wip', ['V1', '2026-11-18', 'Entreprise de travaux (fictive)', '']],
   ['D19', 'GIN-P2-NDC-001', L('Note hydraulique — dimensionnement du dalot remplaçant OA-02', 'Hydraulic design note — box culvert replacing OA-02'), 'NDC', 'P2', 'apd', 'shared', ['V1', '2026-10-30', 'Bureau de contrôle (fictif)', 'Crue de projet décennale']],
-  ['D20', 'GIN-P2-PLN-001', L('Plans de coffrage des têtes du dalot OA-04', 'Formwork drawings, headwalls of box culvert OA-04'), 'PLN', 'P2', 'apd', 'wip', ['V1', '2026-11-12', 'DigitInfra', '']],
+  ['D20', 'GIN-P2-PLN-001', L('Plans de coffrage des têtes du dalot OA-04', 'Formwork drawings, headwalls of box culvert OA-04'), 'PLN', 'P2', 'apd', 'wip', ['V1', '2026-11-12', 'Bureau d’études (fictif)', '']],
   ['D21', 'GIN-P2-RAP-002', L('Étude géotechnique des deux sites de dalots', 'Geotechnical study of both box culvert sites'), 'RAP', 'P2', 'aps', 'published', ['V1', '2026-06-15', 'Bureau de contrôle (fictif)', '']],
+  ['D23', 'GIN-PF-OIR-001', L('Exigences d’information organisationnelles du portefeuille national', 'Organisational information requirements of the national portfolio'), 'OIR', 'PORTEFEUILLE', 'faisa', 'published', ['V1', '2026-02-10', 'Sékou Condé', 'Indicateurs suivis au niveau gouvernant : état, coût de l’inaction, avancement, financements']],
+  ['D24', 'GIN-P1-EIR-001', L('Exigences d’information du maître d’ouvrage — P1', 'Exchange information requirements — P1'), 'EIR', 'P1', 'faisa', 'published', ['V1', '2025-04-02', 'Fatoumata Camara', 'Livrables, formats IFC, propriétés du registre, jalons']],
+  ['D25', 'GIN-P1-BEP-001', L('Convention BIM (BEP) — P1', 'BIM execution plan — P1'), 'BEP', 'P1', 'aps', 'published', ['V1', '2025-06-20', 'Bureau d’études (fictif)', 'Répond aux exigences D24 ; nommage, rôles, CDE']],
+  ['D26', 'GIN-P2-EIR-001', L('Exigences d’information du maître d’ouvrage — P2', 'Exchange information requirements — P2'), 'EIR', 'P2', 'faisa', 'published', ['V1', '2026-04-10', 'Fatoumata Camara', '']],
+  ['D27', 'GIN-P2-BEP-001', L('Convention BIM (BEP) — P2', 'BIM execution plan — P2'), 'BEP', 'P2', 'aps', 'shared', ['V1', '2026-07-15', 'Bureau d’études (fictif)', 'En attente d’acceptation du MOA']],
+  ['D28', 'GIN-P3-EIR-001', L('Exigences d’information du maître d’ouvrage — P3', 'Exchange information requirements — P3'), 'EIR', 'P3', 'faisa', 'published', ['V1', '2026-01-12', 'Ibrahima Sow', '']],
+  ['D29', 'GIN-P4-EIR-001', L('Exigences d’information du maître d’ouvrage — P4', 'Exchange information requirements — P4'), 'EIR', 'P4', 'faisa', 'wip', ['V1', '2026-10-01', 'Mamadou Sylla', 'Projet en cours de rédaction']],
   ['D22', 'GIN-P3-NDC-001', L('Dimensionnement du renforcement de chaussée RN-03', 'Pavement strengthening design, RN-03'), 'NDC', 'P3', 'apd', 'published', ['V1', '2026-07-08', 'Bureau de contrôle (fictif)', '']],
 ];
 
@@ -92,15 +99,31 @@ export function createGedBoard(el, ctx) {
   const nm = (o) => (o ? o[lang()] : '');
   let folder = 'all', q = '', fType = '', fStatus = '', sel = null, form = null, editT = false;
   const docs = () => {
-    if (!store.state.docs) { store.state.docs = seed(ctx.modelsBase); store.state.docsV = 2; }
-    if ((store.state.docsV || 1) < 2) { // earlier demo data: add the targets and the new seeded documents
+    if (!store.state.docs) { store.state.docs = seed(ctx.modelsBase); store.state.docsV = 3; }
+    if ((store.state.docsV || 1) < 3) { // earlier demo data: add the targets and the new seeded documents
       const fresh = seed(ctx.modelsBase);
       for (const d of store.state.docs) { const f = fresh.find((x) => x.id === d.id); if (f && !d.targets) d.targets = f.targets; }
       for (const f of fresh) if (!store.state.docs.some((d) => d.id === f.id)) store.state.docs.push(f);
-      store.state.docsV = 2;
+      store.state.docsV = 3;
     }
     return store.state.docs;
   };
+  const vis = () => docs().filter((d) => (ctx.seeDoc ? ctx.seeDoc(d) : true));
+  // ISO 19650 metadata (co-branded demonstrator): status code, revision, naming convention
+  const ISO_ST = { wip: 'S0', shared: 'S2', published: 'A1', archived: 'AR' };
+  const ROLE = { MTP: 'K', MAG: 'K', BET: 'C', ENT: 'W', BCT: 'Q', ACGP: 'Q', BTAP: 'Q', MPCID: 'K', ONDRG: 'Z', DI: 'Z' };
+  const pad = (n, k) => String(n).padStart(k, '0');
+  const revOf = (d, i) => { if (!ctx.iso) return d.versions[i].ver; const lastI = d.versions.length - 1; return (d.status === 'published' || d.status === 'archived') && i === lastI ? 'C01' : `P${pad(i + 1, 2)}`; };
+  const codeOf = (d) => {
+    if (!ctx.iso) return d.code;
+    const org = (ctx.orgOf && ctx.orgOf(d.versions[0].author)) || 'XXX';
+    const t0 = (d.targets || [])[0] || (ctx.assets().some((a) => a.code === d.link) ? d.link : '');
+    const vol = t0 ? t0.split('#')[0].split('-').slice(0, 2).join('') : 'ZZ';
+    const num = pad(Number((d.code.match(/(\d+)$/) || [0, 1])[1]), 4);
+    const prj = ctx.projects().some((p) => p.id === d.link) ? d.link : d.link === 'PORTEFEUILLE' ? 'PF' : 'PAT';
+    return `GIN${prj}-${org}-${vol}-ZZ-${d.type}-${ROLE[org] || 'Z'}-${num}`;
+  };
+  const stLabel = (st) => (ctx.iso ? `${s('st')[st]} · ${ISO_ST[st]}` : s('st')[st]);
   const isAsset = (l) => ctx.assets().some((a) => a.code === l);
   const C = () => ctx.catalog && ctx.catalog();
   const tg = (d) => targetsOf(d, isAsset);
@@ -110,7 +133,7 @@ export function createGedBoard(el, ctx) {
   const phaseName = (k) => { const st = STEPS.find((x) => x.k === k); return st ? nm(st.n) : s('noPhase'); };
   const linkName = (l) => { const p = ctx.projects().find((x) => x.id === l); if (p) return `${p.id} — ${nm(p.name)}`; const a = ctx.assets().find((x) => x.code === l); return a ? `${a.code} — ${tv(a.type)}` : s('noLink'); };
   const can = (r) => store.can(r);
-  const badge = (st) => `<span class="bv-badge" style="--c:${ST[st]}">${esc(s('st')[st])}</span>`;
+  const badge = (st) => `<span class="bv-badge" style="--c:${ST[st]}">${esc(stLabel(st))}</span>`;
 
   async function urlOf(d, vv) {
     const f = vv.file;
@@ -118,7 +141,7 @@ export function createGedBoard(el, ctx) {
     if (f.kind === 'idb') { const blob = await idb.get(f.key); return blob ? URL.createObjectURL(blob) : null; }
     const html = `<!doctype html><meta charset="utf-8"><title>${esc(d.code)}</title><body style="font-family:system-ui;max-width:720px;margin:40px auto;color:#1E2430">
       <p style="color:#8A6100;background:#FFF6DB;padding:8px 12px">${esc(s('fictive'))}</p><h1 style="color:#0D2B5C">${esc(nm(d.title))}</h1>
-      <p><b>${esc(s('code'))}</b> ${esc(d.code)} · <b>${esc(s('ver'))}</b> ${esc(vv.ver)} · <b>${esc(s('date'))}</b> ${esc(vv.date)}</p>
+      <p><b>${esc(s('code'))}</b> ${esc(codeOf(d))} · <b>${esc(s('ver'))}</b> ${esc(revOf(d, d.versions.indexOf(vv)))} · <b>${esc(s('date'))}</b> ${esc(vv.date)}</p>
       <p><b>${esc(s('link'))}</b> ${esc(linkName(d.link))} · <b>${esc(s('phase'))}</b> ${esc(phaseName(d.phase))}</p><p>${esc(vv.note || '')}</p></body>`;
     return URL.createObjectURL(new Blob([html], { type: 'text/html' }));
   }
@@ -132,8 +155,8 @@ export function createGedBoard(el, ctx) {
 
   function tree() {
     const P = ctx.projects();
-    const n = (f) => docs().filter(f).length;
-    return `<nav class="gd-tree" aria-label="GED"><button type="button" data-folder="all" class="${folder === 'all' ? 'is-on' : ''}">${esc(s('all'))} <span>${docs().length}</span></button>
+    const n = (f) => vis().filter(f).length;
+    return `<nav class="gd-tree" aria-label="GED"><button type="button" data-folder="all" class="${folder === 'all' ? 'is-on' : ''}">${esc(s('all'))} <span>${vis().length}</span></button>
       ${P.map((p) => `<button type="button" data-folder="${p.id}" class="${folder === p.id && !phaseF ? 'is-on' : ''}"><b>${esc(p.id)}</b> ${esc(nm(p.name))} <span>${n((d) => d.link === p.id)}</span></button>
         ${folder === p.id ? STEPS.map((st) => { const c = n((d) => d.link === p.id && d.phase === st.k); return c ? `<button type="button" class="gd-sub${phaseF === st.k ? ' is-on' : ''}" data-folder="${p.id}" data-phase="${st.k}">${esc(nm(st.n))} <span>${c}</span></button>` : ''; }).join('') : ''}`).join('')}
       <button type="button" data-folder="assets" class="${folder === 'assets' ? 'is-on' : ''}">${esc(s('noLink'))} <span>${n((d) => !P.some((p) => p.id === d.link))}</span></button></nav>`;
@@ -141,23 +164,23 @@ export function createGedBoard(el, ctx) {
   let phaseF = '';
   function list() {
     const P = ctx.projects();
-    const xs = docs().filter((d) => (folder === 'all' || (folder === 'assets' ? !P.some((p) => p.id === d.link) : d.link === folder))
+    const xs = vis().filter((d) => (folder === 'all' || (folder === 'assets' ? !P.some((p) => p.id === d.link) : d.link === folder))
       && (!phaseF || d.phase === phaseF) && (!fType || d.type === fType) && (!fStatus || d.status === fStatus)
-      && (!q || `${d.code} ${nm(d.title)}`.toLowerCase().includes(q.toLowerCase())))
+      && (!q || `${d.code} ${codeOf(d)} ${nm(d.title)}`.toLowerCase().includes(q.toLowerCase())))
       .sort((a, b) => (last(a).date < last(b).date ? 1 : -1));
     if (!xs.length) return `<p class="bv-muted">${esc(s('none'))}</p>`;
     return `<div class="bv-table-wrap sd-wrap"><table class="bv-table pf-table gd-table"><thead><tr><th>${esc(s('code'))}</th><th>${esc(s('title'))}</th><th>${esc(s('type'))}</th><th>${esc(s('phase'))}</th><th>${esc(s('ver'))}</th><th>${esc(s('status'))}</th><th>${esc(s('date'))}</th><th></th></tr></thead><tbody>
-      ${xs.map((d) => `<tr class="${sel === d.id ? 'pl-cur' : ''}" data-doc="${d.id}" tabindex="0"><td class="mono">${esc(d.code)}</td><td class="pf-wrap">${esc(nm(d.title))}<div class="gd-chips">${chips(d)}</div></td><td>${esc(nm(TYPES[d.type]))}</td>
-        <td>${esc(phaseName(d.phase))}</td><td class="mono">${esc(last(d).ver)}</td><td>${badge(d.status)}</td><td class="mono">${esc(last(d).date)}</td>
+      ${xs.map((d) => `<tr class="${sel === d.id ? 'pl-cur' : ''}" data-doc="${d.id}" tabindex="0"><td class="mono">${esc(codeOf(d))}</td><td class="pf-wrap">${esc(nm(d.title))}<div class="gd-chips">${chips(d)}</div></td><td>${esc(nm(TYPES[d.type]))}</td>
+        <td>${esc(phaseName(d.phase))}</td><td class="mono">${esc(revOf(d, d.versions.length - 1))}</td><td>${badge(d.status)}</td><td class="mono">${esc(last(d).date)}</td>
         <td><button type="button" class="sg-link" data-openv="${d.id}">${esc(d.type === 'M3D' && last(d).file.kind !== 'demo' ? s('view3d') : s('open'))}</button></td></tr>`).join('')}</tbody></table></div>`;
   }
   function detail() {
-    const d = docs().find((x) => x.id === sel);
+    const d = vis().find((x) => x.id === sel);
     if (!d) return '';
     const canUp = can('uploadDoc'), canPub = can('publishDoc');
     const moves = NEXT[d.status].filter((n) => (n === 'published' || n === 'archived' ? canPub : canUp));
     return `<aside class="gd-detail" aria-label="${esc(d.code)}"><div class="sg-row"><h4 class="bv-h">${esc(nm(d.title))}</h4><button type="button" class="sg-link" data-a="close">${esc(s('close'))}</button></div>
-      <table class="bv-kv"><tr><th>${esc(s('code'))}</th><td class="mono">${esc(d.code)}</td></tr><tr><th>${esc(s('type'))}</th><td>${esc(nm(TYPES[d.type]))}</td></tr>
+      <table class="bv-kv"><tr><th>${esc(s('code'))}</th><td class="mono">${esc(codeOf(d))}</td></tr><tr><th>${esc(s('type'))}</th><td>${esc(nm(TYPES[d.type]))}</td></tr>
         <tr><th>${esc(s('link'))}</th><td>${esc(linkName(d.link))}</td></tr><tr><th>${esc(s('phase'))}</th><td>${esc(phaseName(d.phase))}</td></tr><tr><th>${esc(s('status'))}</th><td>${badge(d.status)}</td></tr></table>
       ${moves.length ? `<p class="gd-moves">${moves.map((m) => `<button type="button" class="bv-btn" data-move="${m}">${esc(s('to')[m] || s('st')[m])}</button>`).join(' ')}</p>` : ''}
       <h5 class="pl-h5">${esc(s('concerns'))}</h5>
@@ -165,7 +188,7 @@ export function createGedBoard(el, ctx) {
         : `<p class="gd-chips">${chips(d)}</p>${can('uploadDoc') && C() ? `<p><button type="button" class="sg-link" data-a="tedit">${esc(s('editT'))}</button></p>` : ''}`}
       ${ctx.projects().some((p) => p.id === d.link) && ctx.openProject ? `<p><button type="button" class="sg-link" data-a="space">${esc(s('space'))} ${esc(d.link)} →</button></p>` : ''}
       <h5 class="pl-h5">${esc(s('versions'))}</h5>
-      <ol class="gd-vers">${d.versions.slice().reverse().map((vv, i) => `<li><span class="mono">${esc(vv.ver)}</span> · ${esc(vv.date)} · ${esc(vv.author)}${vv.note ? `<br><small>${esc(vv.note)}</small>` : ''}
+      <ol class="gd-vers">${d.versions.slice().reverse().map((vv, i) => `<li><span class="mono">${esc(revOf(d, d.versions.length - 1 - i))}</span> · ${esc(vv.date)} · ${esc(vv.author)}${vv.note ? `<br><small>${esc(vv.note)}</small>` : ''}
         <button type="button" class="sg-link" data-ov="${d.versions.length - 1 - i}">${esc(d.type === 'M3D' && vv.file.kind !== 'demo' ? s('view3d') : s('open'))}</button></li>`).join('')}</ol>
       ${canUp && d.status !== 'archived' ? `<div class="gd-up"><label class="sd-f"><span class="bv-l">${esc(s('newVer'))}</span><input type="file" data-nv></label>
         <label class="sd-f"><span class="bv-l">${esc(s('note'))}</span><input type="text" data-nvnote maxlength="160"></label></div>` : ''}</aside>`;
@@ -185,7 +208,7 @@ export function createGedBoard(el, ctx) {
       <div class="sd-actions"><button type="button" class="sg-link" data-a="ucancel">${esc(s('cancel'))}</button><button type="button" class="btn btn-primary" data-a="usave">${esc(s('save'))}</button></div></div></section>`;
   }
   function render() {
-    const D = docs();
+    const D = vis();
     el.innerHTML = `<p class="sd-intro">${esc(s('intro'))}</p><p class="gd-demo">${esc(s('demo'))}</p>
       ${kpis([{ v: String(D.length), l: s('kDocs') }, { v: String(D.filter((d) => d.status === 'wip').length), l: s('kWip'), tone: 'warn' }, { v: String(D.filter((d) => d.status === 'shared').length), l: s('kShared') }, { v: String(D.filter((d) => d.status === 'published').length), l: s('kPub'), tone: 'ok' }, { v: String(D.reduce((a, d) => a + d.versions.length, 0)), l: s('kVer') }])}
       <div class="pl-bar">${can('uploadDoc') ? `<button type="button" class="btn btn-primary" data-a="up">${esc(s('upload'))}</button>` : `<p class="bv-muted">${esc(s('noRight'))}</p>`}
@@ -253,10 +276,10 @@ export function createGedBoard(el, ctx) {
     }
   });
   return {
-    render, ensure: docs, label: (st) => s('st')[st], typeName: (t) => nm(TYPES[t]),
-    docsFor: (link) => docs().filter((d) => d.link === link).sort((a, b) => (last(a).date < last(b).date ? 1 : -1)),
-    models: (link) => docs().filter((d) => d.link === link && d.type === 'M3D').flatMap((d) => d.versions.filter((x) => x.file.kind !== 'demo').map((x) => ({ d, v: x }))),
-    openDoc(id) { const d = docs().find((x) => x.id === id); if (d) { sel = id; folder = ctx.projects().some((p) => p.id === d.link) ? d.link : 'assets'; phaseF = ''; render(); } },
+    render, ensure: docs, visible: vis, codeOf, revOf, label: (st) => stLabel(st), typeName: (t) => nm(TYPES[t]),
+    docsFor: (link) => vis().filter((d) => d.link === link).sort((a, b) => (last(a).date < last(b).date ? 1 : -1)),
+    models: (link) => vis().filter((d) => d.link === link && d.type === 'M3D').flatMap((d) => d.versions.filter((x) => x.file.kind !== 'demo').map((x) => ({ d, v: x }))),
+    openDoc(id) { const d = vis().find((x) => x.id === id); if (d) { sel = id; folder = ctx.projects().some((p) => p.id === d.link) ? d.link : 'assets'; phaseF = ''; render(); } },
     setTargets, targetsOf: tg,
     openFolder(id) { folder = id; phaseF = ''; sel = null; render(); },
     openVersion, urlOf, addDoc, clearFiles: () => idb.clear(),

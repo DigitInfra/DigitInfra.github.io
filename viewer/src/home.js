@@ -41,7 +41,7 @@ export function createHomeBoard(el, ctx) {
       .filter(({ c, m }) => re.test(m.text) || (c.author === me.id && c.status === 'open' && c.replies.length))
       .sort((a, b) => (a.m.when < b.m.when ? 1 : -1)).slice(0, 4);
     const P = ctx.projects();
-    const mine = role === 'entreprise' ? P.filter((p) => (st.tasks || []).some((t) => t.assignee === me.id && t.link === p.id)) : P;
+    const mine = role === 'entreprise' && !ctx.scoped ? P.filter((p) => (st.tasks || []).some((t) => t.assignee === me.id && t.link === p.id)) : P;
     const R = ctx.ranked();
     const openIssues = (p) => p.steps.reduce((a, x) => a + x.c.filter((c) => c.s === 'nc' || c.s === 'res').length, 0);
     const ready = (p) => { const x = p.steps[p.step]; return x && !x.v && x.d.every(Boolean) && x.c.every((c) => c.s === 'ok'); };
@@ -73,17 +73,17 @@ export function createHomeBoard(el, ctx) {
     } else if (role === 'audit') {
       const log = (st.log || []).slice(-4).reverse();
       watch = `<h5 class="pl-h5">${esc(W.journal)}</h5>${log.length ? `<ul class="hm-codes">${log.map((l) => `<li><span class="mono">${esc(l.when)}</span> · ${esc(l.code)} · ${esc(l.what.slice(0, 80))}</li>`).join('')}</ul>` : `<p class="bv-muted">${esc(W.none)}</p>`}`;
-    } else if (role === 'entreprise') {
+    } else if (role === 'entreprise' || role === 'bet') {
       watch = `<h5 class="pl-h5">${esc(W.nc)}</h5><p>${mine.reduce((a, p) => a + openIssues(p), 0)}</p>`;
     }
     const docs = ctx.docs().slice().sort((a, b) => (a.versions.at(-1).date < b.versions.at(-1).date ? 1 : -1)).filter((d) => role !== 'entreprise' || mine.some((p) => p.id === d.link)).slice(0, 4);
-    const docHtml = docs.length ? `<ul class="hm-list">${docs.map((d) => `<li><span class="hm-doc mono">${esc(d.type)}</span><div><button type="button" class="sg-link" data-doc="${d.id}">${esc(nm(d.title))}</button><small class="mono">${esc(d.code)} · ${esc(d.versions.at(-1).ver)} · ${esc(d.versions.at(-1).date)}</small></div></li>`).join('')}</ul>` : `<p class="bv-muted">${esc(s('noDoc'))}</p>`;
+    const docHtml = docs.length ? `<ul class="hm-list">${docs.map((d) => `<li><span class="hm-doc mono">${esc(d.type)}</span><div><button type="button" class="sg-link" data-doc="${d.id}">${esc(nm(d.title))}</button><small class="mono">${esc(ctx.codeOf ? ctx.codeOf(d) : d.code)} · ${esc(ctx.revOf ? ctx.revOf(d, d.versions.length - 1) : d.versions.at(-1).ver)} · ${esc(d.versions.at(-1).date)}</small></div></li>`).join('')}</ul>` : `<p class="bv-muted">${esc(s('noDoc'))}</p>`;
 
     const dateTxt = new Intl.DateTimeFormat(lang() === 'en' ? 'en-GB' : 'fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date());
     el.innerHTML = `<header class="hm-head"><h2>${esc(s('hello')(first))}</h2><p>${esc(me[lang()])} · ${esc(s('today')(dateTxt))}</p></header>
       <div class="hm-grid hm-strip">
         ${card(s('tasks'), taskHtml, ctx.allowed('collab') ? 'collab' : '')}
-        ${role === 'entreprise' ? card(s('watch'), watch || `<p class="bv-muted">${esc(W.none)}</p>`, '') : ''}
+        ${role === 'entreprise' || role === 'bet' ? card(s('watch'), watch || `<p class="bv-muted">${esc(W.none)}</p>`, '') : ''}
         ${card(s('projects'), projHtml, ctx.allowed('proj') ? 'proj' : '')}
         ${card(s('forYou'), msgHtml, ctx.allowed('collab') ? 'collab' : '')}
         ${card(s('docs'), docHtml, 'ged')}

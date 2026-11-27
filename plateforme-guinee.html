@@ -65,7 +65,7 @@
   const gl = document.getElementById('gl'), root = document.getElementById('app');
   let api = null, booting = null;
   const ss = { get: (k) => { try { return sessionStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { v == null ? sessionStorage.removeItem(k) : sessionStorage.setItem(k, v); } catch {} } };
-  function showLogin() { ss.set(KEY, null); root.hidden = true; gl.hidden = false; document.body.classList.remove('ga-on'); gl.querySelector('.gl-card').focus(); }
+  function showLogin() { ss.set(KEY, null); root.hidden = true; gl.hidden = false; document.body.classList.remove('ga-on'); (gl.querySelector('.gl-card') || gl.querySelector('#gl-prof')).focus(); }
   async function enter(user) {
     ss.set(KEY, user);
     gl.hidden = true; root.hidden = false; document.body.classList.add('ga-on');
@@ -84,7 +84,13 @@
       root.innerHTML = '<p class="bv-status">' + (document.documentElement.dataset.lang === 'en' ? 'The platform could not be loaded in this browser.' : 'La plateforme n’a pas pu être chargée dans ce navigateur.') + '</p>';
     }
   }
-  gl.addEventListener('click', (e) => { const c = e.target.closest('[data-user]'); if (c) enter(c.dataset.user); });
+  gl.addEventListener('click', (e) => { const c = e.target.closest('button[data-user]'); if (c) enter(c.dataset.user); });
+  const form = document.getElementById('gl-form');
+  if (form) {
+    const sel = document.getElementById('gl-prof'), idf = document.getElementById('gl-id');
+    sel.addEventListener('change', () => { idf.value = sel.selectedOptions[0].dataset.login || ''; });
+    form.addEventListener('submit', (e) => { e.preventDefault(); if (!sel.value) { sel.focus(); return; } enter(sel.value); });
+  }
   const saved = ss.get(KEY);
   if (saved) enter(saved); else import('./viewer/gin2co-sig.js').catch(() => {});
 </script>

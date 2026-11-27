@@ -42,8 +42,62 @@ export const RIGHTS = {
 
 const fresh = () => ({ v: 1, user: 'm1', edits: {}, added: [], log: [], projects: null, tasks: [], comments: [], activity: [], seq: 1 });
 
-export function createStore(zone) {
-  const KEY = `gin2co-demo-${zone}-v1`;
+/* Institutional profile set (co-branded demonstrator): 4 levels + project intervenants (ISO 19650 appointed parties).
+   perim: all = whole portfolio · grands = major projects whatever the owner · tp / agri = owner's perimeter · team = projects the member is invited to */
+export const LEVELS = {
+  1: { fr: 'Niveau 1 — Gouvernant', en: 'Level 1 — Government' },
+  2: { fr: 'Niveau 2 — Administrateurs', en: 'Level 2 — Administrators' },
+  3: { fr: 'Niveau 3 — Suivi et appui', en: 'Level 3 — Monitoring and support' },
+  4: { fr: 'Niveau 4 — Maître d’ouvrage', en: 'Level 4 — Asset owner' },
+  int: { fr: 'Intervenants des projets (parties désignées)', en: 'Project contributors (appointed parties)' },
+};
+export const MOA = { tp: { fr: 'Ministère des Travaux publics', en: 'Ministry of Public Works' }, agri: { fr: 'Ministère de l’Agriculture', en: 'Ministry of Agriculture' } };
+const GOUV = {
+  members: [
+    { id: 'm9', name: 'Alpha Kaba', role: 'gouv', level: 1, org: 'PRG', perim: 'all', fr: 'Présidence de la République — conseiller chargé des grands projets', en: 'Presidency — adviser for major projects' },
+    { id: 'm3', name: 'Mariama Bah', role: 'gouv', level: 1, org: 'PRIM', perim: 'all', fr: 'Primature — conseillère technique du Premier ministre', en: 'Prime Minister’s Office — technical adviser' },
+    { id: 'm10', name: 'Sékou Condé', role: 'gouv', level: 1, org: 'MPCID', perim: 'all', fr: 'Ministère du Plan, de la Coopération internationale et du Développement — programmation des investissements', en: 'Ministry of Planning, International Cooperation and Development — investment programming' },
+    { id: 'm11', name: 'Kadiatou Diallo', role: 'admin', level: 2, org: 'ONDRG', perim: 'all', fr: 'ONDRG — administratrice de la plateforme', en: 'ONDRG — platform administrator' },
+    { id: 'm8', name: 'DigitInfra', role: 'admin', level: 2, org: 'DI', perim: 'all', fr: 'DigitInfra — administration technique de la plateforme', en: 'DigitInfra — technical platform administration' },
+    { id: 'm4', name: 'Jean Haba', role: 'suivi', level: 3, org: 'ACGP', perim: 'grands', fr: 'ACGP — ingénieur chargé du suivi des grands projets', en: 'ACGP — major projects monitoring engineer' },
+    { id: 'm5', name: 'Aminata Touré', role: 'suivi', level: 3, org: 'BTAP', perim: 'grands', fr: 'BTAP — chargée du suivi et de l’appui', en: 'BTAP — monitoring and support officer' },
+    { id: 'm1', name: 'Fatoumata Camara', role: 'mo', level: 4, org: 'MTP', perim: 'tp', fr: 'Ministère des Travaux publics — directrice du patrimoine (MOA)', en: 'Ministry of Public Works — asset director (owner)' },
+    { id: 'm2', name: 'Ibrahima Sow', role: 'mo', level: 4, org: 'MTP', perim: 'tp', fr: 'Ministère des Travaux publics — BSD, ingénieur d’entretien', en: 'Ministry of Public Works — strategy office, maintenance engineer' },
+    { id: 'm12', name: 'Mamadou Sylla', role: 'mo', level: 4, org: 'MAG', perim: 'agri', fr: 'Ministère de l’Agriculture — BSD, chargé des pistes rurales', en: 'Ministry of Agriculture — strategy office, rural tracks' },
+    { id: 'm13', name: 'Bureau d’études (fictif)', role: 'bet', level: 'int', org: 'BET', perim: 'team', fr: 'Bureau d’études — conception et maquettes', en: 'Design consultant — design and models' },
+    { id: 'm6', name: 'Entreprise de travaux (fictive)', role: 'entreprise', level: 'int', org: 'ENT', perim: 'team', fr: 'Entreprise de travaux', en: 'Works contractor' },
+    { id: 'm7', name: 'Bureau de contrôle (fictif)', role: 'controle', level: 'int', org: 'BCT', perim: 'team', fr: 'Bureau de contrôle', en: 'Supervision engineer' },
+  ],
+  access: {
+    gouv: { spaces: ['home', 'map', 'assets', 'dash', 'proj', 'ged'], views: ['ministre', 'bailleur'] },
+    admin: { spaces: ['home', 'map', 'assets', 'dash', 'proj', 'collab', 'ged'], views: ['ministre', 'mo', 'tech', 'bailleur', 'audit'] },
+    suivi: { spaces: ['home', 'map', 'assets', 'proj', 'collab', 'ged'], views: ['tech', 'audit'] },
+    mo: { spaces: ['home', 'map', 'assets', 'dash', 'proj', 'collab', 'ged'], views: ['mo', 'tech'] },
+    bet: { spaces: ['home', 'map', 'assets', 'proj', 'collab', 'ged'], views: [] },
+    entreprise: { spaces: ['home', 'map', 'assets', 'proj', 'collab', 'ged'], views: [] },
+    controle: { spaces: ['home', 'map', 'assets', 'proj', 'collab', 'ged'], views: ['tech'] },
+  },
+  // ISO 19650: the owner (appointing party) accepts and publishes; contributors produce and share; administrators run the platform without approving content
+  rights: {
+    editAsset: ['mo'], addAsset: ['mo'], manageData: ['admin'], manageProject: ['mo'], validateStep: ['mo'],
+    checkQuality: ['mo', 'controle', 'suivi'], assignTask: ['mo', 'controle', 'bet'], uploadDoc: ['mo', 'bet', 'entreprise', 'controle'],
+    publishDoc: ['mo'], comment: ['mo', 'bet', 'entreprise', 'controle', 'suivi', 'admin'], flagGrand: ['admin'],
+  },
+};
+export let PROFILE_SET = 'default';
+/** Switches the shared member / access / rights tables to another profile set (modules keep their references). */
+export function useProfileSet(name) {
+  if (name !== 'gouv') return;
+  PROFILE_SET = 'gouv';
+  MEMBERS.splice(0, MEMBERS.length, ...GOUV.members);
+  for (const k of Object.keys(ACCESS)) delete ACCESS[k];
+  Object.assign(ACCESS, GOUV.access);
+  for (const k of Object.keys(RIGHTS)) delete RIGHTS[k];
+  Object.assign(RIGHTS, GOUV.rights);
+}
+
+export function createStore(zone, suffix = '') {
+  const KEY = `gin2co-demo-${zone}${suffix}-v1`;
   let st = fresh();
   let persistent = true;
   try { const raw = localStorage.getItem(KEY); if (raw) st = { ...fresh(), ...JSON.parse(raw) }; } catch { persistent = false; }

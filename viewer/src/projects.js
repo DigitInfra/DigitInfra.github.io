@@ -102,7 +102,14 @@ function seed(assets) {
     }),
     mk('P3', L('Renforcement de la section RN-03', 'Strengthening of road section RN-03'), ['RN-03'], '2025-12', 3, (s) => { s.d = [true, false, false, false]; }),
     mk('P4', L('Aménagement de la piste PR-07', 'Upgrading of rural track PR-07'), ['PR-07'], '2026-09', 0, (s) => { s.d = [true, true, false, false]; s.c[0] = { s: 'ok', note: '' }; }),
-  ].map((p) => { if (p.id === 'P1') p.pct = 60; return p; });
+  ].map((p) => { if (p.id === 'P1') p.pct = 60; return withMeta(p); });
+}
+// project owner (MOA sector), « grand projet » flag and invited project team (appointed parties)
+const META = { P1: { moa: 'tp', grand: true, team: ['m13', 'm6', 'm7'] }, P2: { moa: 'tp', grand: false, team: ['m13', 'm7'] }, P3: { moa: 'tp', grand: true, team: ['m13'] }, P4: { moa: 'agri', grand: false, team: ['m13'] } };
+export const moaOfCodes = (codes) => (codes.every((c) => c.startsWith('PR')) ? 'agri' : 'tp');
+function withMeta(p) {
+  if (!p.moa) Object.assign(p, META[p.id] || { moa: moaOfCodes(p.codes), grand: false, team: [] });
+  return p;
 }
 
 export function createProjectBoard(el, ctx) {
@@ -110,7 +117,8 @@ export function createProjectBoard(el, ctx) {
   const s = (k) => S[lang()][k];
   const nm = (o) => o[lang()];
   let sel = null, viewStep = null, creating = false, tab = 'summary';
-  const projects = () => { if (!store.state.projects) store.state.projects = seed(ctx.assets()); return store.state.projects; };
+  const projects = () => { if (!store.state.projects) store.state.projects = seed(ctx.allAssets ? ctx.allAssets() : ctx.assets()); store.state.projects.forEach(withMeta); return store.state.projects; };
+  const vis = () => projects().filter((p) => (ctx.seeProject ? ctx.seeProject(p) : true));
   const amountOf = (p) => p.codes.reduce((acc, c) => acc + ((ctx.assets().find((a) => a.code === c) || {}).cout || 0), 0);
   const checksOf = (p, i) => STEPS[i].checks || worksChecks(p.codes.map((c) => (ctx.assets().find((a) => a.code === c) || {}).type).filter(Boolean));
   const openIssues = (p) => p.steps.reduce((acc, st) => acc + st.c.filter((c) => c.s === 'nc' || c.s === 'res').length, 0);
@@ -135,7 +143,7 @@ export function createProjectBoard(el, ctx) {
   }
 
   function portfolio() {
-    const P = projects();
+    const P = vis();
     const counts = STEPS.map((st, i) => P.filter((p) => p.step === i && !p.steps[i]?.v).length);
     const closed = P.filter((p) => validatedCount(p) === STEPS.length).length;
     const seqCol = ['#C9D7EF', '#A9BFE6', '#86A3DA', '#6286CC', '#3B5FC0', '#2D4A99', '#1F3570'];
@@ -153,7 +161,7 @@ export function createProjectBoard(el, ctx) {
   }
 
   function list() {
-    return `<div class="pj-list">${projects().map((p) => `<article class="pj-card${sel === p.id ? ' is-sel' : ''}">
+    return `<div class="pj-list">${vis().map((p) => `<article class="pj-card${sel === p.id ? ' is-sel' : ''}">
       <header><b class="mono">${esc(p.id)}</b> <span>${esc(nm(p.name))}</span><button type="button" class="sg-link" data-open="${p.id}">${esc(s('open'))}</button></header>
       ${stepper(p, false)}
       <p class="pj-meta">${esc(s('assetsL'))} : ${p.codes.map((c) => `<button type="button" class="sg-link mono" data-go="${esc(c)}">${esc(c)}</button>`).join(' ')} · ${esc(s('amount'))} : <span class="mono">${esc(money(amountOf(p)))}</span>${openIssues(p) ? ` · <span class="pj-warn">${openIssues(p)} ${esc(s('st').nc.toLowerCase())} / ${esc(s('st').res.toLowerCase())}</span>` : ''}</p>
@@ -213,7 +221,7 @@ export function createProjectBoard(el, ctx) {
     const cur = Math.min(p.step, STEPS.length - 1);
     return `<div class="ps">
       <header class="ps-head"><button type="button" class="sg-link" data-ps-back>${esc(space.label('back'))}</button>
-        <div class="ps-title"><span class="ps-id mono">${esc(p.id)}</span><h2>${esc(nm(p.name))}</h2></div>
+        <div class="ps-title"><span class="ps-id mono">${esc(p.id)}</span><h2>${esc(nm(p.name))}</h2>${ctx.moaLabel ? `<span class="ps-moa">${esc(lang() === 'en' ? 'Owner' : 'MOA')} : ${esc(ctx.moaLabel(p.moa))}</span>${p.grand ? `<span class="ps-grand">${esc(lang() === 'en' ? 'Major project' : 'Grand projet')}</span>` : ''}${store.can('flagGrand') ? `<button type="button" class="sg-link" data-flag-grand>${esc(p.grand ? (lang() === 'en' ? 'Remove the major project flag' : 'Retirer de la liste des grands projets') : (lang() === 'en' ? 'Flag as major project' : 'Classer en grand projet'))}</button>` : ''}` : ''}</div>
         <p class="ps-meta">${esc(s('assetsL'))} : ${p.codes.map((c) => `<button type="button" class="sg-link mono" data-go="${esc(c)}">${esc(c)}</button>`).join(' ')} · ${esc(s('step'))} ${cur + 1}/${STEPS.length} — ${esc(nm(STEPS[cur].n))} · ${esc(s('amount'))} <span class="mono">${esc(money(amountOf(p)))}</span>
           · <button type="button" class="sg-link" data-ps-map>${esc(space.label('onMap'))}</button></p>
         ${stepper(p, false)}</header>
@@ -223,7 +231,7 @@ export function createProjectBoard(el, ctx) {
 
   function render() {
     projects();
-    const p = sel && projects().find((x) => x.id === sel);
+    const p = sel && vis().find((x) => x.id === sel);
     if (p) { el.innerHTML = workspace(p); space.after(el, p, tab); return; }
     space.leave();
     el.innerHTML = `${userStrip(store, lang, esc, ['manageProject', 'validateStep', 'checkQuality'])}
@@ -241,6 +249,7 @@ export function createProjectBoard(el, ctx) {
     if (op) { sel = op.dataset.open; viewStep = null; tab = 'summary'; render(); el.scrollIntoView?.({ block: 'start' }); return; }
     if (e.target.closest('[data-ps-back]')) { sel = null; render(); return; }
     if (e.target.closest('[data-ps-map]')) { ctx.focusProject(sel); return; }
+    if (e.target.closest('[data-flag-grand]')) { const p = projects().find((x) => x.id === sel); p.grand = !p.grand; hist(p, p.grand ? (lang() === 'en' ? 'Flagged as major project' : 'Classé en grand projet') : (lang() === 'en' ? 'Major project flag removed' : 'Retiré des grands projets')); commit(); return; }
     const tb = e.target.closest('[data-ps-tab]'); if (tb) { tab = tb.dataset.psTab; render(); return; }
     const cp = sel && projects().find((x) => x.id === sel);
     if (cp && space.onClick(e, cp, el, rerender)) return;
@@ -264,7 +273,7 @@ export function createProjectBoard(el, ctx) {
       if (!name || !codes.length) { el.querySelector('[data-perr]').textContent = s('errP'); return; }
       const types = codes.map((c) => ctx.assets().find((a) => a.code === c).type);
       const id = `P${projects().length + 1}`;
-      const p = { id, name: { fr: name, en: name }, codes, start, step: 0, pct: 0, steps: blankSteps(types), hist: [] };
+      const p = { id, name: { fr: name, en: name }, codes, start, step: 0, pct: 0, steps: blankSteps(types), hist: [], moa: ctx.myPerim && ['tp', 'agri'].includes(ctx.myPerim()) ? ctx.myPerim() : moaOfCodes(codes), grand: false, team: [] };
       projects().push(p); hist(p, s('logNew')(name));
       creating = false; sel = id; viewStep = 0; tab = 'summary'; commit();
     }
@@ -288,7 +297,7 @@ export function createProjectBoard(el, ctx) {
   });
   el.addEventListener('input', (e) => { if (e.target.hasAttribute('data-pct')) e.target.nextElementSibling.textContent = `${e.target.value} %`; });
   return {
-    render, ensure: projects, leave: () => space.leave(),
+    render, ensure: vis, all: projects, leave: () => space.leave(),
     open(id, t = 'summary', ver = null) { sel = id; viewStep = null; tab = SPACE_TABS.includes(t) ? t : 'summary'; if (ver) space.setVersion(ver); render(); },
   };
 }

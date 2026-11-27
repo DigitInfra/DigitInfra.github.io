@@ -76,6 +76,7 @@ export function createCollabBoard(el, ctx) {
   let view = 'tasks', mine = false, taskForm = null, threadForm = null, tFilter = { type: '', link: '', status: 'open' };
   const mem = (id) => MEMBERS.find((m) => m.id === id) || { name: id, fr: '', en: '' };
   const today = () => new Date().toISOString().slice(0, 10);
+  const ok = (x) => (ctx.seeLink ? ctx.seeLink(x.link) : true); // perimeter of the signed-in profile
   const st = () => {
     if (!store.state.collabSeeded) { const sd = seed(); store.state.tasks = sd.tasks.concat(store.state.tasks || []); store.state.comments = sd.comments.concat(store.state.comments || []); store.state.collabSeeded = true; }
     return store.state;
@@ -100,7 +101,7 @@ export function createCollabBoard(el, ctx) {
   const commit = () => store.commit('collab');
 
   function header() {
-    const T = st().tasks, C = st().comments, me = store.me().id;
+    const T = st().tasks.filter(ok), C = st().comments.filter(ok), me = store.me().id;
     const open = T.filter((t) => t.status !== 'done');
     return `${userStrip(store, lang, esc, ['assignTask', 'comment'])}<p class="sd-intro">${esc(s('intro'))}</p>
       ${kpis([
@@ -115,7 +116,7 @@ export function createCollabBoard(el, ctx) {
 
   function tasksView() {
     const me = store.me().id;
-    const T = st().tasks.filter((t) => !mine || t.assignee === me);
+    const T = st().tasks.filter(ok).filter((t) => !mine || t.assignee === me);
     const canAssign = store.can('assignTask');
     const form = taskForm ? `<section class="pl-form"><h4 class="bv-h">${esc(s('newTask').replace('+ ', ''))}</h4><div class="pl-fields">
       <label class="sd-f"><span class="bv-l">${esc(s('title'))}</span><input type="text" data-tf="title" value="${esc(taskForm.title || '')}" maxlength="120"></label>
@@ -144,9 +145,9 @@ export function createCollabBoard(el, ctx) {
   }
 
   function talkView() {
-    const C = st().comments.filter((c) => (!tFilter.type || c.type === tFilter.type) && (!tFilter.link || c.link === tFilter.link) && (tFilter.status !== 'open' || c.status === 'open'));
+    const C = st().comments.filter(ok).filter((c) => (!tFilter.type || c.type === tFilter.type) && (!tFilter.link || c.link === tFilter.link) && (tFilter.status !== 'open' || c.status === 'open'));
     const me = store.me().id; const canC = store.can('comment');
-    const links = [...new Set(st().comments.map((c) => c.link).filter(Boolean))];
+    const links = [...new Set(st().comments.filter(ok).map((c) => c.link).filter(Boolean))];
     const form = threadForm ? `<section class="pl-form"><h4 class="bv-h">${esc(s('newThread').replace('+ ', ''))}</h4><div class="pl-fields">
       <label class="sd-f"><span class="bv-l">${esc(s('type'))}</span><select data-hf="type">${Object.entries(s('types')).map(([k, v]) => `<option value="${k}"${(threadForm.type || 'comment') === k ? ' selected' : ''}>${esc(v)}</option>`).join('')}</select></label>
       <label class="sd-f"><span class="bv-l">${esc(s('link'))}</span><select data-hf="link">${linkOptions(threadForm.link || '')}</select></label>
@@ -175,8 +176,8 @@ export function createCollabBoard(el, ctx) {
     const firstName = me.name.split(' ')[0];
     const events = [
       ...st().activity.map((a) => ({ when: a.when, who: a.who, what: a.what, link: a.code })),
-      ...st().comments.flatMap((c) => [{ when: c.when, who: c.author, what: `${s('types')[c.type]} : ${c.text}`, link: c.link }, ...c.replies.map((r) => ({ when: r.when, who: r.author, what: `${s('reply')} : ${r.text}`, link: c.link }))]),
-      ...st().tasks.map((t) => ({ when: t.created, who: t.creator, what: s('logTask')(t.title), link: t.link, to: t.assignee })),
+      ...st().comments.filter(ok).flatMap((c) => [{ when: c.when, who: c.author, what: `${s('types')[c.type]} : ${c.text}`, link: c.link }, ...c.replies.map((r) => ({ when: r.when, who: r.author, what: `${s('reply')} : ${r.text}`, link: c.link }))]),
+      ...st().tasks.filter(ok).map((t) => ({ when: t.created, who: t.creator, what: s('logTask')(t.title), link: t.link, to: t.assignee })),
     ].filter((e) => e.when).sort((x, y) => (x.when < y.when ? 1 : -1));
     const seen = new Set(); const uniq = events.filter((e) => { const k = `${e.when}|${e.who}|${e.what}`; if (seen.has(k)) return false; seen.add(k); return true; });
     const forMe = uniq.filter((e) => e.to === me.id || new RegExp(`@${firstName}\\b`, 'i').test(e.what)).slice(0, 6);

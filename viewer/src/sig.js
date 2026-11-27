@@ -1,7 +1,7 @@
 // GIN²CO — GIS decision-support demo (Leaflet + OpenStreetMap basemap, fictitious asset data)
 import L from 'leaflet';
 import { createAssistant } from './assistant.js';
-import { createStore, MEMBERS, ACCESS } from './store.js';
+import { createStore, MEMBERS, ACCESS, useProfileSet, MOA } from './store.js';
 import { impactGN, throughFrom } from './impact_gn.js';
 
 /* ------------------------------------------------------------------ i18n */
@@ -135,13 +135,52 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
   const flowGeom = (f, a) => (f.id != null && FP[f.id] ? FP[f.id] : { ...f, path: [f.from, [a.lat, a.lon], f.to] });
   root.classList.add('bv-ready');
   root.innerHTML = '';
+  const GOUVSET = !!(app && app.profileSet === 'gouv');
+  if (GOUVSET) useProfileSet('gouv');
   const ui = buildUI(root, Z.platform || [], app);
 
   const A = [];
   const ORIG = data.assets.map((a) => JSON.parse(JSON.stringify(a)));
   const NOTE_ETAT = { 1: 'Bon', 2: 'Moyen', 3: 'Dégradé', 4: 'Critique' };
   const GN = data.meta?.zone === 'gn';
-  const store = (Z.platform || []).length ? createStore(data.meta?.zone || 'bj') : null;
+  const store = (Z.platform || []).length ? createStore(data.meta?.zone || 'bj', GOUVSET ? '-gouv' : '') : null;
+  /* --- perimeters and ISO 19650 visibility (institutional profile set only) */
+  const ALL = [];
+  const meP = () => (store ? store.me() : null);
+  const assetMoa = (a) => a.moa || ((a.code || '').startsWith('PR') ? 'agri' : 'tp');
+  const projList = () => (store && store.state.projects) || [];
+  const seeProject = (p) => {
+    const m = meP(); if (!GOUVSET || !m) return true;
+    if (m.perim === 'all') return true;
+    if (m.perim === 'grands') return !!p.grand;
+    if (m.perim === 'team') return (p.team || []).includes(m.id);
+    return p.moa === m.perim;
+  };
+  const seeAssetObj = (a) => {
+    const m = meP(); if (!GOUVSET || !m) return true;
+    if (m.perim === 'all' || m.perim === 'grands') return true;
+    if (m.perim === 'team') return projList().some((p) => seeProject(p) && p.codes.includes(a.code));
+    return assetMoa(a) === m.perim;
+  };
+  const seeLink = (l) => {
+    if (!GOUVSET || !l) return true;
+    const p = projList().find((x) => x.id === l); if (p) return seeProject(p);
+    const a = ALL.find((x) => x.code === l); return a ? seeAssetObj(a) : true;
+  };
+  const orgOf = (name) => (MEMBERS.find((m) => m.name === name) || {}).org || '';
+  // ISO 19650 CDE: work in progress stays in the author's team, shared goes to the project team, published / archived to every authorised profile
+  const seeDoc = (d) => {
+    if (!GOUVSET) return true;
+    const m = meP(); if (!m || !seeLink(d.link)) return false;
+    if (d.status === 'published' || d.status === 'archived') return true;
+    if (d.status === 'wip') return orgOf(d.versions[0].author) === m.org;
+    const p = projList().find((x) => x.id === d.link);
+    if (m.level === 2) return true;
+    if (m.level === 1) return false;
+    if (m.level === 3) return !!(p && p.grand);
+    if (m.level === 4) return p ? p.moa === m.perim : true;
+    return p ? (p.team || []).includes(m.id) : false;
+  };
   if (store && app && app.user) store.state.user = app.user;
   const R_E = 6371000;
   const dist = (p, q) => { const dl = (q.lat - p.lat) * Math.PI / 180, dn = (q.lon - p.lon) * Math.PI / 180 * Math.cos(p.lat * Math.PI / 180); return R_E * Math.hypot(dl, dn); };
@@ -203,6 +242,8 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
       A.push(a);
     }
     if (store) for (const d of store.state.added) A.push(makeAdded(d));
+    ALL.length = 0; ALL.push(...A);
+    if (GOUVSET) { const keep = A.filter(seeAssetObj); A.length = 0; A.push(...keep); }
     const max = {
       pop: Math.max(1, ...A.map((a) => a.pop)), tmja: Math.max(1, ...A.map((a) => a.tmja || 0)),
       equip: Math.max(1, ...A.map((a) => a.equip)), fin: Math.max(1e-9, ...A.map((a) => Math.log1p(a.inaction / a.cout))),
@@ -858,6 +899,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
     },
     proj: async () => { await Promise.all([getBoard('ged'), loadCatalog()]); return (await import('./projects.js')).createProjectBoard(ui.body_proj, {
       lang, esc, fmt, money, store, tv, pct, assets: () => A, ranked: () => ranked, focus: focusMap, modelsBase,
+      allAssets: () => ALL, seeProject, myPerim: () => meP()?.perim, moaLabel: GOUVSET ? (k) => (MOA[k] || {})[lang()] || k : null,
       ged: () => boards.ged || null, focusProject: (id) => focusProject(id),
       openDoc: (id) => showTab('ged').then((b) => b && b.openDoc(id)),
       mount3d: async (host, a, url, opts = {}) => {
@@ -879,7 +921,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
       const proj = await getBoard('proj');
       const b = (await import('./collab.js')).createCollabBoard(ui.body_collab, {
         lang, esc, store, tv, assets: () => A, projects: () => (proj ? proj.ensure() : []), focus: focusMap,
-        openProject: (id) => openProjectSpace(id),
+        openProject: (id) => openProjectSpace(id), seeLink,
       });
       collabRef = b;
       return b;
@@ -889,7 +931,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
       const projList = () => (boards.proj ? boards.proj.ensure() : (store.state.projects || []));
       return (await import('./ged.js')).createGedBoard(ui.body_ged, {
         lang, esc, store, tv, modelsBase, assets: () => A, projects: projList,
-        openProject: (id) => openProjectSpace(id), catalog: () => catalog,
+        openProject: (id) => openProjectSpace(id), catalog: () => catalog, seeDoc, iso: GOUVSET, orgOf,
         open3d: (d, vv, url) => {
           const p = projList().find((x) => x.id === d.link);
           const a = A.find((x) => x.code === (p ? p.codes[0] : d.link));
@@ -901,8 +943,8 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
       const [proj, collab, ged] = await Promise.all([getBoard('proj'), getBoard('collab'), getBoard('ged')]);
       if (collab) collab.count('');
       return (await import('./home.js')).createHomeBoard(ui.body_home, {
-        lang, esc, store, tv, money, pct, ranked: () => ranked, allowed,
-        projects: () => (proj ? proj.ensure() : []), docs: () => (ged ? ged.ensure() : []),
+        lang, esc, store, tv, money, pct, ranked: () => ranked, allowed, scoped: GOUVSET,
+        projects: () => (proj ? proj.ensure() : []), docs: () => (ged ? ged.visible() : []), codeOf: (d) => (ged ? ged.codeOf(d) : d.code), revOf: (d, i) => (ged ? ged.revOf(d, i) : d.versions[i].ver),
         go: (k) => showTab(k), focus: focusMap,
         openProject: (id) => openProjectSpace(id),
         openDoc: (id) => showTab('ged').then((b) => b && b.openDoc(id)),
@@ -918,7 +960,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
   }
   if (store) {
     store.subscribe((what) => {
-      if (what !== 'user') {
+      if (what !== 'user' || GOUVSET) {
         map.closePopup(); // before rebuild: the close handler redraws markers from the current ranking
         rebuild();
         for (const [code, m] of markers) if (!A.some((a) => a.code === code)) { m.remove(); markers.delete(code); }
@@ -1108,6 +1150,7 @@ export async function mount(root, { dataUrl, viewerUrl, wasmPath, modelsBase, ap
   update();
   renderShell();
   if (app) { applyAccess(); land(); drawProjects(); }
+  if (GOUVSET && store) getBoard('proj').then((b) => { if (b) { b.all(); store.commit('projects'); } }); // perimeters need the projects
   return {
     map, state, assets: A, assistant, showTab, land,
     setUser: (id) => { if (store) { store.setUser(id); land(); } }, open3d: (code) => open3d(A.find((x) => x.code === code)), get overlay() { return overlay; } };
@@ -1172,7 +1215,7 @@ function buildAppUI(root, keys, app = {}) {
       <div class="ga-items" role="tablist" aria-orientation="vertical">${keys.filter((k) => !['dash', 'prof', 'assets'].includes(k)).map((k, i) => `
         <button type="button" class="ga-item${i ? '' : ' is-on'}" role="tab" id="sg-tab-${k}" aria-controls="sg-pane-${k}" aria-selected="${i === 0}"${i ? ' tabindex="-1"' : ''} data-tab="${k}" data-nav="${k === 'map' ? 'navPat' : NAV_LAB[k]}">${ICONS[k === 'map' ? 'assets' : k]}<span></span></button>`).join('')}
       </div>
-      <div class="ga-foot">${co ? `<a class="ga-maker" href="${site}index.html" target="_blank" rel="noopener"><small><span data-fr-only>${co.creator.fr}</span><span data-en-only>${co.creator.en}</span></small><img src="${co.creator.dark}" alt="DigitInfra"></a>` : `<a href="${site}ginco-benin.html" data-r="zoneLink"></a>`}<a href="${site}ginco.html" data-r="siteLink"${co ? ' target="_blank" rel="noopener"' : ''}></a></div>
+      <div class="ga-foot">${co ? `<a class="ga-maker" href="${site}index.html" target="_blank" rel="noopener"><small><span data-fr-only>${co.creator.fr}</span><span data-en-only>${co.creator.en}</span></small>${co.creator.dark ? `<img src="${co.creator.dark}" alt="DigitInfra">` : '<b class="ga-maker-name">DigitInfra</b>'}</a>` : `<a href="${site}ginco-benin.html" data-r="zoneLink"></a>`}<a href="${site}ginco.html" data-r="siteLink"${co ? ' target="_blank" rel="noopener"' : ''}></a></div>
     </nav>
     <header class="ga-top">
       <div class="ga-title"><b>GIN²CO</b><span data-fr-only>Guinée — routes et flux agricoles</span><span data-en-only>Guinea — roads and farm flows</span></div>

@@ -115,7 +115,7 @@ export function createSpace(ctx, h) {
       <section class="hm-card"><header><h4 class="bv-h">${esc(s('assetsH'))}</h4></header>
         <ul class="hm-codes">${p.codes.map((c) => { const a = ctx.assets().find((x) => x.code === c); return a ? `<li><button type="button" class="sg-link mono" data-ps-asset="${esc(c)}">${esc(c)}</button> ${esc(tv(a.type))} · ${esc(tv(a.etat))} · ${esc(money(a.cout))}</li>` : ''; }).join('')}</ul></section>
       <section class="hm-card"><header><h4 class="bv-h">${esc(s('lastDocs'))}</h4><button type="button" class="sg-link" data-ps-tab="docs">${esc(s('seeAll'))}</button></header>
-        ${D.length ? `<ul class="hm-list">${D.slice(0, 4).map((d) => `<li><span class="hm-doc mono">${esc(d.type)}</span><div><button type="button" class="sg-link" data-ps-open="${esc(d.id)}">${esc(nm(d.title))}</button><small class="mono">${esc(d.code)} · ${esc(d.versions.at(-1).ver)} · ${esc(d.versions.at(-1).date)}</small></div></li>`).join('')}</ul>` : `<p class="bv-muted">${esc(s('noDocs'))}</p>`}</section>
+        ${D.length ? `<ul class="hm-list">${D.slice(0, 4).map((d) => `<li><span class="hm-doc mono">${esc(d.type)}</span><div><button type="button" class="sg-link" data-ps-open="${esc(d.id)}">${esc(nm(d.title))}</button><small class="mono">${esc(ged().codeOf(d))} · ${esc(ged().revOf(d, d.versions.length - 1))} · ${esc(d.versions.at(-1).date)}</small></div></li>`).join('')}</ul>` : `<p class="bv-muted">${esc(s('noDocs'))}</p>`}</section>
     </div>`;
   }
 
@@ -136,7 +136,7 @@ export function createSpace(ctx, h) {
     const c = C(); if (!c || !c.elIndex.has(code)) return '';
     const { direct, above } = docsAt(p, code);
     const part = c.parentOf(code), asset = c.assetOf(code);
-    const li = (d, why) => `<li><button type="button" class="sg-link" data-ps-open="${esc(d.id)}">${esc(nm(d.title))}</button><small class="mono">${esc(d.code)} · ${esc(d.versions.at(-1).ver)}${why ? ` · ${esc(why)}` : ''}</small></li>`;
+    const li = (d, why) => `<li><button type="button" class="sg-link" data-ps-open="${esc(d.id)}">${esc(nm(d.title))}</button><small class="mono">${esc(ged().codeOf(d))} · ${esc(ged().revOf(d, d.versions.length - 1))}${why ? ` · ${esc(why)}` : ''}</small></li>`;
     const via = (d) => (tg(d).includes(part) ? c.partName(part.split('#')[1], lang()) : asset);
     return `<div class="ps-eldocs"><h4 class="bv-h">${esc(s('elDocs'))} (${direct.length + above.length})</h4>
       ${direct.length + above.length ? `<ul>${direct.map((d) => li(d, '')).join('')}${above.map((d) => li(d, `${s('via')} ${via(d)}`)).join('')}</ul>` : `<p class="bv-muted">${esc(s('noElDocs'))}</p>`}
@@ -174,7 +174,7 @@ export function createSpace(ctx, h) {
     const t = tg(d);
     const can3d = c && t.some((x) => c.expand(x).length);
     const chips = t.length ? t.map((x) => `<button type="button" class="gd-chip" data-ps-node="${esc(x)}">${esc(c ? c.label(x, lang()) : x)}</button>`).join(' ') : `<span class="gd-chip gd-gen">${esc(s('gen'))}</span>`;
-    return `<tr${editDoc === d.id ? ' class="pl-cur"' : ''}><td class="mono">${esc(d.code)}</td><td class="pf-wrap">${esc(nm(d.title))}<div class="gd-chips">${chips}</div></td>${mode === 'phase' ? `<td>${esc(g.typeName(d.type))}</td>` : ''}<td class="mono">${esc(lv.ver)}</td>
+    return `<tr${editDoc === d.id ? ' class="pl-cur"' : ''}><td class="mono">${esc(g.codeOf(d))}</td><td class="pf-wrap">${esc(nm(d.title))}<div class="gd-chips">${chips}</div></td>${mode === 'phase' ? `<td>${esc(g.typeName(d.type))}</td>` : ''}<td class="mono">${esc(g.revOf(d, d.versions.length - 1))}</td>
       <td><span class="bv-badge" style="--c:${ST_C[d.status]}">${esc(g.label(d.status))}</span></td>${mode === 'phase' ? '' : `<td>${esc(nm((h.STEPS.find((x) => x.k === d.phase) || {}).n))}</td>`}
       <td class="ps-acts">${is3d ? `<button type="button" class="sg-link" data-ps-tab3d="${esc(d.id)}:${esc(lv.ver)}">${esc(s('model'))}</button>` : `<button type="button" class="sg-link" data-ps-open="${esc(d.id)}">${esc(s('open'))}</button>`}
         ${can3d ? `<button type="button" class="sg-link" data-ps-hl="${esc(d.id)}">${esc(s('see3d2'))}</button>` : ''}
