@@ -1109,3 +1109,11 @@ button.gd-chip{cursor:pointer;} button.gd-chip:hover{background:#DCE6F7;}
 @media (max-width: 860px){ .gl-box{max-width:100%; min-width:0;} }
 .gl-maker .gl-maker-name{display:inline; background:none; padding:0; border-radius:0; color:#fff; font-weight:700; text-decoration:none;}
 .gl-maker .gl-maker-name:hover{text-decoration:underline;}
+/* login layout: ONDRG logo aligned with the top of the header, language buttons under it, centred form */
+.gl-head-co{align-items:flex-start;}
+.gl-head-co .gl-head-r{flex-direction:column-reverse; align-items:flex-end; gap:10px;}
+.gl-head-co ~ h1{text-align:center;}
+.gl-head-co ~ .gl-form{margin-left:auto; margin-right:auto;}
+.gl-head-co ~ .gl-form .gl-submit{align-self:center;}
+.gl-head-co ~ .gl-conote{max-width:440px; margin-left:auto; margin-right:auto;}
+@media (max-width: 860px){ .gl-head-co .gl-head-r{margin-left:auto;} }
