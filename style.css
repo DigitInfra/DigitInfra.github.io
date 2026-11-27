@@ -1099,3 +1099,11 @@ button.gd-chip{cursor:pointer;} button.gd-chip:hover{background:#DCE6F7;}
 .gl-submit{background:var(--teal); color:#0D2B5C; border:none; border-radius:10px; font-weight:700; cursor:pointer;}
 .gl-submit:hover{filter:brightness(1.08);}
 .gl-form{margin-top:4px;}
+/* ministry seal larger, centred under « République de Guinée » */
+.gl-rep{align-items:center; text-align:center;}
+.gl-seal{height:116px; width:116px; margin-top:8px; padding:3px;}
+@media (max-width: 860px){ .gl-seal{height:76px; width:76px;} }
+@media (max-width: 860px){ .gl-head-co{flex-wrap:wrap; row-gap:12px;} .gl-head-co .gl-head-r{margin-left:auto; flex-wrap:wrap; justify-content:flex-end;} .gl-head-co .gl-co{max-width:100%;} }
+.gl-head-co ~ .gl-form, .gl-form{width:100%;}
+.gl-f select, .gl-f input{width:100%; min-width:0; max-width:100%; text-overflow:ellipsis;}
+@media (max-width: 860px){ .gl-box{max-width:100%; min-width:0;} }
